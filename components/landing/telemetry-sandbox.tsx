@@ -485,12 +485,12 @@ export const TelemetrySandbox: React.FC = () => {
         {/* 右视窗：SolaFlow Neural Engine 实时遥测分析视窗 (7 栏宽) */}
         <div
           ref={rightPaneRef}
-          className="lg:col-span-7 p-6 bg-white flex flex-col justify-between"
+          className="lg:col-span-7 p-7 sm:p-8 bg-white flex flex-col justify-between"
         >
           <div>
-            <div className="flex items-center justify-between pb-3.5 border-b border-zinc-200 mb-5">
-              <div className="flex items-center gap-2">
-                <div className="p-1 rounded bg-zinc-900 text-emerald-400">
+            <div className="flex items-center justify-between pb-4 border-b border-zinc-200/80 mb-6">
+              <div className="flex items-center gap-2.5">
+                <div className="p-1.5 rounded-lg bg-zinc-900 text-emerald-400">
                   <Terminal className="w-3.5 h-3.5" />
                 </div>
                 <span className="text-xs font-mono uppercase tracking-wider font-bold text-zinc-900">
@@ -507,77 +507,77 @@ export const TelemetrySandbox: React.FC = () => {
             </div>
 
             {/* 遥测多维度卡片 */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 mb-5">
-              <div className="p-3.5 rounded-lg border border-zinc-200 bg-zinc-50/60">
-                <div className="text-[10px] font-mono text-zinc-500 uppercase mb-1 flex items-center justify-between">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 mb-6">
+              <div className="p-4 rounded-xl border border-zinc-200/80 bg-zinc-50/50">
+                <div className="text-[10px] font-mono text-zinc-500 uppercase mb-1.5 flex items-center justify-between">
                   <span>多语言与方言分类</span>
-                  <span className="px-1.5 py-0.2 rounded text-[9px] font-bold bg-indigo-50 text-indigo-600 border border-indigo-200">
+                  <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-indigo-50 text-indigo-600 border border-indigo-200/60">
                     {scenario.languageCode}
                   </span>
                 </div>
                 <div className="text-xs font-mono font-bold text-zinc-900">
                   {scenario.language}
                 </div>
-                <div className="text-[10px] text-zinc-500 mt-0.5">
+                <div className="text-[11px] text-zinc-500 mt-1">
                   {scenario.dialectName}
                 </div>
               </div>
 
-              <div className="p-3.5 rounded-lg border border-zinc-200 bg-zinc-50/60">
-                <div className="text-[10px] font-mono text-zinc-500 uppercase mb-1">
+              <div className="p-4 rounded-xl border border-zinc-200/80 bg-zinc-50/50">
+                <div className="text-[10px] font-mono text-zinc-500 uppercase mb-1.5">
                   识别意图分类 (Classified Intent)
                 </div>
                 <div className="text-xs font-mono font-bold text-indigo-700 truncate">
                   {currentIntent}
                 </div>
-                <div className="text-[10px] text-zinc-500 mt-0.5">
+                <div className="text-[11px] text-zinc-500 mt-1">
                   置信度 99.8% · 零样本泛化
                 </div>
               </div>
 
-              <div className="p-3.5 rounded-lg border border-zinc-200 bg-zinc-50/60">
-                <div className="text-[10px] font-mono text-zinc-500 uppercase mb-1">
+              <div className="p-4 rounded-xl border border-zinc-200/80 bg-zinc-50/50">
+                <div className="text-[10px] font-mono text-zinc-500 uppercase mb-1.5">
                   COD 拒签风险评分
                 </div>
                 <div className="flex items-center gap-2">
                   <span
                     className={clsx(
-                      "text-sm font-mono font-bold",
+                      "text-base font-mono font-bold",
                       currentRiskScore > 50 ? "text-rose-600" : "text-emerald-600"
                     )}
                   >
                     {currentRiskScore} / 100
                   </span>
-                  <span className="text-[10px] font-mono text-zinc-500">
+                  <span className="text-[11px] font-mono text-zinc-500">
                     {currentRiskScore > 50 ? "(高危拦截建议)" : "(极低拒签风险)"}
                   </span>
                 </div>
               </div>
 
-              <div className="p-3.5 rounded-lg border border-zinc-200 bg-zinc-50/60">
-                <div className="text-[10px] font-mono text-zinc-500 uppercase mb-1">
+              <div className="p-4 rounded-xl border border-zinc-200/80 bg-zinc-50/50">
+                <div className="text-[10px] font-mono text-zinc-500 uppercase mb-1.5">
                   Solana 链上审计结算
                 </div>
                 <div className="text-xs font-mono text-zinc-900 flex items-center justify-between">
                   <span className="font-semibold text-emerald-600">{scenario.solanaDuration}</span>
-                  <span className="text-[10px] text-zinc-500">Gas: {scenario.solanaFee}</span>
+                  <span className="text-[11px] text-zinc-500 font-mono">Gas: {scenario.solanaFee}</span>
                 </div>
-                <div className="text-[10px] text-zinc-500 mt-0.5 truncate">
+                <div className="text-[11px] text-zinc-500 mt-1 truncate">
                   {scenario.solanaStatus}
                 </div>
               </div>
             </div>
 
             {/* 印尼俚语 / 语气词精准解构 */}
-            <div className="p-4 rounded-lg border border-zinc-200 bg-white mb-5">
-              <div className="text-[10px] font-mono uppercase tracking-wider text-zinc-500 mb-2.5 flex items-center justify-between">
+            <div className="p-4.5 rounded-xl border border-zinc-200/80 bg-white mb-6">
+              <div className="text-[10px] font-mono uppercase tracking-wider text-zinc-500 mb-3 flex items-center justify-between">
                 <span>东南亚俚语与本土虚词解析 (Slang Lexicon)</span>
                 <span className="text-[10px] text-indigo-600 font-medium">NLP Parser v2.4</span>
               </div>
-              <div className="space-y-2">
+              <div className="space-y-2.5">
                 {scenario.slangTokens.map((st, i) => (
-                  <div key={i} className="flex items-start gap-2.5 text-xs font-mono">
-                    <span className="px-1.5 py-0.5 rounded bg-zinc-100 border border-zinc-200 text-zinc-900 font-bold text-[11px]">
+                  <div key={i} className="flex items-start gap-3 text-xs font-mono">
+                    <span className="px-2 py-0.5 rounded-md bg-zinc-100 border border-zinc-200/80 text-zinc-900 font-bold text-[11px]">
                       {st.token}
                     </span>
                     <span className="text-zinc-600 text-xs pt-0.5 leading-relaxed">{st.desc}</span>
@@ -587,18 +587,18 @@ export const TelemetrySandbox: React.FC = () => {
             </div>
 
             {/* Webhook 同步状态 */}
-            <div className="p-3 rounded-lg bg-zinc-50 border border-zinc-200 text-xs font-mono flex items-center justify-between">
+            <div className="p-3.5 rounded-xl bg-zinc-50 border border-zinc-200/80 text-xs font-mono flex items-center justify-between">
               <div>
                 <span className="text-zinc-500">ECOMMERCE WEBHOOK: </span>
                 <span className="text-zinc-900 font-semibold">{scenario.webhookStatus}</span>
               </div>
-              <span className="text-[10px] px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-700 border border-emerald-200 font-bold">
+              <span className="text-[10px] px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-700 border border-emerald-200/60 font-bold">
                 SYNCED
               </span>
             </div>
           </div>
 
-          <div className="pt-4 border-t border-zinc-200 flex items-center justify-between text-[11px] font-mono text-zinc-500">
+          <div className="pt-5 border-t border-zinc-200/80 flex items-center justify-between text-[11px] font-mono text-zinc-500 mt-4">
             <div className="flex items-center gap-2">
               <ShieldCheck className="w-4 h-4 text-emerald-600" />
               <span>确定性规则引擎 · v1.2</span>
