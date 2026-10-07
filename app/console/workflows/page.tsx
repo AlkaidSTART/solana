@@ -33,7 +33,7 @@ export default function ConsoleWorkflowsPage() {
         <div>
           <div className="flex items-center gap-2">
             <h1 className="text-lg font-mono uppercase tracking-wider font-bold text-[#09090B]">
-              工作流引擎 // Workflows Engine
+              工作流引擎 · Workflows Engine
             </h1>
             <Badge variant="outline">Demo/Mock</Badge>
           </div>
@@ -139,21 +139,30 @@ export default function ConsoleWorkflowsPage() {
             </div>
 
             <div className="p-4 grid grid-cols-1 sm:grid-cols-4 gap-2 items-center">
-              <span className="font-bold text-[#09090B]">🇮🇩 印度尼西亚 (+62)</span>
+              <span className="font-bold text-[#09090B] flex items-center gap-1.5">
+                <span className="px-1.5 py-0.2 rounded bg-emerald-500/10 border border-emerald-500/20 text-emerald-700 text-[10px]">ID</span>
+                <span>印度尼西亚 (+62)</span>
+              </span>
               <span>id_ID (印尼语)</span>
               <span>Asia/Jakarta (WIB, UTC+7)</span>
               <span>Bahasa Gaul (min, ongkir, nyasar)</span>
             </div>
 
             <div className="p-4 grid grid-cols-1 sm:grid-cols-4 gap-2 items-center">
-              <span className="font-bold text-[#09090B]">🇹🇭 泰国 (+66)</span>
+              <span className="font-bold text-[#09090B] flex items-center gap-1.5">
+                <span className="px-1.5 py-0.2 rounded bg-purple-500/10 border border-purple-500/20 text-purple-700 text-[10px]">TH</span>
+                <span>泰国 (+66)</span>
+              </span>
               <span>th_TH (泰语)</span>
               <span>Asia/Bangkok (ICT, UTC+7)</span>
               <span>Particles (krub/ka, pom)</span>
             </div>
 
             <div className="p-4 grid grid-cols-1 sm:grid-cols-4 gap-2 items-center">
-              <span className="font-bold text-[#09090B]">🇻🇳 越南 (+84) / 🌐 国际</span>
+              <span className="font-bold text-[#09090B] flex items-center gap-1.5">
+                <span className="px-1.5 py-0.2 rounded bg-blue-500/10 border border-blue-500/20 text-blue-700 text-[10px]">VN</span>
+                <span>越南 (+84) / 国际</span>
+              </span>
               <span>en_US (国际英语)</span>
               <span>Asia/Singapore (SGT, UTC+8)</span>
               <span>Standard E-commerce English</span>

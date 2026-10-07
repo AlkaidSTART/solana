@@ -26,7 +26,7 @@ export default function ConsoleBillingPage() {
         <div>
           <div className="flex items-center gap-2">
             <h1 className="text-lg font-mono uppercase tracking-wider font-bold text-[#09090B]">
-              财务充值中心 // Billing & Credits
+              财务充值中心 · Billing & Credits
             </h1>
             <Badge variant="outline">Demo/Mock</Badge>
           </div>

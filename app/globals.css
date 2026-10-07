@@ -1,27 +1,44 @@
 @import "tailwindcss";
 
 :root {
-  /* 基础画板与实体纸张 (Canvas & Paper Surfaces) */
+  /* 基础画板与实体纸张 (Canvas & Surfaces) */
   --bg-canvas: #ffffff;
-  --bg-subtle: #fafafa;
-  --bg-muted: #f4f4f5;
-  --bg-elevated: rgba(255, 255, 255, 0.92);
+  --bg-subtle: #f8fafc;
+  --bg-muted: #f1f5f9;
+  --bg-elevated: rgba(255, 255, 255, 0.95);
 
-  /* 几何发丝线与边框 (Hairlines & Precision Borders) */
-  --border-hairline: #e4e4e7;
-  --border-subtle: #eeeeee;
-  --border-contrast: #18181b;
+  /* 几何发丝线与边框 */
+  --border-hairline: #e2e8f0;
+  --border-subtle: #f1f5f9;
+  --border-contrast: #0f172a;
 
-  /* 墨黑铅印文字层级 (Typography & Ink Levels) */
-  --ink-primary: #09090b;
-  --ink-secondary: #27272a;
-  --ink-muted: #71717a;
-  --ink-faint: #a1a1aa;
+  /* 文字层级 */
+  --ink-primary: #0f172a;
+  --ink-secondary: #334155;
+  --ink-muted: #64748b;
+  --ink-faint: #94a3b8;
 
-  /* 功能性限定语义指示色 (严禁作为大面积背景滥用，仅做 6px 状态圆点或文字) */
-  --functional-green: #059669;
-  --functional-red: #e11d48;
-  --functional-amber: #d97706;
+  /* 现代科技与商业品牌调色盘 (跳出黑白刻板印象) */
+  /* WhatsApp 翡翠生态绿 */
+  --brand-emerald: #10b981;
+  --brand-emerald-dark: #059669;
+  --brand-emerald-light: #ecfdf5;
+
+  /* Solana & AI 原生电光靛蓝 / 紫外光 */
+  --brand-indigo: #6366f1;
+  --brand-indigo-dark: #4f46e5;
+  --brand-indigo-light: #eef2ff;
+  --brand-violet: #8b5cf6;
+
+  /* 动态遥测与高频网关青蓝 */
+  --brand-cyan: #06b6d4;
+  --brand-cyan-light: #ecfeff;
+
+  /* 告警与核验语义色 */
+  --functional-green: #10b981;
+  --functional-red: #f43f5e;
+  --functional-amber: #f59e0b;
+  --functional-amber-light: #fffbeb;
 
   /* 通用兼容变量 */
   --background: var(--bg-canvas);
@@ -37,6 +54,8 @@
   --color-ink-secondary: var(--ink-secondary);
   --color-ink-muted: var(--ink-muted);
   --color-ink-faint: var(--ink-faint);
+  --color-brand-emerald: var(--brand-emerald);
+  --color-brand-indigo: var(--brand-indigo);
   --color-fun-green: var(--functional-green);
   --color-fun-red: var(--functional-red);
   --color-fun-amber: var(--functional-amber);
@@ -50,7 +69,7 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* 瑞士国际主义发丝网格辅助类 */
+/* 发丝网格辅助类 */
 .hairline-border {
   border: 1px solid var(--border-hairline);
 }
@@ -71,23 +90,32 @@ body {
   border-right: 1px solid var(--border-hairline);
 }
 
-/* 自定义纤细滚动条 (纯黑白铅印风格) */
+/* 高级科技微光背景渐变 */
+.tech-glow-emerald {
+  background: radial-gradient(circle at 50% 0%, rgba(16, 185, 129, 0.08) 0%, transparent 70%);
+}
+
+.tech-glow-indigo {
+  background: radial-gradient(circle at 100% 0%, rgba(99, 102, 241, 0.08) 0%, transparent 60%);
+}
+
+/* 自定义纤细滚动条 */
 ::-webkit-scrollbar {
   width: 5px;
   height: 5px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #ffffff;
+  background: transparent;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #e4e4e7;
-  border-radius: 2px;
+  background: #cbd5e1;
+  border-radius: 9999px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #a1a1aa;
+  background: #94a3b8;
 }
 
 /* 印尼长词与排印防溢出 */

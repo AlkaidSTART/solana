@@ -8,6 +8,8 @@ import {
   Download,
   Trash2,
   CheckCircle2,
+  XCircle,
+  Eye,
 } from "lucide-react";
 
 export default function ConsoleSettingsPage() {
@@ -28,7 +30,7 @@ export default function ConsoleSettingsPage() {
         <div>
           <div className="flex items-center gap-2">
             <h1 className="text-lg font-mono uppercase tracking-wider font-bold text-[#09090B]">
-              报表与设置 // Analytics & Settings
+              报表与设置 · Analytics & Settings
             </h1>
             <Badge variant="outline">Demo/Mock</Badge>
           </div>
@@ -52,7 +54,7 @@ export default function ConsoleSettingsPage() {
       {/* 模块 1: 归因口径与 20% 对照组实验配置 (严格对齐 PRD 2.3) */}
       <div className="space-y-3">
         <h2 className="text-xs font-mono uppercase tracking-wider font-bold text-[#71717A]">
-          01 // ATTRIBUTION & 20% CONTROL GROUP MODEL (PRD 2.3 对齐)
+          01 · ATTRIBUTION & 20% CONTROL GROUP MODEL (PRD 2.3 对齐)
         </h2>
         <Card>
           <CardHeader>
@@ -119,7 +121,7 @@ export default function ConsoleSettingsPage() {
       {/* 模块 2: 店铺时区与货币锚定 */}
       <div className="space-y-3">
         <h2 className="text-xs font-mono uppercase tracking-wider font-bold text-[#71717A]">
-          02 // TIMEZONE & CURRENCY LOCALIZATION (本土时区货币)
+          02 · TIMEZONE & CURRENCY LOCALIZATION (本土时区货币)
         </h2>
         <Card>
           <CardContent className="p-6 space-y-4 text-xs font-mono">
@@ -159,7 +161,7 @@ export default function ConsoleSettingsPage() {
       {/* 模块 3: 团队 RBAC 权限矩阵 */}
       <div className="space-y-3">
         <h2 className="text-xs font-mono uppercase tracking-wider font-bold text-[#71717A]">
-          03 // TEAM ACCESS & RBAC MATRIX (团队权限控制)
+          03 · TEAM ACCESS & RBAC MATRIX (团队权限控制)
         </h2>
         <Card>
           <div className="divide-y divide-[#EEEEEE] text-xs font-mono">
@@ -172,23 +174,41 @@ export default function ConsoleSettingsPage() {
 
             <div className="p-4 grid grid-cols-1 sm:grid-cols-4 gap-2 items-center">
               <span className="font-bold text-[#09090B]">管理员 (Owner/Admin)</span>
-              <span>✅ 完全读写</span>
-              <span>✅ 完全读写</span>
-              <span>✅ 完全读写</span>
+              <span className="inline-flex items-center gap-1.5 text-emerald-600 font-medium">
+                <CheckCircle2 className="w-3.5 h-3.5" /> 完全读写
+              </span>
+              <span className="inline-flex items-center gap-1.5 text-emerald-600 font-medium">
+                <CheckCircle2 className="w-3.5 h-3.5" /> 完全读写
+              </span>
+              <span className="inline-flex items-center gap-1.5 text-emerald-600 font-medium">
+                <CheckCircle2 className="w-3.5 h-3.5" /> 完全读写
+              </span>
             </div>
 
             <div className="p-4 grid grid-cols-1 sm:grid-cols-4 gap-2 items-center">
               <span className="font-bold text-[#09090B]">出海运营 (Operator)</span>
-              <span>✅ 审核发货</span>
-              <span>✅ 编辑发布</span>
-              <span>❌ 无权操作</span>
+              <span className="inline-flex items-center gap-1.5 text-emerald-600 font-medium">
+                <CheckCircle2 className="w-3.5 h-3.5" /> 审核发货
+              </span>
+              <span className="inline-flex items-center gap-1.5 text-emerald-600 font-medium">
+                <CheckCircle2 className="w-3.5 h-3.5" /> 编辑发布
+              </span>
+              <span className="inline-flex items-center gap-1.5 text-zinc-400">
+                <XCircle className="w-3.5 h-3.5 text-zinc-400" /> 无权操作
+              </span>
             </div>
 
             <div className="p-4 grid grid-cols-1 sm:grid-cols-4 gap-2 items-center">
               <span className="font-bold text-[#09090B]">客服坐席 (CS Agent)</span>
-              <span>👁️ 只读查看</span>
-              <span>❌ 无权操作</span>
-              <span>❌ 无权操作</span>
+              <span className="inline-flex items-center gap-1.5 text-indigo-600 font-medium">
+                <Eye className="w-3.5 h-3.5" /> 只读查看
+              </span>
+              <span className="inline-flex items-center gap-1.5 text-zinc-400">
+                <XCircle className="w-3.5 h-3.5 text-zinc-400" /> 无权操作
+              </span>
+              <span className="inline-flex items-center gap-1.5 text-zinc-400">
+                <XCircle className="w-3.5 h-3.5 text-zinc-400" /> 无权操作
+              </span>
             </div>
           </div>
         </Card>
@@ -197,7 +217,7 @@ export default function ConsoleSettingsPage() {
       {/* 模块 4: 数据合规与 GDPR / Meta BAA */}
       <div className="space-y-3">
         <h2 className="text-xs font-mono uppercase tracking-wider font-bold text-[#71717A]">
-          04 // COMPLIANCE & PRIVACY (合规与数据清除)
+          04 · COMPLIANCE & PRIVACY (合规与数据清除)
         </h2>
         <Card>
           <CardContent className="p-6 space-y-4 text-xs font-mono">

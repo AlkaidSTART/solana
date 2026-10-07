@@ -56,7 +56,7 @@ export default function ConsoleInboxPage() {
         <div>
           <div className="flex items-center gap-2">
             <h1 className="text-lg font-mono uppercase tracking-wider font-bold text-[#09090B]">
-              会话与人工队列 // Inbox & Handover
+              会话与人工队列 · Inbox & Handover
             </h1>
             <Badge variant="outline">Demo/Mock</Badge>
           </div>

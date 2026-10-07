@@ -78,7 +78,7 @@ export default function ConsoleStoresPage() {
         <div>
           <div className="flex items-center gap-2">
             <h1 className="text-lg font-mono uppercase tracking-wider font-bold text-[#09090B]">
-              店铺与通道 // Store & Channels
+              店铺与通道 · Store & Channels
             </h1>
             <Badge variant="outline">Demo/Mock</Badge>
           </div>
@@ -101,7 +101,7 @@ export default function ConsoleStoresPage() {
       {/* 模块 1: 电商店铺直连状态 */}
       <div className="space-y-3">
         <h2 className="text-xs font-mono uppercase tracking-wider font-bold text-[#71717A]">
-          01 // ECOMMERCE STORES 直连授权
+          01 · ECOMMERCE STORES 直连授权
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
           {/* 已连接: WooCommerce */}
@@ -191,7 +191,7 @@ export default function ConsoleStoresPage() {
       {/* 模块 2: WhatsApp 商业账号 (WABA) 状态卡片 */}
       <div className="space-y-3">
         <h2 className="text-xs font-mono uppercase tracking-wider font-bold text-[#71717A]">
-          02 // WHATSAPP BUSINESS ACCOUNT (WABA 自有商业号)
+          02 · WHATSAPP BUSINESS ACCOUNT (WABA 自有商业号)
         </h2>
         <Card>
           <CardHeader>
@@ -259,7 +259,7 @@ export default function ConsoleStoresPage() {
       <div className="space-y-3">
         <div className="flex justify-between items-center">
           <h2 className="text-xs font-mono uppercase tracking-wider font-bold text-[#71717A]">
-            03 // APPROVED MULTI-LANGUAGE TEMPLATES (获批模板矩阵)
+            03 · APPROVED MULTI-LANGUAGE TEMPLATES (获批模板矩阵)
           </h2>
           <span className="text-[11px] font-mono text-[#71717A]">
             共 4 套获批模板 (印尼语 / 泰语 / 英语)

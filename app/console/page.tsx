@@ -45,7 +45,7 @@ export default function ConsoleOverviewPage() {
       <div className="space-y-6">
         <div className="flex justify-between items-center">
           <h1 className="text-lg font-mono uppercase tracking-wider font-bold text-[#09090B]">
-            监控总览 // Overview
+            监控总览 · Overview
           </h1>
           <Button size="sm" variant="outline" onClick={() => setViewState("normal")}>
             恢复正常视图
@@ -76,7 +76,7 @@ export default function ConsoleOverviewPage() {
       <div className="space-y-6">
         <div className="flex justify-between items-center">
           <h1 className="text-lg font-mono uppercase tracking-wider font-bold text-[#09090B]">
-            监控总览 // Overview
+            监控总览 · Overview
           </h1>
           <Button size="sm" variant="outline" onClick={() => setViewState("normal")}>
             恢复正常视图
@@ -110,7 +110,7 @@ export default function ConsoleOverviewPage() {
         <div>
           <div className="flex items-center gap-2">
             <h1 className="text-lg font-mono uppercase tracking-wider font-bold text-[#09090B]">
-              监控总览 // Overview
+              监控总览 · Overview
             </h1>
             <Badge variant="outline">Demo/Mock</Badge>
           </div>

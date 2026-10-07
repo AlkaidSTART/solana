@@ -64,7 +64,7 @@ export default function ConsoleKnowledgePage() {
         <div>
           <div className="flex items-center gap-2">
             <h1 className="text-lg font-mono uppercase tracking-wider font-bold text-[#09090B]">
-              多语言知识库 // Knowledge Base
+              多语言知识库 · Knowledge Base
             </h1>
             <Badge variant="outline">Demo/Mock</Badge>
           </div>
@@ -130,32 +130,36 @@ export default function ConsoleKnowledgePage() {
               <div className="grid grid-cols-1 md:grid-cols-4 gap-4 text-xs font-mono">
                 {/* 列 1: 中文底稿 */}
                 <div className="p-3 bg-[#FAFAFA] border border-[#E4E4E7] space-y-1">
-                  <div className="text-[10px] text-[#71717A] uppercase font-bold">
-                    🇨🇳 中文底稿 (卖家原意)
+                  <div className="text-[10px] text-amber-700 uppercase font-bold flex items-center gap-1.5">
+                    <span className="px-1 py-0.2 rounded bg-amber-500/10 border border-amber-500/20 text-[9px]">ZH</span>
+                    <span>中文底稿 (卖家原意)</span>
                   </div>
                   <p className="text-[#09090B] leading-relaxed font-sans">{item.zh}</p>
                 </div>
 
                 {/* 列 2: 印尼口语 */}
                 <div className="p-3 bg-white border border-[#E4E4E7] space-y-1">
-                  <div className="text-[10px] text-[#059669] uppercase font-bold">
-                    🇮🇩 印尼口语 (Bahasa Gaul)
+                  <div className="text-[10px] text-emerald-700 uppercase font-bold flex items-center gap-1.5">
+                    <span className="px-1 py-0.2 rounded bg-emerald-500/10 border border-emerald-500/20 text-[9px]">ID</span>
+                    <span>印尼口语 (Bahasa Gaul)</span>
                   </div>
                   <p className="text-[#09090B] leading-relaxed font-sans">{item.idGaul}</p>
                 </div>
 
                 {/* 列 3: 国际英语 */}
                 <div className="p-3 bg-[#FAFAFA] border border-[#E4E4E7] space-y-1">
-                  <div className="text-[10px] text-[#71717A] uppercase font-bold">
-                    🌐 国际英语 (English)
+                  <div className="text-[10px] text-blue-700 uppercase font-bold flex items-center gap-1.5">
+                    <span className="px-1 py-0.2 rounded bg-blue-500/10 border border-blue-500/20 text-[9px]">EN</span>
+                    <span>国际英语 (English)</span>
                   </div>
                   <p className="text-[#09090B] leading-relaxed font-sans">{item.en}</p>
                 </div>
 
                 {/* 列 4: 泰语 */}
                 <div className="p-3 bg-white border border-[#E4E4E7] space-y-1">
-                  <div className="text-[10px] text-[#71717A] uppercase font-bold">
-                    🇹🇭 泰语 (Thai)
+                  <div className="text-[10px] text-purple-700 uppercase font-bold flex items-center gap-1.5">
+                    <span className="px-1 py-0.2 rounded bg-purple-500/10 border border-purple-500/20 text-[9px]">TH</span>
+                    <span>泰语 (Thai)</span>
                   </div>
                   <p className="text-[#09090B] leading-relaxed font-sans leading-[1.6]">
                     {item.th}

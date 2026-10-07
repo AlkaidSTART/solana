@@ -76,7 +76,7 @@ export default function ConsoleOrdersPage() {
         <div>
           <div className="flex items-center gap-2">
             <h1 className="text-lg font-mono uppercase tracking-wider font-bold text-[#09090B]">
-              订单中心 // Orders Center
+              订单中心 · Orders Center
             </h1>
             <Badge variant="outline">Demo/Mock</Badge>
           </div>

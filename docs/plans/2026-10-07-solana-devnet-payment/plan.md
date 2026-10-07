@@ -1,0 +1,32 @@
+# Solana Devnet USDC 支付 MVP
+
+## 背景与目标
+现有弹窗用定时器、假 signature、Zustand 入账，不构成支付。按项目 solana-dev skill 和 PRD 6.3–6.6，实现可配置的 Devnet 点数加购闭环，测试额度与原 Demo / 正式额度隔离。UI_DESIGN 的即时到账、赠额和声音与 PRD 冲突，本次采用 PRD 定价及 finalized 规则，不更改业务规则迎合视觉稿。
+
+## MVP 范围
+- 100 Credits 起购、整数数量、0.02 USDC/Credit；服务端快照、20 分钟报价、唯一 reference。
+- Devnet 原生 USDC 固定允许列表，RPC genesis 校验；服务端生成 Solana Pay URL / QR。
+- Wallet Standard 连接、签名、金额/网络/收款方说明、拒签/失败/过期恢复。核验已安装 Kit API；支持 v1 的钱包使用 v1，不支持时使用 v0。
+- PostgreSQL 持久化订单、测试会话、候选审计、转账占用与测试额度流水；租户来源于服务端会话，原子入账与唯一约束。
+- confirmed 仅提示，finalized + token program/mint/收款 ATA/金额/reference/链上时间完整验证后入账。无效候选不阻断后续候选。独立 worker 在关页后继续检测。
+- TanStack Query 管理服务端状态；重开后恢复订单/账本，不写入 Zustand Demo 余额。
+- 本地开发会话必须显式开启且仅 loopback、非 production 可签发；不是生产身份认证。
+
+## 非目标
+主网、真实商户/发送、套餐订阅/续费、退款自动化、生产认证/部署、全面重构现有 Demo、Anchor 合约或新后端框架。正式权益未开放。
+
+## 风险/依赖
+- 无现成 DB、钱包与资金配置，Docker daemon 当前未运行；真实 Devnet 付款依赖 RPC、测试 SOL/USDC 与钱包。缺失时明确阻塞，不伪报实链通过。
+- 新增 Kit 8 + wallet/RPC 插件、SPL token 构造器（替代 legacy web3.js）、TanStack Query（符合状态分层）、pg（PRD PostgreSQL）、Zod（边界校验）、qrcode（服务端 QR）、server-only。
+- 测试新增 Vitest、Playwright、PGlite（仅测试使用的 PostgreSQL 引擎，不作为产品后端）、tsx（worker/初始化）。以 registry/包声明核验 peer 兼容性并固定锁文件。
+- 部分钱包/网络 v1 支持可能不同，以官方资料、安装类型和实际仿真为准；不得盲从 skill 示例。
+- 支付服务禁止 production/主网上线；轮询 worker 需持续运行，候选分页与补偿可恢复，异常 fail closed。
+
+## 阶段与验证
+1. T1 调研/依赖：读 skill、PRD、UI、Next 本地指南；核验官方 Pay spec/Circle/Kit；创建计划后安装最小依赖。预期版本兼容，无无关文件变化。
+2. T2 服务端与规则：schema、配置、会话、报价、RPC 适配、验证、数据库结算、API/worker。Vitest 正常、100/0/负数/小数/过大、错误 mint/程序/金额/收款/reference/时间、confirmed、失败交易、重放/并发/跨租户、过期后发现有效付款、无效候选后有效付款、原子回滚。预期仅完整 finalized 一次入账。
+3. T3 前端：替换假支付与账本，Query、钱包、QR、焦点/键盘、重开恢复。浏览器隔离 API/RPC mocks 测 loading/empty/error/retry、三档视口、拒签与减少动效；与真实网络结果明确区分。
+4. T4 验收：lint、next typegen + tsc、Vitest、Playwright、build、git diff --check、AGENTS 行数；尝试 Devnet 网络连通/实链联调，保存证据或阻塞原因。运行说明写入 result.md / README，不提交 secrets 或测试产物。
+
+## 最终验收
+范围内正常/异常/权限/并发自动化无未处理失败；界面不再伪造支付、费用、耗时或正式 Credits；服务重开可读持久订单，worker 独立运行；所有检查真实记录。只有真实 Devnet 交易验证和全部关键验收完成才标记整个需求完成，否则明确剩余用户操作/环境阻塞。

@@ -7,6 +7,7 @@ import { useAppStore } from "@/stores/use-app-store";
 import { Button } from "@/components/ui/button";
 import {
   CheckCircle2,
+  Check,
   ArrowRight,
   ArrowLeft,
   Gift,
@@ -75,7 +76,7 @@ export default function OnboardingPage() {
             SolaFlow AI
           </Link>
           <span className="text-xs font-mono text-[#71717A] hidden sm:inline">
-            {"//"} 出海商户 6 步初始化激活向导 (严格对齐 PRD 3.1)
+            出海商户 6 步初始化激活向导 (严格对齐 PRD 3.1)
           </span>
         </div>
 
@@ -106,7 +107,7 @@ export default function OnboardingPage() {
                         : "bg-white text-[#A1A1AA] border-[#E4E4E7]"
                     )}
                   >
-                    {isCompleted ? "✓" : s.id}
+                    {isCompleted ? <Check className="w-3.5 h-3.5 text-white" /> : s.id}
                   </div>
                   <span
                     className={clsx(
@@ -362,7 +363,7 @@ export default function OnboardingPage() {
               </div>
 
               <div>
-                <span className="text-[10px] text-[#71717A] uppercase block">STEP 06 // READY</span>
+                <span className="text-[10px] text-[#71717A] uppercase block">STEP 06 · READY</span>
                 <h2 className="text-xl font-bold uppercase text-[#09090B] mt-1">
                   激活店铺并领取 100 免费 Credits
                 </h2>
