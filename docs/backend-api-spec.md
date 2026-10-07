@@ -209,6 +209,7 @@ Webhook 独立验签、大小/速率限制、去重，不套商户CSRF。链上�
 
 - `Id`：UUID；`ExternalId`：1–128 字符；`UtcTime`：带 `Z` 的 UTC ISO 时间；`Language`：`id|en`；`Reason`：去首尾空白后 1–500 字符。
 - `Money`：`{amountMinor: 无符号十进制整数字符串, currency: 三位大写代码, minorUnit: 0..6整数}`；负向流水用 direction 表示。允许币种/精度由服务端配置，格式合法不代表币种被支持。
+- `ServicePrice`：`{amountMinor: 正十进制整数字符串, asset:"USDC", decimals:6}`；与买家订单的法币Money分开，不把四字符USDC塞进三位币种字段。
 - 可变资源共享 `id, version(正整数), createdAt, updatedAt`；版本与 ETag 一致。不可变事件/流水只有 `id, createdAt`，不得伪造更新接口。
 - `PageQuery`：`limit?: "1".."100"`（默认20）、`cursor?: 1..2048字符`；从 HTTP query 的单字符串解析；重复键/未知键拒绝。第5节转换后的 limit 是整数。
 - 文中未重复展开的 ID 路径/简短 body 也必须用 strictObject 校验，不能只给“大对象”装校验器。
@@ -261,7 +262,7 @@ baseUrl 通过 Zod 的 URL 格式校验后，服务端仍须拦截私网/回环/
 
 | DTO | 字段及约束 |
 | --- | --- |
-| PriceCatalog | `version,effectiveAt,plans:[{planId,price:Money,credits,storeLimit,features:string[]}],creditPack:{minimumCredits:100,unitPrice:Money},externalFeeNotice`；Enterprise需合同报价，不以最低标价自助结算 |
+| PriceCatalog | `version,effectiveAt,plans:[{planId,price:ServicePrice,credits,storeLimit,features:string[]}],creditPack:{minimumCredits:100,unitPrice:ServicePrice},externalFeeNotice`；Enterprise需合同报价，不以最低标价自助结算 |
 | Subscription | `id,status:trial|active|expired|suspended,currentPeriod:{planId,startsAt,endsAt,storeLimit}|null,nextPeriod:{planId,startsAt,endsAt}|null,retainedStoreIds:Id[],version` |
 | Entitlements | `features,storeLimit,automationAllowed,reasonCodes`；只返回可操作能力，不给A/S泄露余额和支付流水 |
 | CreditBalance | `available,reserved,consumed,expired,compensated`均为无符号整数字符串；`batches:[{id,source:trial|subscription|purchase|compensation,remaining,expiresAt}],asOf`；流水是权威源 |
@@ -691,6 +692,25 @@ check("接收成功不是平台送达事件", NormalizedEventSchema, { ...status
 check("事件跨租户注入拒绝", NormalizedEventSchema, { ...statusEvent, tenantId: id }, false);
 check("未知事件不可进入业务", NormalizedEventSchema, { ...statusEvent, kind: "unknown" }, false);
 console.log(`PASS: ${count} schema cases; default limit=20`);
+```
+
+从仓库根目录复现（已有依赖；临时产物不写入仓库）：
+
+```bash
+TMP=$(mktemp -d /tmp/solaflow-doc-contracts-XXXXXX)
+python3 - "$TMP" <<'PYTEST'
+from pathlib import Path
+import re, sys
+blocks = re.findall(r"```ts\n(.*?)\n```", Path("docs/backend-api-spec.md").read_text(), re.S)
+assert len(blocks) == 2
+for name, content in zip(("contracts.ts", "contracts.test.ts"), blocks):
+    (Path(sys.argv[1]) / name).write_text(content)
+PYTEST
+mkdir "$TMP/node_modules"
+ln -s "$PWD/node_modules/zod" "$TMP/node_modules/zod"
+node node_modules/typescript/bin/tsc --strict --skipLibCheck --target es2022 \
+  --module commonjs --moduleResolution node --outDir "$TMP/dist" \
+  "$TMP/contracts.ts" "$TMP/contracts.test.ts" && node "$TMP/dist/contracts.test.js"
 ```
 
 ### 7.2 必须实施的集成/业务测试（本次仅设计，未执行）

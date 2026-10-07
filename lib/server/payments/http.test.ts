@@ -1,10 +1,11 @@
 import { beforeAll, describe, expect, it } from "vitest";
 import { z } from "zod";
 
-import { testAddress } from "../../tests/support/payment-fixtures";
+import { testAddress } from "@/tests/support/payment-fixtures";
 import { assertOrigin, PaymentHttpError, paymentResponse, readBody } from "./http";
 
 beforeAll(() => {
+  process.env.PAYMENTS_DEVNET_ENABLED = "true";
   process.env.DATABASE_URL = "postgres://postgres:postgres@localhost:5432/test";
   process.env.SOLANA_RECIPIENT = testAddress(5);
   process.env.PAYMENT_APP_ORIGIN = "http://localhost:3000";
