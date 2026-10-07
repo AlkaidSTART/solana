@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import { useAppStore, WorkflowRule } from "@/stores/use-app-store";
+import { getI18nText } from "@/lib/i18n";
 import { Card, CardHeader, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -16,7 +17,7 @@ import {
 import { clsx } from "clsx";
 
 export default function ConsoleWorkflowsPage() {
-  const { workflows, toggleWorkflow, rollbackWorkflow } = useAppStore();
+  const { workflows, toggleWorkflow, rollbackWorkflow, locale } = useAppStore();
   const [selectedWorkflow, setSelectedWorkflow] = useState<WorkflowRule | null>(null);
   const [rollbackSuccess, setRollbackSuccess] = useState(false);
 
