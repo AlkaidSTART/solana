@@ -101,6 +101,7 @@ const TEMPLATES: TemplateItem[] = [
 ];
 
 export default function ConsoleStoresPage() {
+  const { locale } = useAppStore();
   const [pingStatus, setPingStatus] = useState<"idle" | "testing" | "success">("idle");
   const [selectedTemplate, setSelectedTemplate] = useState<TemplateItem | null>(null);
   const [testDrawerOpen, setTestDrawerOpen] = useState(false);
@@ -152,18 +153,18 @@ export default function ConsoleStoresPage() {
         <div>
           <div className="flex items-center gap-2">
             <h1 className="text-lg font-mono uppercase tracking-wider font-bold text-zinc-900">
-              店铺与通道 · Store & Channels
+              {getI18nText(locale, "stores_title")}
             </h1>
-            <Badge variant="outline">Demo/Mock</Badge>
+            <Badge variant="outline">{getI18nText(locale, "demo_badge")}</Badge>
           </div>
           <p className="text-xs text-zinc-500 font-mono mt-0.5">
-            管理 WooCommerce / Shopify 电商授权、自有 WABA 商业号健康度与获批多语言模板
+            {getI18nText(locale, "stores_subhead")}
           </p>
         </div>
 
         <div className="flex items-center gap-2">
           <Button size="sm" variant="outline" onClick={() => setTestDrawerOpen(true)}>
-            通道连通性测试
+            {getI18nText(locale, "overview_retry_conn")}
           </Button>
           <Button
             size="sm"
@@ -171,7 +172,7 @@ export default function ConsoleStoresPage() {
             className="bg-emerald-600 hover:bg-emerald-700 text-white"
           >
             <Plus className="w-3.5 h-3.5 mr-1" />
-            绑定新店铺
+            {getI18nText(locale, "stores_btn_connect")}
           </Button>
         </div>
       </div>
@@ -355,7 +356,7 @@ export default function ConsoleStoresPage() {
       <div className="space-y-3">
         <div className="flex justify-between items-center">
           <h2 className="text-xs font-mono uppercase tracking-wider font-bold text-zinc-500">
-            03 · APPROVED MULTI-LANGUAGE TEMPLATES (获批模板矩阵)
+            {getI18nText(locale, "stores_waba_templates")}
           </h2>
           <span className="text-[11px] font-mono text-zinc-500">
             共 4 套获批模板 (印尼语 / 泰语 / 英语)
