@@ -33,3 +33,5 @@ pnpm payments:worker
 ```
 
 访问 `http://localhost:3000/console/billing`，创建本地测试会话、购买 100 测试 Credits；核对 2 Devnet USDC、mint、收款公钥后签名，或用已切换 Devnet 的钱包扫描 Solana Pay QR。确认阶段不可增加额度；最终完整校验后余额增加 100 且仅一条账本记录。关闭页面再打开、重复检查和重启 worker 后不得重复入账。保存订单 ID、signature、finalized 查询及数据库账本证据后方可勾选实链验收。拒签、错误网络、错误金额不得入账。测试余额不会改变 Demo/生产 Credits。
+- [x] T4 失败复现：最新完整 Playwright 为 6 passed / 1 failed，375px document.scrollWidth=475；定位并行新增语言后的 select 宽 222px。仅调整 app/console/layout.tsx 小屏 select 宽度，不删除任何语言；下一步重跑。
+- [x] T2 初始化防护与可重跑：scripts/payment-db.ts 拒绝 production/未显式开启；repository.test.ts 在 PGlite 运行 schema 两次；`pnpm test` 最新 6 文件 108 passed（含重跑 schema 后的结算测试）。最新 lint、next typegen、tsc 均通过。

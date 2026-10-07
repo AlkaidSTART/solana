@@ -124,7 +124,7 @@ export default function ConsoleLayout({
               setLocale(e.target.value as SupportedLocale)
             }
             aria-label="界面语言"
-            className="border border-zinc-200 rounded-lg px-2.5 py-1 bg-white text-[11px] font-mono text-zinc-900 focus:outline-none cursor-pointer shadow-2xs"
+            className="w-24 sm:w-auto border border-zinc-200 rounded-lg px-2.5 py-1 bg-white text-[11px] font-mono text-zinc-900 focus:outline-none cursor-pointer shadow-2xs"
           >
             {SUPPORTED_LOCALES.map((loc) => {
               const meta = MARKETS[loc];
