@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type RefObject } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import dynamic from "next/dynamic";
@@ -16,9 +16,10 @@ export interface SolanaPayModalProps {
   open?: boolean;
   checkout?: Checkout;
   onClose: () => void;
+  returnFocusRef?: RefObject<HTMLElement | null>;
 }
 
-function SolanaPayModalInner({ checkout, onClose }: { checkout: Checkout; onClose: () => void }) {
+function SolanaPayModalInner({ checkout, onClose, returnFocusRef }: SolanaPayModalProps & { checkout: Checkout }) {
   const dialog = useRef<HTMLDialogElement>(null);
   const client = useQueryClient();
   const activeCheckout = checkout;
@@ -38,10 +39,11 @@ function SolanaPayModalInner({ checkout, onClose }: { checkout: Checkout; onClos
 
   useEffect(() => {
     const element = dialog.current;
-    const previous = document.activeElement;
+    // Async quote creation disables the trigger before this dialog mounts.
+    const previous = returnFocusRef?.current ?? document.activeElement;
     element?.showModal();
     return () => { element?.close(); if (previous instanceof HTMLElement) previous.focus(); };
-  }, []);
+  }, [returnFocusRef]);
 
   const data = orderQuery.data;
   const order = data.order;
@@ -101,7 +103,7 @@ function PaymentEntry({ onClose }: { onClose: () => void }) {
   </dialog>;
 }
 
-export function SolanaPayModal({ checkout, open, onClose }: SolanaPayModalProps) {
+export function SolanaPayModal({ checkout, open, onClose, returnFocusRef }: SolanaPayModalProps) {
   if (open === false) return null;
-  return checkout ? <SolanaPayModalInner key={checkout.order.id} checkout={checkout} onClose={onClose} /> : <PaymentEntry onClose={onClose} />;
+  return checkout ? <SolanaPayModalInner key={checkout.order.id} checkout={checkout} onClose={onClose} returnFocusRef={returnFocusRef} /> : <PaymentEntry onClose={onClose} />;
 }

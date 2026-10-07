@@ -4,7 +4,7 @@ import QRCode from "qrcode";
 import { orderFixture, tenant, testSignature } from "../support/payment-fixtures";
 import { paymentUrl, type PaymentOrder } from "../../lib/payments/contracts";
 
-async function fixture(page: Page) {
+async function fixture(page: Page, creationGate?: Promise<void>) {
   let order: PaymentOrder = { ...orderFixture(), createdAt: new Date().toISOString(), expiresAt: new Date(Date.now() + 1200000).toISOString() };
   let authenticated = true;
   let created = false;
@@ -20,7 +20,7 @@ async function fixture(page: Page) {
       return route.fulfill({ status: authenticated ? 200 : 401, json: authenticated ? { tenantId: tenant } : { error: "请先建立本地 Devnet 测试会话" } });
     }
     if (path.endsWith("/billing")) return route.fulfill({ json: { tenantId: tenant, availableCredits: order.status === "credited" ? 100 : 0, orders: created ? [order] : [], ledger: order.status === "credited" ? [{ orderId: order.id, credits: 100, signature: testSignature, createdAt: order.createdAt, expiresAt: "2027-10-07T00:00:00.000Z" }] : [] } });
-    if (path.endsWith("/orders") && method === "POST") { posts++; created = true; }
+    if (path.endsWith("/orders") && method === "POST") { posts++; created = true; await creationGate; }
     await route.fulfill({ json: { order, payUrl: paymentUrl(order), qr } });
   });
   return { setStatus(status: PaymentOrder["status"]) { order = { ...order, status, signature: status === "credited" ? testSignature : null }; }, setFailed(value: boolean) { fail = value; }, setAuthenticated(value: boolean) { authenticated = value; }, posts: () => posts };
@@ -137,4 +137,20 @@ test("Mock Wallet Standard wrong-network failure prevents automatic resend acros
   await page.getByRole("button", { name: "已确认未广播，允许手动重试" }).click();
   await expect(pay).toBeEnabled();
   await expect(page.getByText("+100 测试 Credits")).toHaveCount(0);
+});
+
+
+test("Mock slow quote restores focus to its trigger after Escape", async ({ page }) => {
+  let release = () => {};
+  const creationGate = new Promise<void>((resolve) => { release = resolve; });
+  await fixture(page, creationGate);
+  await page.goto("/console/billing");
+  const create = page.locator('button[type="submit"]');
+  await create.click();
+  await expect(create).toBeDisabled();
+  release();
+  await expect(page.getByRole("dialog")).toBeVisible();
+  await page.keyboard.press("Escape");
+  await expect(page.getByRole("dialog")).not.toBeVisible();
+  await expect(create).toBeFocused();
 });

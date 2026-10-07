@@ -21,6 +21,7 @@ function BillingContent() {
   const client = useQueryClient();
   const [credits, setCredits] = useState("100");
   const [checkout, setCheckout] = useState<Checkout | null>(null);
+  const returnFocusRef = useRef<HTMLElement | null>(null);
   const idempotency = useRef<{ credits: number; key: string } | null>(null);
   const session = useQuery({ queryKey: ["payment-session"], queryFn: ({ signal }) => paymentRequest("session", sessionSchema, { signal }), staleTime: 0 });
   const start = useMutation({ mutationFn: () => paymentRequest("session", sessionSchema, { method: "POST" }), onSuccess: (data) => {
@@ -65,7 +66,7 @@ function BillingContent() {
           <label className="block text-sm font-medium" htmlFor="test-credits">购买测试 Credits（100–100,000 整数）</label>
           <input className="w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm" id="test-credits" type="number" min={100} max={100000} step={1} value={credits} disabled={create.isPending} onChange={(event) => setCredits(event.target.value)} aria-describedby="quote-price" />
           <p id="quote-price" className="text-sm">{valid.success ? `预估 ${formatUsdc(quoteAtomic(valid.data.credits))} USDC；以服务端报价为准` : "请输入 100–100,000 的整数"}</p>
-          <button className="payment-button" disabled={!valid.success || create.isPending || billing.isError} type="submit">{create.isPending ? "正在创建报价…" : "创建 Devnet 支付报价"}</button>
+          <button className="payment-button" disabled={!valid.success || create.isPending || billing.isError} type="submit" onClick={(event) => { returnFocusRef.current = event.currentTarget; }}>{create.isPending ? "正在创建报价…" : "创建 Devnet 支付报价"}</button>
           {create.error && <p role="alert" className="text-sm text-red-700">{create.error.message}</p>}
         </form>
       </section>
@@ -74,7 +75,7 @@ function BillingContent() {
         <section className="space-y-3"><h2 className="text-lg font-semibold">支付订单</h2>
           {billing.data.orders.length === 0 ? <p className="text-sm text-zinc-600">暂无支付订单。</p> : <ul className="space-y-2">{billing.data.orders.map((order) => <li className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-zinc-200 bg-white p-4" key={order.id}>
             <div className="min-w-0 text-sm"><p>{order.credits.toLocaleString()} Credits · {formatUsdc(order.amountAtomic)} USDC</p><p className="mt-1 break-all text-xs text-zinc-500">{order.id}</p><p className="mt-1">{{ awaiting_payment: "待付款", confirmed: "待最终确认", credited: "已入账", expired: "已过期", review_required: "需核查，勿重复付款" }[order.status]}</p></div>
-            <button className="payment-button" disabled={recover.isPending} onClick={() => recover.mutate(order.id)}>查看 / 恢复订单</button>
+            <button className="payment-button" disabled={recover.isPending} onClick={(event) => { returnFocusRef.current = event.currentTarget; recover.mutate(order.id); }}>查看 / 恢复订单</button>
           </li>)}</ul>}
         </section>
         <section className="space-y-3"><h2 className="text-lg font-semibold">已校验测试入账流水</h2>
@@ -82,6 +83,6 @@ function BillingContent() {
         </section>
       </>}
     </>}
-    {checkout && checkout.order.tenantId === session.data?.tenantId && !session.error && <SolanaPayModal checkout={checkout} onClose={() => setCheckout(null)} />}
+    {checkout && checkout.order.tenantId === session.data?.tenantId && !session.error && <SolanaPayModal checkout={checkout} returnFocusRef={returnFocusRef} onClose={() => setCheckout(null)} />}
   </div>;
 }
