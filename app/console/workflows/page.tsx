@@ -12,7 +12,6 @@ import {
   CheckCircle2,
   Plus,
   Sliders,
-  Sparkles,
 } from "lucide-react";
 import { clsx } from "clsx";
 

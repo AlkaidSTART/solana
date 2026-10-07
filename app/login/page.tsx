@@ -32,7 +32,7 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen bg-white text-[#09090B] font-sans flex flex-col justify-between selection:bg-[#09090B] selection:text-white">
-      {/* 顶部极简导航 */}
+      {/* 顶部商户导航 */}
       <header className="h-16 border-b border-[#E4E4E7] px-6 flex items-center justify-between">
         <Link href="/" className="flex items-center gap-2">
           <span className="font-mono text-base font-bold tracking-tight text-[#09090B]">
@@ -47,7 +47,7 @@ export default function LoginPage() {
         </div>
       </header>
 
-      {/* 居中登录卡片 (发丝几何线) */}
+      {/* 居中商户登录卡片 */}
       <main className="flex-1 flex items-center justify-center p-6">
         <div className="w-full max-w-md border border-[#E4E4E7] bg-white p-8 space-y-6">
           <div className="space-y-1">

@@ -87,7 +87,7 @@ export default function OnboardingPage() {
         </Link>
       </header>
 
-      {/* 步进条指示器 (发丝黑白) */}
+      {/* 企业级入驻步骤条指示器 */}
       <div className="border-b border-[#E4E4E7] bg-[#FAFAFA] py-4 px-6 overflow-x-auto">
         <div className="max-w-4xl mx-auto flex items-center justify-between min-w-[560px]">
           {STEPS.map((s, idx) => {

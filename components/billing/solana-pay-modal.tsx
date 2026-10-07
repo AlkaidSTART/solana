@@ -111,7 +111,7 @@ export const SolanaPayModal: React.FC<SolanaPayModalProps> = ({ open, onClose })
         </div>
       ) : (
         <div className="space-y-6">
-          {/* 档位选择 (发丝黑白) */}
+          {/* 充值档位选择 */}
           <div>
             <div className="text-[11px] font-mono uppercase tracking-wider text-[#71717A] mb-2">
               选择充值档位 (USDC 票据)

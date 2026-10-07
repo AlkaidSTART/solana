@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
-import { TopoMesh } from "@/components/landing/topo-mesh";
+import { HeroProductDashboard } from "@/components/landing/hero-product-dashboard";
 import { TelemetrySandbox } from "@/components/landing/telemetry-sandbox";
 import { RoiCalculator } from "@/components/landing/roi-calculator";
 import { SolanaPayModal } from "@/components/billing/solana-pay-modal";
@@ -21,17 +21,17 @@ export default function LandingPage() {
     ZH: {
       headline: "Autonomous WhatsApp Agents.\nSettled on Solana.",
       subhead:
-        "专为东南亚出海电商打造：待支付订单 15 分钟温和挽回，印尼 COD 订单发货前地址核验。瑞士极简设计，高效黑白铅印。",
+        "专为东南亚跨境电商打造：待支付订单 15 分钟温和挽回，印尼 COD 订单发货前智能地标核验。官方 WhatsApp 商业 API 直连，USDC 零汇损即时结算。",
     },
     EN: {
       headline: "Autonomous WhatsApp Agents.\nSettled on Solana.",
       subhead:
-        "Engineered for Southeast Asian commerce: 15-min abandoned cart recovery and pre-dispatch COD address verification. Monochrome precision.",
+        "Engineered for Southeast Asian cross-border e-commerce: 15-minute abandoned cart recovery and pre-dispatch COD address verification. Official WhatsApp API with instant USDC settlement.",
     },
     ID: {
       headline: "Asisten Pesanan WhatsApp Otonom.\nSelesai di Solana.",
       subhead:
-        "Didesain khusus untuk e-commerce Asia Tenggara: pemulihan keranjang 15 menit dan verifikasi alamat COD sebelum kirim. Presisi monokrom.",
+        "Solusi cerdas untuk e-commerce Asia Tenggara: pemulihan keranjang belanja 15 menit dan verifikasi alamat COD pra-pengiriman. Terhubung ke API resmi WhatsApp dengan settlement USDC instan.",
     },
   };
 
@@ -39,7 +39,7 @@ export default function LandingPage() {
 
   return (
     <div className="min-h-screen bg-white text-[#09090B] font-sans selection:bg-[#09090B] selection:text-white">
-      {/* 顶部固定导航栏 (64px, 发丝边框, 毛玻璃) */}
+      {/* 顶部固定导航栏 (64px, 边框, 毛玻璃) */}
       <header className="sticky top-0 z-40 w-full h-16 border-b border-[#E4E4E7] bg-white/95 backdrop-blur-md">
         <div className="max-w-7xl mx-auto h-full px-4 sm:px-8 flex items-center justify-between">
           {/* 品牌标识与环境标识 */}
@@ -48,26 +48,26 @@ export default function LandingPage() {
               <span className="font-mono text-base font-bold tracking-tight text-[#09090B]">
                 SolaFlow
               </span>
-              <span className="text-[10px] font-mono uppercase px-1.5 py-0.5 bg-[#09090B] text-white">
+              <span className="text-[10px] font-mono uppercase px-1.5 py-0.5 bg-[#09090B] text-white rounded">
                 AI
               </span>
             </Link>
             <div className="hidden sm:flex items-center gap-1.5 text-[11px] font-mono text-[#71717A] border-l border-[#E4E4E7] pl-4">
               <span className="inline-block w-1.5 h-1.5 rounded-full bg-[#059669]" />
-              <span>Devnet v1.1</span>
+              <span>Devnet v1.1 · Meta BAA Verified</span>
             </div>
           </div>
 
           {/* 右侧：语言切换胶囊与行动链接 */}
           <div className="flex items-center gap-3 sm:gap-4">
             {/* 语言切换胶囊 */}
-            <div className="inline-flex p-0.5 border border-[#E4E4E7] bg-[#FAFAFA]">
+            <div className="inline-flex p-0.5 border border-[#E4E4E7] bg-[#FAFAFA] rounded-md">
               {(["EN", "ID", "ZH"] as const).map((l) => (
                 <button
                   key={l}
                   onClick={() => setLang(l)}
                   className={clsx(
-                    "px-2.5 py-1 text-[11px] font-mono transition-colors cursor-pointer",
+                    "px-2.5 py-1 text-[11px] font-mono transition-colors cursor-pointer rounded-sm",
                     lang === l
                       ? "bg-[#09090B] text-white"
                       : "text-[#71717A] hover:text-[#09090B]"
@@ -103,17 +103,17 @@ export default function LandingPage() {
       </header>
 
       <main className="w-full">
-        {/* SECTION 1: HERO & 3D MONOCHROME MESH */}
+        {/* SECTION 1: HERO & LIVE PRODUCT WORKSPACE */}
         <section className="relative w-full border-b border-[#E4E4E7] overflow-hidden">
-          <div className="max-w-7xl mx-auto px-4 sm:px-8 pt-16 pb-20 sm:pt-24 sm:pb-28 relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+          <div className="max-w-7xl mx-auto px-4 sm:px-8 pt-12 pb-16 sm:pt-20 sm:pb-24 relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
             {/* 左侧文字与召唤 */}
-            <div className="lg:col-span-7 space-y-6">
-              <div className="inline-flex items-center gap-2 text-[11px] font-mono text-[#71717A] border border-[#E4E4E7] px-2.5 py-1 bg-[#FAFAFA]">
-                <Globe2 className="w-3.5 h-3.5" />
+            <div className="lg:col-span-6 space-y-6">
+              <div className="inline-flex items-center gap-2 text-[11px] font-mono text-[#71717A] border border-[#E4E4E7] px-2.5 py-1 bg-[#FAFAFA] rounded-md">
+                <Globe2 className="w-3.5 h-3.5 text-emerald-600" />
                 <span>2026 SOUTHEAST ASIA E-COMMERCE INTELLIGENCE</span>
               </div>
 
-              <h1 className="text-4xl sm:text-6xl font-mono font-bold tracking-tight text-[#09090B] leading-[1.08] whitespace-pre-line">
+              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-mono font-bold tracking-tight text-[#09090B] leading-[1.08] whitespace-pre-line">
                 {t.headline}
               </h1>
 
@@ -121,10 +121,10 @@ export default function LandingPage() {
                 {t.subhead}
               </p>
 
-              <div className="flex flex-wrap items-center gap-3 pt-4">
+              <div className="flex flex-wrap items-center gap-3 pt-2">
                 <a href="#sandbox">
-                  <Button size="lg" className="h-12 px-6 text-xs">
-                    立即测试交互沙盒
+                  <Button size="lg" className="h-11 px-6 text-xs bg-[#09090B] text-white hover:bg-zinc-800">
+                    立即体验交互沙盒
                     <ArrowRight className="w-4 h-4 ml-2" />
                   </Button>
                 </a>
@@ -132,25 +132,25 @@ export default function LandingPage() {
                   variant="outline"
                   size="lg"
                   onClick={() => setPayModalOpen(true)}
-                  className="h-12 px-6 text-xs"
+                  className="h-11 px-6 text-xs"
                 >
                   体验 Solana Pay
                 </Button>
                 <Link href="/onboarding">
-                  <Button variant="ghost" size="lg" className="h-12 px-4 text-xs">
-                    6 步向导入驻 →
+                  <Button variant="ghost" size="lg" className="h-11 px-4 text-xs text-zinc-600 hover:text-zinc-900">
+                    商户 6 步入驻向导 →
                   </Button>
                 </Link>
               </div>
             </div>
 
-            {/* 右侧 3D 单色网格雕塑 */}
-            <div className="lg:col-span-5 h-[340px] sm:h-[420px] border border-[#E4E4E7] bg-white relative">
-              <TopoMesh />
+            {/* 右侧：商户控制台实时交互预览视窗 */}
+            <div className="lg:col-span-6 w-full">
+              <HeroProductDashboard />
             </div>
           </div>
 
-          {/* 4 维精密数据行 (四列纯文字与 1px 发丝线纵向分割) */}
+          {/* 4 维核心业务数据行 */}
           <div className="w-full border-t border-[#E4E4E7] bg-[#FAFAFA]">
             <div className="max-w-7xl mx-auto grid grid-cols-2 lg:grid-cols-4 divide-y sm:divide-y-0 sm:divide-x divide-[#E4E4E7]">
               <div className="p-6">
@@ -192,18 +192,18 @@ export default function LandingPage() {
           </div>
         </section>
 
-        {/* SECTION 2: 双向实时遥测沙盒 (DUAL-TELEMETRY SANDBOX) */}
+        {/* SECTION 2: 出海业务交互演练台 (WORKFLOW SIMULATOR) */}
         <section id="sandbox" className="w-full border-b border-[#E4E4E7] py-20 px-4 sm:px-8">
           <div className="max-w-7xl mx-auto space-y-8">
             <div className="space-y-2">
               <div className="text-[11px] font-mono text-emerald-600 font-bold uppercase tracking-wider">
-                02 · DUAL-TELEMETRY SANDBOX
+                02 · INTERACTIVE WORKFLOW SIMULATOR
               </div>
               <h2 className="text-2xl sm:text-3xl font-mono font-bold text-[#09090B] uppercase">
-                双向实时遥测沙盒 (买家 WhatsApp 视窗 × 神经规则引擎)
+                出海业务交互演练台 (买家 WhatsApp 视窗 × 自动化规则流转)
               </h2>
               <p className="text-xs sm:text-sm text-[#71717A] font-mono">
-                点击下方不同场景与交互按钮，体验东南亚本土多语言原声解析与链上状态同步
+                点击不同出海业务场景，体验东南亚本土多语言原声解析、COD 地标校准与订单全流程实时流转
               </p>
             </div>
 
@@ -211,16 +211,19 @@ export default function LandingPage() {
           </div>
         </section>
 
-        {/* SECTION 3: BENTO 架构矩阵 (5 大黑白精密系统架构) */}
+        {/* SECTION 3: 5 大企业级核心能力与业务基建 */}
         <section className="w-full border-b border-[#E4E4E7] py-20 px-4 sm:px-8 bg-[#FAFAFA]/40">
           <div className="max-w-7xl mx-auto space-y-8">
             <div className="space-y-2">
               <div className="text-[11px] font-mono text-indigo-600 font-bold uppercase tracking-wider">
-                03 · ARCHITECTURE BENTO
+                03 · ENTERPRISE CAPABILITIES & INFRASTRUCTURE
               </div>
               <h2 className="text-2xl sm:text-3xl font-mono font-bold text-[#09090B] uppercase">
-                5 大精密系统架构
+                5 大企业级核心能力与业务基建
               </h2>
+              <p className="text-xs sm:text-sm text-[#71717A] font-mono">
+                专为东南亚多国跨境生态打造的高可用自动化服务矩阵与基础设施
+              </p>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
@@ -229,7 +232,7 @@ export default function LandingPage() {
                 <div>
                   <div className="text-xs font-mono text-emerald-700 font-semibold mb-4">01 · NLP & DIALECT</div>
                   <h3 className="text-xl font-mono font-bold text-[#09090B] mb-2">
-                    东南亚多语言与印尼俚语深度解构
+                    东南亚多语言与印尼俚语深度解析
                   </h3>
                   <p className="text-sm text-[#27272A] leading-relaxed">
                     不仅掌握标准印尼语（Bahasa Indonesia），更精准识别雅加达本土口语缩写（Bahasa Gaul，如 <em>min, ongkir, ga nyasar</em>）与泰语礼貌语气助词（<em>krub/ka</em>）。
@@ -262,7 +265,7 @@ export default function LandingPage() {
               <div className="md:col-span-4 p-6 sm:p-8 border border-[#E4E4E7] rounded-xl bg-white hover:border-zinc-400 transition-colors shadow-xs">
                 <div className="text-xs font-mono text-[#71717A] mb-4">03 · STORE WEBHOOK</div>
                 <h3 className="text-lg font-mono font-bold text-[#09090B] mb-2">
-                  零代码电商店铺直连
+                  全渠道电商店铺秒级直连
                 </h3>
                 <p className="text-sm text-[#27272A] leading-relaxed">
                   WooCommerce 与 Shopify 官方 Webhook 150ms 极速接入，自动同步订单变动与买家地址。
@@ -284,7 +287,7 @@ export default function LandingPage() {
               <div className="md:col-span-4 p-6 sm:p-8 border border-[#E4E4E7] rounded-xl bg-white hover:border-amber-400 transition-colors shadow-xs">
                 <div className="text-xs font-mono text-amber-600 font-semibold mb-4">05 · HUMAN TAKEOVER</div>
                 <h3 className="text-lg font-mono font-bold text-[#09090B] mb-2">
-                  无损无感人工接管
+                  人机协同无感接管工作台
                 </h3>
                 <p className="text-sm text-[#27272A] leading-relaxed">
                   买家情绪波动或议价纠纷时自动暂停 AI 规则，零延迟平滑转交商户人工坐席，保障买家信任。
@@ -304,6 +307,9 @@ export default function LandingPage() {
               <h2 className="text-2xl sm:text-3xl font-mono font-bold text-[#09090B] uppercase">
                 跨境出海 ROI 动态利润计算器
               </h2>
+              <p className="text-xs sm:text-sm text-[#71717A] font-mono">
+                基于月订单量与平均客单价，实时测算挽回未支付 GMV 与减少的 COD 物流损耗
+              </p>
             </div>
 
             <RoiCalculator />
@@ -344,7 +350,7 @@ export default function LandingPage() {
           <div className="flex items-center gap-2">
             <span className="font-bold text-[#09090B]">SolaFlow AI</span>
             <span>• Meta BAA & GDPR Compliant</span>
-            <span>• Southeast Asia E-Commerce Core</span>
+            <span>• Southeast Asia E-Commerce Platform</span>
           </div>
           <div>
             <span>Markets: ID • TH • VN • PH • MY • SG · Copyright © 2026</span>

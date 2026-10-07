@@ -11,9 +11,6 @@ import {
   Plus,
   Clock,
   CheckCircle2,
-  ExternalLink,
-  Store,
-  ShieldCheck,
   Send,
 } from "lucide-react";
 

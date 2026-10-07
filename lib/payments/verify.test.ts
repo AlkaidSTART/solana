@@ -27,7 +27,7 @@ describe("chain validation", () => {
     ["early transfer", (tx) => { tx.blockTime = Date.parse("2026-10-06T23:59:59Z") / 1000; }],
     ["failed transaction", (tx) => { tx.meta.err = { InstructionError: [0, "error"] }; }],
     ["wrong signature", (tx) => { tx.transaction.signatures[0] = "different"; }],
-    ["wrong mint", (tx) => { tx.meta.postTokenBalances[1].mint = "wrong"; }],
+    ["wrong mint", (tx) => { (tx.meta.postTokenBalances[1] as { mint: string }).mint = "wrong"; }],
     ["wrong owner", (tx) => { tx.meta.postTokenBalances[1].owner = "wrong"; }],
     ["wrong token program", (tx) => { tx.meta.postTokenBalances[1].programId = "wrong"; }],
     ["wrong ATA", (tx) => { tx.transaction.message.accountKeys[2] = "wrong"; }],

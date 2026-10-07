@@ -183,7 +183,7 @@ export default function ConsoleOrdersPage() {
         </div>
       </div>
 
-      {/* 多维筛选栏 (发丝边框) */}
+      {/* 多维状态筛选栏 */}
       <div className="p-4 border border-zinc-200 rounded-xl bg-zinc-50/70 flex flex-col md:flex-row gap-4 items-stretch md:items-center justify-between shadow-2xs">
         <div className="flex items-center gap-3 flex-1 max-w-lg">
           <div className="relative w-full">

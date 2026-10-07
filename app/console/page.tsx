@@ -12,7 +12,7 @@ import {
   AlertTriangle,
   Info,
 } from "lucide-react";
-import { clsx } from "clsx";
+import { Tabs } from "@/components/ui/tabs";
 
 export default function ConsoleOverviewPage() {
   const { credits, orders, conversations } = useAppStore();
@@ -120,22 +120,19 @@ export default function ConsoleOverviewPage() {
         </div>
 
         {/* 状态机演示调试切换器 (对齐设计规范) */}
-        <div className="flex items-center gap-1.5 text-[11px] font-mono bg-[#FAFAFA] p-1 border border-[#E4E4E7] self-start sm:self-auto">
-          <span className="text-[#71717A] px-1">状态演示:</span>
-          {(["normal", "loading", "empty", "error"] as const).map((st) => (
-            <button
-              key={st}
-              onClick={() => setViewState(st)}
-              className={clsx(
-                "px-2 py-0.5 uppercase transition-colors cursor-pointer",
-                viewState === st
-                  ? "bg-[#09090B] text-white"
-                  : "text-[#71717A] hover:text-[#09090B]"
-              )}
-            >
-              {st}
-            </button>
-          ))}
+        <div className="flex items-center gap-2 self-start sm:self-auto">
+          <span className="text-[11px] font-mono text-zinc-400">状态演示:</span>
+          <Tabs
+            variant="capsule"
+            activeId={viewState}
+            onChange={(id) => setViewState(id as "normal" | "loading" | "empty" | "error")}
+            items={[
+              { id: "normal", label: "正常" },
+              { id: "loading", label: "加载" },
+              { id: "empty", label: "空态" },
+              { id: "error", label: "告警" },
+            ]}
+          />
         </div>
       </div>
 

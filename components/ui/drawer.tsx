@@ -27,36 +27,44 @@ export const Drawer: React.FC<DrawerProps> = ({
 }) => {
   const panelRef = React.useRef<HTMLDivElement>(null);
   const backdropRef = React.useRef<HTMLDivElement>(null);
-  const [shouldRender, setShouldRender] = React.useState(open);
 
-  React.useEffect(() => {
+  // 遵循 React 19 规范：根据 prop 变动在渲染期间调度状态调整，避免在 effect 内同步 setState
+  const [prevOpen, setPrevOpen] = React.useState(open);
+  const [mounted, setMounted] = React.useState(open);
+
+  if (open !== prevOpen) {
+    setPrevOpen(open);
     if (open) {
-      setShouldRender(true);
-    } else if (panelRef.current && backdropRef.current) {
-      // 退出动画
-      gsap.to(backdropRef.current, { opacity: 0, duration: 0.25 });
-      gsap.to(panelRef.current, {
-        x: "100%",
-        duration: 0.28,
-        ease: "power3.in",
-        onComplete: () => setShouldRender(false),
-      });
-    } else {
-      setShouldRender(false);
+      setMounted(true);
     }
-  }, [open]);
+  }
 
-  // 入场动画
   React.useEffect(() => {
-    if (shouldRender && open && panelRef.current && backdropRef.current) {
-      gsap.fromTo(backdropRef.current, { opacity: 0 }, { opacity: 1, duration: 0.3 });
-      gsap.fromTo(
-        panelRef.current,
-        { x: "100%" },
-        { x: "0%", duration: 0.38, ease: "power3.out" }
-      );
+    if (!open && mounted) {
+      // 退出补间
+      if (panelRef.current && backdropRef.current) {
+        gsap.to(backdropRef.current, { opacity: 0, duration: 0.25 });
+        gsap.to(panelRef.current, {
+          x: "100%",
+          duration: 0.28,
+          ease: "power3.in",
+          onComplete: () => setMounted(false),
+        });
+      } else {
+        setMounted(false);
+      }
+    } else if (open && mounted) {
+      // 入场补间
+      if (panelRef.current && backdropRef.current) {
+        gsap.fromTo(backdropRef.current, { opacity: 0 }, { opacity: 1, duration: 0.3 });
+        gsap.fromTo(
+          panelRef.current,
+          { x: "100%" },
+          { x: "0%", duration: 0.38, ease: "power3.out" }
+        );
+      }
     }
-  }, [shouldRender, open]);
+  }, [open, mounted]);
 
   React.useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -68,7 +76,7 @@ export const Drawer: React.FC<DrawerProps> = ({
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [open, onClose]);
 
-  if (!shouldRender) return null;
+  if (!mounted) return null;
 
   const widthStyles = {
     sm: "max-w-md",
@@ -111,7 +119,7 @@ export const Drawer: React.FC<DrawerProps> = ({
             <button
               type="button"
               onClick={onClose}
-              className="p-1.5 text-zinc-400 hover:text-zinc-900 hover:bg-zinc-100 rounded-lg border border-transparent hover:border-zinc-200 transition-colors focus-visible:outline-2 focus-visible:outline-zinc-900"
+              className="p-1.5 text-zinc-400 hover:text-zinc-900 hover:bg-zinc-100 rounded-lg border border-transparent hover:border-zinc-200 transition-colors focus-visible:outline-2 focus-visible:outline-zinc-900 cursor-pointer"
               aria-label="关闭抽屉"
             >
               <X className="w-4 h-4" />

@@ -12,9 +12,6 @@ import {
   Clock,
   BookOpen,
   Languages,
-  Sparkles,
-  PhoneCall,
-  CheckCircle2,
 } from "lucide-react";
 import { clsx } from "clsx";
 import { gsap } from "gsap";
