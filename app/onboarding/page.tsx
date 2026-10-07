@@ -5,17 +5,11 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAppStore } from "@/stores/use-app-store";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import {
   CheckCircle2,
   ArrowRight,
   ArrowLeft,
-  Store,
-  MessageSquare,
-  GitBranch,
-  Play,
   Gift,
-  ShieldCheck,
 } from "lucide-react";
 import { clsx } from "clsx";
 
@@ -38,7 +32,6 @@ export default function OnboardingPage() {
   const [storeUrl, setStoreUrl] = useState("https://tokosepatu.co.id");
 
   // Step 3 state
-  const [wabaMode, setWabaMode] = useState<"embedded" | "manual">("embedded");
   const [wabaId, setWabaId] = useState("902819280192");
   const [phoneId, setPhoneId] = useState("102938192039");
 
@@ -82,7 +75,7 @@ export default function OnboardingPage() {
             SolaFlow AI
           </Link>
           <span className="text-xs font-mono text-[#71717A] hidden sm:inline">
-            // 出海商户 6 步初始化激活向导 (严格对齐 PRD 3.1)
+            {"//"} 出海商户 6 步初始化激活向导 (严格对齐 PRD 3.1)
           </span>
         </div>
 

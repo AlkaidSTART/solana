@@ -5,15 +5,9 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
-  Settings,
-  ShieldCheck,
-  Users,
-  Globe,
-  Sliders,
   Download,
   Trash2,
   CheckCircle2,
-  AlertCircle,
 } from "lucide-react";
 
 export default function ConsoleSettingsPage() {

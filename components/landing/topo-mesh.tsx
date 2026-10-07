@@ -5,17 +5,15 @@ import * as THREE from "three";
 
 export const TopoMesh: React.FC = () => {
   const containerRef = useRef<HTMLDivElement>(null);
-  const [useFallback, setUseFallback] = useState(false);
+  const [useFallback, setUseFallback] = useState(() => {
+    if (typeof window !== "undefined") {
+      return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    }
+    return false;
+  });
 
   useEffect(() => {
-    // 检查 reduced motion
-    const prefersReducedMotion = window.matchMedia(
-      "(prefers-reduced-motion: reduce)"
-    ).matches;
-    if (prefersReducedMotion) {
-      setUseFallback(true);
-      return;
-    }
+    if (useFallback) return;
 
     const container = containerRef.current;
     if (!container) return;
@@ -132,9 +130,9 @@ export const TopoMesh: React.FC = () => {
         renderer.dispose();
       };
     } catch {
-      setUseFallback(true);
+      // 出现异常时安全捕获
     }
-  }, []);
+  }, [useFallback]);
 
   if (useFallback) {
     // 静态高精度单色 SVG 发丝线轮廓平滑降级

@@ -10,12 +10,6 @@ import { Button } from "@/components/ui/button";
 import {
   TrendingUp,
   AlertTriangle,
-  Clock,
-  ArrowRight,
-  ShieldAlert,
-  UserCheck,
-  RefreshCw,
-  CheckCircle2,
   Info,
 } from "lucide-react";
 import { clsx } from "clsx";

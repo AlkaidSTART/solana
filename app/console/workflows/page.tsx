@@ -2,19 +2,13 @@
 
 import React, { useState } from "react";
 import { useAppStore, WorkflowRule } from "@/stores/use-app-store";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { Card, CardHeader, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Drawer } from "@/components/ui/drawer";
 import {
-  GitBranch,
-  Clock,
-  Globe,
-  ShieldAlert,
   RotateCcw,
-  Sliders,
   CheckCircle2,
-  AlertCircle,
 } from "lucide-react";
 import { clsx } from "clsx";
 

@@ -1,24 +1,15 @@
 "use client";
 
 import React, { useState } from "react";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { Card, CardHeader, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Drawer } from "@/components/ui/drawer";
 import {
-  Store,
-  MessageSquare,
-  CheckCircle2,
   RefreshCw,
   Plus,
-  Radio,
-  ExternalLink,
-  ShieldCheck,
-  AlertCircle,
   Clock,
-  Send,
 } from "lucide-react";
-import { clsx } from "clsx";
 
 interface TemplateItem {
   id: string;

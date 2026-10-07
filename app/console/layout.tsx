@@ -13,9 +13,7 @@ import {
   BookOpen,
   CreditCard,
   Settings,
-  ChevronDown,
   ExternalLink,
-  ShieldAlert,
   Coins,
   Menu,
   X,
@@ -43,8 +41,6 @@ export default function ConsoleLayout({
     useAppStore();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-  const currentStore =
-    stores.find((s) => s.id === currentStoreId) || stores[0];
 
   return (
     <div className="min-h-screen bg-[#FFFFFF] text-[#09090B] font-sans flex flex-col antialiased">
