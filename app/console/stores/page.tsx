@@ -13,12 +13,13 @@ import {
   CheckCircle2,
   Send,
 } from "lucide-react";
+import type { OrderLanguage } from "@/stores/use-app-store";
 
 interface TemplateItem {
   id: string;
   name: string;
   category: "MARKETING" | "UTILITY";
-  language: "id_ID" | "th_TH" | "en_US";
+  language: OrderLanguage;
   status: "APPROVED" | "PENDING";
   content: string;
 }
@@ -59,6 +60,42 @@ const TEMPLATES: TemplateItem[] = [
     status: "APPROVED",
     content:
       "Hi {{1}}! Your COD order #{{2}} is ready for dispatch to {{3}}. Please confirm if your delivery address is accurate.",
+  },
+  {
+    id: "tmpl_05",
+    name: "abandoned_cart_recovery_sg",
+    category: "MARKETING",
+    language: "en_SG",
+    status: "APPROVED",
+    content:
+      "Hi {{1}}! Notice your cart at {{2}} is waiting. Free courier discount applied lah, complete order {{3}} before stock runs out: {{4}}",
+  },
+  {
+    id: "tmpl_06",
+    name: "cod_address_verify_ms",
+    category: "UTILITY",
+    language: "ms_MY",
+    status: "APPROVED",
+    content:
+      "Hai Sis {{1}}! Pesanan COD #{{2}} bernilai {{3}} sedia untuk dipos ke {{4}}. Sila pastikan alamat betul sebelum kami hantar ya.",
+  },
+  {
+    id: "tmpl_07",
+    name: "abandoned_cart_recovery_vi",
+    category: "MARKETING",
+    language: "vi_VN",
+    status: "APPROVED",
+    content:
+      "Chào bạn {{1}}! Giỏ hàng tại {{2}} của bạn vẫn đang được giữ. Hoàn tất đơn hàng {{3}} để nhận ưu đãi freeship nha: {{4}}",
+  },
+  {
+    id: "tmpl_08",
+    name: "cod_address_verify_ph",
+    category: "UTILITY",
+    language: "fil_PH",
+    status: "APPROVED",
+    content:
+      "Hi {{1}}! Ang inyong COD order #{{2}} na nagkakahalaga ng {{3}} ay handa nang i-ship sa {{4}}. Pakikumpirma po ang landmark ng inyong delivery address.",
   },
 ];
 

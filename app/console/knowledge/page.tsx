@@ -26,11 +26,15 @@ export default function ConsoleKnowledgePage() {
   const [editSuccess, setEditSuccess] = useState(false);
   const [isTranslating, setIsTranslating] = useState(false);
 
-  // 编辑临时状态
+  // 编辑临时状态（中/印尼/英/泰 + 新加坡/大马/越南/菲律宾）
   const [zhText, setZhText] = useState("");
   const [idText, setIdText] = useState("");
   const [enText, setEnText] = useState("");
   const [thText, setThText] = useState("");
+  const [enSgText, setEnSgText] = useState("");
+  const [msText, setMsText] = useState("");
+  const [viText, setViText] = useState("");
+  const [filText, setFilText] = useState("");
 
   // 新增知识问答抽屉
   const [newDrawerOpen, setNewDrawerOpen] = useState(false);
@@ -39,13 +43,19 @@ export default function ConsoleKnowledgePage() {
   const [newId, setNewId] = useState("");
   const [newEn, setNewEn] = useState("");
   const [newTh, setNewTh] = useState("");
+  const [newEnSg, setNewEnSg] = useState("");
+  const [newMs, setNewMs] = useState("");
+  const [newVi, setNewVi] = useState("");
+  const [newFil, setNewFil] = useState("");
 
   const filteredItems = knowledgeItems.filter((item) => {
     const matchesStatus = statusFilter === "ALL" || item.status === statusFilter;
     const matchesSearch =
       item.zh.toLowerCase().includes(searchQuery.toLowerCase()) ||
       item.idGaul.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      item.en.toLowerCase().includes(searchQuery.toLowerCase());
+      item.en.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (item.enSg && item.enSg.toLowerCase().includes(searchQuery.toLowerCase())) ||
+      (item.ms && item.ms.toLowerCase().includes(searchQuery.toLowerCase()));
     return matchesStatus && matchesSearch;
   });
 
@@ -55,6 +65,10 @@ export default function ConsoleKnowledgePage() {
     setIdText(item.idGaul);
     setEnText(item.en);
     setThText(item.th);
+    setEnSgText(item.enSg || "");
+    setMsText(item.ms || "");
+    setViText(item.vi || "");
+    setFilText(item.fil || "");
     setEditSuccess(false);
   };
 
@@ -65,6 +79,10 @@ export default function ConsoleKnowledgePage() {
       setIdText("Bisa kak, pengiriman ke seluruh kota Jabodetabek & Jawa Barat 1-2 hari sampai!");
       setEnText("Yes, delivery across Jabodetabek and West Java takes 1-2 business days.");
       setThText("ได้ครับคุณลูกค้า จัดส่งทั่วกรุงเทพและปริมณฑลใช้เวลา 1-2 วันครับ");
+      setEnSgText("Can lah! Islandwide doorstep courier across Singapore takes 1-2 days only.");
+      setMsText("Boleh sis, penghantaran Semenanjung guna Pos Laju 1-2 hari bekerja sampai!");
+      setViText("Dạ được nha shop, giao hàng hoả tốc nội thành 1-2 ngày là nhận được ạ!");
+      setFilText("Opo, 1-2 araw lang po ang delivery sa inyo via J&T Express!");
     }, 600);
   };
 
@@ -73,9 +91,14 @@ export default function ConsoleKnowledgePage() {
     setIsTranslating(true);
     setTimeout(() => {
       setIsTranslating(false);
-      setNewId(`Siap kak, untuk ${newZh.slice(0, 10)}... kami bantu cek garansi ya.`);
-      setNewEn(`Yes dear, regarding ${newZh.slice(0, 10)}... our team will verify for you.`);
-      setNewTh(`ครับผม สำหรับ ${newZh.slice(0, 10)}... ทีมงานดูแลให้ครับ`);
+      const snippet = newZh.slice(0, 10);
+      setNewId(`Siap kak, untuk ${snippet}... kami bantu cek garansi ya.`);
+      setNewEn(`Yes dear, regarding ${snippet}... our team will verify for you.`);
+      setNewTh(`ครับผม สำหรับ ${snippet}... ทีมงานดูแลให้ครับ`);
+      setNewEnSg(`Can help you check ${snippet} right away lah, don't worry!`);
+      setNewMs(`Boleh sangat sis, untuk ${snippet}... kami semak untuk anda ya.`);
+      setNewVi(`Dạ vâng, về ${snippet}... shop sẽ kiểm tra hỗ trợ bạn ngay ạ.`);
+      setNewFil(`Opo, tungkol po sa ${snippet}... iche-check po namin agad para sa inyo.`);
     }, 600);
   };
 
@@ -86,6 +109,10 @@ export default function ConsoleKnowledgePage() {
       idGaul: idText,
       en: enText,
       th: thText,
+      enSg: enSgText,
+      ms: msText,
+      vi: viText,
+      fil: filText,
       status: "PUBLISHED",
       lastUpdated: "刚刚",
     });
@@ -107,6 +134,10 @@ export default function ConsoleKnowledgePage() {
       idGaul: newId || "Halo kak, siap kami layani secepatnya ya!",
       en: newEn || "Hello, we are happy to assist you immediately!",
       th: newTh || "สวัสดีครับ พร้อมให้บริการคุณลูกค้าทันทีครับ",
+      enSg: newEnSg || "Hello! Ready to assist you right away lah!",
+      ms: newMs || "Hai sis, sedia membantu dengan segera!",
+      vi: newVi || "Chào bạn, shop sẵn sàng hỗ trợ bạn ngay ạ!",
+      fil: newFil || "Kumusta po, handa po kaming tumulong sa inyo agad!",
       status: "PUBLISHED",
       lastUpdated: "刚刚",
     };
@@ -117,6 +148,10 @@ export default function ConsoleKnowledgePage() {
     setNewId("");
     setNewEn("");
     setNewTh("");
+    setNewEnSg("");
+    setNewMs("");
+    setNewVi("");
+    setNewFil("");
   };
 
   return (
