@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import { clsx } from "clsx";
 import { gsap } from "gsap";
+import { getI18nText } from "@/lib/i18n";
 
 export default function ConsoleInboxPage() {
   const {
@@ -22,6 +23,7 @@ export default function ConsoleInboxPage() {
     activeConversationId,
     toggleHumanTakeover,
     sendChatMessage,
+    locale,
   } = useAppStore();
 
   const [activeId, setActiveId] = useState<string>(
@@ -77,18 +79,18 @@ export default function ConsoleInboxPage() {
         <div>
           <div className="flex items-center gap-2">
             <h1 className="text-lg font-mono uppercase tracking-wider font-bold text-zinc-900">
-              会话与人工队列 · Inbox & Handover
+              {getI18nText(locale, "inbox_title")}
             </h1>
-            <Badge variant="outline">Demo/Mock</Badge>
+            <Badge variant="outline">{getI18nText(locale, "demo_badge")}</Badge>
           </div>
           <p className="text-xs text-zinc-500 font-mono mt-0.5">
-            三栏高密度工作台 • 24h Meta 服务窗口保护 • 双向实时翻译 • 印尼俚语词典
+            {getI18nText(locale, "inbox_subhead")}
           </p>
         </div>
 
         <div className="flex items-center gap-2 text-xs font-mono">
           <Badge variant="success" dot>
-            客服在线 (Agent Online)
+            Agent Online
           </Badge>
         </div>
       </div>
@@ -105,9 +107,9 @@ export default function ConsoleInboxPage() {
                 activeId={filterType}
                 onChange={setFilterType}
                 items={[
-                  { id: "ALL", label: "全部" },
-                  { id: "TAKEOVER", label: "待接管" },
-                  { id: "BOT", label: "AI托管" },
+                  { id: "ALL", label: getI18nText(locale, "status_all") },
+                  { id: "TAKEOVER", label: getI18nText(locale, "inbox_queue_human") },
+                  { id: "BOT", label: getI18nText(locale, "inbox_queue_ai") },
                 ]}
                 className="w-full justify-between"
               />
@@ -190,12 +192,12 @@ export default function ConsoleInboxPage() {
               {activeChat?.isHumanTakeover ? (
                 <>
                   <Bot className="w-3.5 h-3.5 mr-1 text-emerald-600" />
-                  移交回 AI 自动托管
+                  {getI18nText(locale, "inbox_btn_release")}
                 </>
               ) : (
                 <>
                   <UserCheck className="w-3.5 h-3.5 mr-1 text-indigo-600" />
-                  接管当前会话
+                  {getI18nText(locale, "inbox_btn_takeover")}
                 </>
               )}
             </Button>
@@ -269,8 +271,8 @@ export default function ConsoleInboxPage() {
                 type="text"
                 placeholder={
                   activeChat?.isHumanTakeover
-                    ? "输入回复内容（按 Enter 发送）..."
-                    : "当前为 AI 自动托管，点击右上角【接管当前会话】后可手动发送回复"
+                    ? getI18nText(locale, "inbox_input_placeholder")
+                    : getI18nText(locale, "inbox_queue_ai")
                 }
                 value={inputText}
                 onChange={(e) => setInputText(e.target.value)}
