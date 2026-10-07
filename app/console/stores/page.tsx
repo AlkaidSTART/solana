@@ -13,7 +13,8 @@ import {
   CheckCircle2,
   Send,
 } from "lucide-react";
-import type { OrderLanguage } from "@/stores/use-app-store";
+import { useAppStore, type OrderLanguage } from "@/stores/use-app-store";
+import { getI18nText } from "@/lib/i18n";
 
 interface TemplateItem {
   id: string;
