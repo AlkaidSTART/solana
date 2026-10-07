@@ -1,210 +1,109 @@
 "use client";
 
-import React, { useState } from "react";
-import { Modal } from "@/components/ui/modal";
-import { Button } from "@/components/ui/button";
-import { useAppStore } from "@/stores/use-app-store";
-import { CheckCircle2, QrCode, Loader2, Sparkles } from "lucide-react";
-import { clsx } from "clsx";
+import { useEffect, useRef, useState } from "react";
+import Image from "next/image";
+import dynamic from "next/dynamic";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 
-interface SolanaPayModalProps {
-  open: boolean;
+import { paymentRequest } from "@/lib/payments/client";
+import { checkoutSchema, explorerUrl, formatUsdc, type Checkout } from "@/lib/payments/contracts";
+
+const PaymentWallet = dynamic(() => import("./payment-wallet").then((module) => module.PaymentWallet), { ssr: false, loading: () => <p>正在加载钱包…</p> });
+const statusLabels = { awaiting_payment: "等待付款", confirmed: "已确认，等待 finalized；尚未入账", credited: "已 finalized 并校验入账", expired: "报价已过期，请勿继续支付" };
+
+const DEFAULT_DEVNET_CHECKOUT: Checkout = {
+  order: {
+    id: "00000000-0000-4000-8000-000000000001",
+    tenantId: "00000000-0000-4000-8000-000000000002",
+    network: "devnet",
+    reference: "4zHHs87fKk99Lpq1V788k918SolaFlowRef",
+    recipient: "SolaFlow9xUSDC882K19z88Kx198aa7DevDevnet",
+    recipientAta: "AtaRecipientSolaFlow9xUSDC882K19z88Kx198aa7",
+    mint: "4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU",
+    amountAtomic: "25000000",
+    credits: 2500,
+    priceVersion: "credits-2026-10-07",
+    createdAt: new Date().toISOString(),
+    expiresAt: new Date(Date.now() + 20 * 60 * 1000).toISOString(),
+    status: "awaiting_payment",
+    signature: null,
+  },
+  payUrl: "solana:SolaFlow9xUSDC882K19z88Kx198aa7DevDevnet?amount=25.000000&spl-token=4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU",
+  qr: "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='white'/><rect x='10' y='10' width='30' height='30' fill='black'/><rect x='60' y='10' width='30' height='30' fill='black'/><rect x='10' y='60' width='30' height='60' fill='black'/></svg>",
+};
+
+export interface SolanaPayModalProps {
+  open?: boolean;
+  checkout?: Checkout;
   onClose: () => void;
 }
 
-export const SolanaPayModal: React.FC<SolanaPayModalProps> = ({ open, onClose }) => {
-  const { topupCredits } = useAppStore();
-  const [selectedTier, setSelectedTier] = useState<number>(100);
-  const [status, setStatus] = useState<"IDLE" | "PROCESSING" | "FINALIZED">("IDLE");
-  const [txHash, setTxHash] = useState<string>("");
+export function SolanaPayModal({ checkout, open, onClose }: SolanaPayModalProps) {
+  const dialog = useRef<HTMLDialogElement>(null);
+  const client = useQueryClient();
+  const isDemo = !checkout;
+  const activeCheckout = checkout ?? DEFAULT_DEVNET_CHECKOUT;
 
-  const tiers = [
-    { usdc: 25, credits: 2500, label: "Starter", bonus: "基准费率" },
-    { usdc: 100, credits: 11000, label: "Growth", bonus: "+10% 赠送" },
-    { usdc: 500, credits: 60000, label: "Enterprise", bonus: "+20% 赠送" },
-  ];
+  const orderQuery = useQuery({
+    queryKey: ["payments", activeCheckout.order.tenantId, "order", activeCheckout.order.id],
+    queryFn: async ({ signal }) => {
+      const result = await paymentRequest(`orders/${activeCheckout.order.id}`, checkoutSchema, { method: "POST", signal });
+      if (result.order.status === "credited") await client.invalidateQueries({ queryKey: ["payments", "billing"] });
+      return result;
+    },
+    initialData: activeCheckout,
+    enabled: !isDemo && open !== false,
+    refetchInterval: (query) => query.state.data?.order.status === "credited" ? false : 5000,
+    retry: false,
+  });
 
-  const currentTier = tiers.find((t) => t.usdc === selectedTier) || tiers[1];
+  useEffect(() => {
+    if (open === false) return;
+    const element = dialog.current;
+    const previous = document.activeElement;
+    element?.showModal();
+    return () => { element?.close(); if (previous instanceof HTMLElement) previous.focus(); };
+  }, [open]);
 
-  // 播放原生微触感提示音 (Web Audio API)
-  const playTone = () => {
-    try {
-      const audioCtx = new (window.AudioContext ||
-        (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext)();
-      const osc = audioCtx.createOscillator();
-      const gain = audioCtx.createGain();
-      osc.type = "sine";
-      osc.frequency.setValueAtTime(587.33, audioCtx.currentTime); // D5
-      osc.frequency.exponentialRampToValueAtTime(880, audioCtx.currentTime + 0.15); // A5
-      gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.25);
-      osc.connect(gain);
-      gain.connect(audioCtx.destination);
-      osc.start();
-      osc.stop(audioCtx.currentTime + 0.25);
-    } catch {
-      // AudioContext unavailable or blocked by policy
-    }
-  };
+  const data = orderQuery.data;
+  const order = data.order;
+  const [isExpired, setIsExpired] = useState(false);
 
-  const handleSimulatePayment = () => {
-    setStatus("PROCESSING");
-    const fakeHash = "4zHHs87fKk99Lpq1V788k918";
+  useEffect(() => {
+    const checkExpiration = () => {
+      if (order.status === "expired" || Date.now() >= Date.parse(order.expiresAt)) {
+        setIsExpired(true);
+      }
+    };
+    checkExpiration();
+    const interval = setInterval(checkExpiration, 1000);
+    return () => clearInterval(interval);
+  }, [order.status, order.expiresAt]);
 
-    setTimeout(() => {
-      setStatus("FINALIZED");
-      setTxHash(fakeHash);
-      playTone();
-      topupCredits(currentTier.usdc, currentTier.credits, fakeHash);
-    }, 600);
-  };
+  if (open === false) return null;
 
-  const handleReset = () => {
-    setStatus("IDLE");
-    setTxHash("");
-    onClose();
-  };
-
-  return (
-    <Modal
-      open={open}
-      onClose={handleReset}
-      title="Solana Pay 毫秒级原生充值"
-      subtitle="无需传统信用卡 3% 汇损 • Devnet 原生 USDC 极速到账 • 0.00025 手续费"
-      width="lg"
-    >
-      {status === "FINALIZED" ? (
-        <div className="py-6 text-center space-y-4">
-          <div className="w-12 h-12 mx-auto rounded-full bg-[#059669]/10 text-[#059669] flex items-center justify-center border border-[#059669]/20">
-            <CheckCircle2 className="w-7 h-7" />
-          </div>
-
-          <div>
-            <h4 className="text-base font-mono uppercase font-bold text-[#09090B]">
-              链上结算完成 (Finalized in 418ms)
-            </h4>
-            <p className="text-xs font-mono text-[#71717A] mt-1">
-              成功充值 {currentTier.usdc} USDC，+{currentTier.credits.toLocaleString()} Credits 已即时入账！
-            </p>
-          </div>
-
-          <div className="p-3 bg-[#FAFAFA] border border-[#E4E4E7] text-left text-xs font-mono max-w-md mx-auto space-y-1">
-            <div className="flex justify-between text-[#71717A]">
-              <span>Network:</span>
-              <span className="text-[#09090B]">Solana Devnet (v1.1)</span>
-            </div>
-            <div className="flex justify-between text-[#71717A]">
-              <span>Transaction Hash:</span>
-              <span className="text-[#09090B] truncate max-w-[200px]">{txHash}</span>
-            </div>
-            <div className="flex justify-between text-[#71717A]">
-              <span>L1 Gas Fee:</span>
-              <span className="text-[#059669]">0.000005 SOL ($0.00025)</span>
-            </div>
-          </div>
-
-          <div className="pt-2">
-            <Button onClick={handleReset} className="w-full max-w-md">
-              返回并查看 Credits 余额
-            </Button>
-          </div>
-        </div>
-      ) : (
-        <div className="space-y-6">
-          {/* 充值档位选择 */}
-          <div>
-            <div className="text-[11px] font-mono uppercase tracking-wider text-[#71717A] mb-2">
-              选择充值档位 (USDC 票据)
-            </div>
-            <div className="grid grid-cols-3 gap-3">
-              {tiers.map((t) => {
-                const isSelected = t.usdc === selectedTier;
-                return (
-                  <div
-                    key={t.usdc}
-                    onClick={() => setSelectedTier(t.usdc)}
-                    className={clsx(
-                      "p-3.5 border cursor-pointer transition-all flex flex-col justify-between",
-                      isSelected
-                        ? "bg-[#09090B] text-white border-[#09090B]"
-                        : "bg-white text-[#09090B] border-[#E4E4E7] hover:border-[#09090B]"
-                    )}
-                  >
-                    <div>
-                      <div className="text-[10px] font-mono uppercase opacity-70">
-                        {t.label}
-                      </div>
-                      <div className="text-lg font-mono font-bold mt-0.5">
-                        ${t.usdc} USDC
-                      </div>
-                    </div>
-                    <div className="mt-3 pt-2 border-t border-current/20 flex flex-col text-[10px] font-mono">
-                      <span>+{t.credits.toLocaleString()} 点</span>
-                      <span className="opacity-75">{t.bonus}</span>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-
-          {/* 链上二维码与收款信息分屏 */}
-          <div className="grid grid-cols-1 sm:grid-cols-12 gap-5 p-4 border border-[#E4E4E7] bg-[#FAFAFA]">
-            {/* 二维码示意 */}
-            <div className="sm:col-span-4 flex flex-col items-center justify-center p-3 bg-white border border-[#E4E4E7]">
-              <div className="w-32 h-32 border border-[#E4E4E7] bg-white flex flex-col items-center justify-center text-center p-2">
-                <QrCode className="w-20 h-20 text-[#09090B]" />
-                <span className="text-[9px] font-mono text-[#71717A] mt-1">
-                  SOLANA PAY QR
-                </span>
-              </div>
-            </div>
-
-            {/* 收款参数 */}
-            <div className="sm:col-span-8 flex flex-col justify-between space-y-2 text-xs font-mono">
-              <div>
-                <div className="text-[#71717A] text-[10px] uppercase">收款商户公钥 (Devnet Recipient)</div>
-                <div className="text-[#09090B] font-semibold select-all mt-0.5 break-all">
-                  SolaFlow9xUSDC882K19z88Kx198aa7Dev
-                </div>
-              </div>
-
-              <div>
-                <div className="text-[#71717A] text-[10px] uppercase">应付金额与代币标准</div>
-                <div className="text-sm font-bold text-[#09090B]">
-                  {currentTier.usdc}.00 USDC (SPL Token)
-                </div>
-              </div>
-
-              <div className="pt-2 text-[10px] text-[#71717A] flex items-center gap-1.5">
-                <Sparkles className="w-3.5 h-3.5 text-[#059669]" />
-                <span>Phantom / Solflare 扫码或点击一键完成</span>
-              </div>
-            </div>
-          </div>
-
-          {/* 行动按钮 */}
-          <div className="flex flex-col sm:flex-row gap-3 pt-2">
-            <Button
-              onClick={handleSimulatePayment}
-              disabled={status === "PROCESSING"}
-              className="flex-1 h-11 text-xs"
-            >
-              {status === "PROCESSING" ? (
-                <>
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  正在广播至 Solana Devnet...
-                </>
-              ) : (
-                `立即在 Devnet 模拟付款 (${currentTier.usdc} USDC)`
-              )}
-            </Button>
-            <Button variant="outline" onClick={onClose} className="h-11 text-xs">
-              取消
-            </Button>
-          </div>
-        </div>
-      )}
-    </Modal>
-  );
-};
+  const expired = order.status === "expired" || isExpired;
+  return <dialog ref={dialog} aria-labelledby="payment-title" onCancel={onClose} className="m-auto max-h-[90dvh] w-[calc(100%_-_2rem)] max-w-lg overflow-y-auto rounded-xl border border-zinc-200 bg-white p-5 text-zinc-900 shadow-xl backdrop:bg-black/40">
+    <div className="flex items-start justify-between gap-4">
+      <h2 id="payment-title" className="text-lg font-semibold">Devnet USDC 测试付款</h2>
+      <button className="payment-button" aria-label="关闭支付对话框" onClick={onClose}>关闭</button>
+    </div>
+    <div className="mt-4 space-y-4">
+      <p className="rounded-lg bg-amber-50 p-3 text-sm text-amber-900">仅测试网络，不购买正式权益。请在钱包中确认 Devnet、USDC mint、金额与收款人。SOL 手续费 / 账户租金由钱包实际估算。</p>
+      <p className="text-xl font-semibold">{formatUsdc(order.amountAtomic)} USDC → {order.credits.toLocaleString()} 测试 Credits</p>
+      <p role="status" className="text-sm font-medium">{statusLabels[order.status]}</p>
+      <p className="text-xs">报价截止（UTC）：{order.expiresAt.replace("T", " ").replace(".000Z", " UTC")}</p>
+      <dl className="space-y-2 break-all text-xs text-zinc-600"><dt>收款人</dt><dd>{order.recipient}</dd><dt>USDC mint（Devnet）</dt><dd>{order.mint}</dd><dt>订单</dt><dd>{order.id}</dd></dl>
+      {orderQuery.error && <p role="alert" className="text-sm text-red-700">状态检查失败：{orderQuery.error.message}。不要重复付款，稍后刷新。</p>}
+      {order.status === "awaiting_payment" && !expired && <>
+        <Image className="mx-auto" src={data.qr} alt="仅限 Devnet 钱包扫描的 Solana Pay 付款二维码" width={240} height={240} unoptimized />
+        <a className="block text-center text-sm underline" href={data.payUrl}>用已切换至 Devnet 的钱包打开 Solana Pay</a>
+        <PaymentWallet key={order.id} order={order} onSubmitted={() => { void orderQuery.refetch(); }} />
+      </>}
+      {expired && order.status !== "credited" && <p className="text-sm">支付入口已关闭。已在有效期内上链的付款仍会补偿核对；不要盲目创建新订单重付。</p>}
+      {order.signature && <a className="block text-sm underline" href={explorerUrl(order.signature)} target="_blank" rel="noreferrer">在 Solana Explorer 查看真实链上凭据</a>}
+      <button className="payment-button" disabled={orderQuery.isFetching} onClick={() => { void orderQuery.refetch(); }}>{orderQuery.isFetching ? "正在核对…" : "刷新订单状态"}</button>
+      <p className="text-xs text-zinc-500">关闭后不取消订单；后台 worker 运行时将继续核对。重开账单可恢复订单。</p>
+    </div>
+  </dialog>;
+}
