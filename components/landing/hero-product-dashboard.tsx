@@ -9,7 +9,6 @@ import {
   RefreshCw,
   Zap,
   Globe2,
-  Sparkles,
 } from "lucide-react";
 import { clsx } from "clsx";
 

@@ -59,13 +59,13 @@ export default function ConsoleLayout({
             <span className="font-mono text-base font-bold tracking-tight text-zinc-900 group-hover:text-emerald-600 transition-colors">
               SolaFlow
             </span>
-            <span className="text-[9px] font-mono font-bold uppercase px-1.5 py-0.5 rounded bg-zinc-900 text-emerald-400">
+            <span className="hidden lg:inline text-[9px] font-mono font-bold uppercase px-1.5 py-0.5 rounded bg-zinc-900 text-emerald-400">
               AI CONSOLE
             </span>
           </Link>
 
           {/* 店铺下拉选择 */}
-          <div className="hidden sm:flex items-center gap-2 border border-zinc-200 rounded-lg px-2.5 py-1 bg-zinc-50 text-xs font-mono shadow-2xs">
+          <div className="hidden lg:flex items-center gap-2 border border-zinc-200 rounded-lg px-2.5 py-1 bg-zinc-50 text-xs font-mono shadow-2xs">
             <span className="text-zinc-400">店铺:</span>
             <select
               value={currentStoreId}
@@ -117,7 +117,8 @@ export default function ConsoleLayout({
             onChange={(e) =>
               setLocale(e.target.value as "zh_CN" | "en_US" | "id_ID")
             }
-            className="border border-zinc-200 rounded-lg px-2.5 py-1 bg-white text-[11px] font-mono text-zinc-900 focus:outline-none cursor-pointer shadow-2xs"
+            aria-label="界面语言"
+            className="max-w-20 sm:max-w-none border border-zinc-200 rounded-lg px-2.5 py-1 bg-white text-[11px] font-mono text-zinc-900 focus:outline-none cursor-pointer shadow-2xs"
           >
             <option value="zh_CN">中文 (zh_CN)</option>
             <option value="en_US">English (en_US)</option>
@@ -195,7 +196,7 @@ export default function ConsoleLayout({
         </aside>
 
         {/* 右侧主工作区画布 */}
-        <main className="flex-1 overflow-y-auto p-4 sm:p-8 bg-zinc-50/30">
+        <main className="min-w-0 flex-1 overflow-y-auto p-4 sm:p-8 bg-zinc-50/30">
           <div className="max-w-7xl mx-auto space-y-8">{children}</div>
         </main>
       </div>

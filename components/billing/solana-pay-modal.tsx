@@ -2,8 +2,9 @@
 
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import dynamic from "next/dynamic";
-import { QueryClient, QueryClientProvider, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 
 import { paymentRequest } from "@/lib/payments/client";
 import { checkoutSchema, explorerUrl, formatUsdc, type Checkout } from "@/lib/payments/contracts";
@@ -11,46 +12,16 @@ import { checkoutSchema, explorerUrl, formatUsdc, type Checkout } from "@/lib/pa
 const PaymentWallet = dynamic(() => import("./payment-wallet").then((module) => module.PaymentWallet), { ssr: false, loading: () => <p>正在加载钱包…</p> });
 const statusLabels = { awaiting_payment: "等待付款", confirmed: "已确认，等待 finalized；尚未入账", credited: "已 finalized 并校验入账", expired: "报价已过期，请勿继续支付" };
 
-const DEFAULT_DEVNET_CHECKOUT: Checkout = {
-  order: {
-    id: "00000000-0000-4000-8000-000000000001",
-    tenantId: "00000000-0000-4000-8000-000000000002",
-    network: "devnet",
-    reference: "4zHHs87fKk99Lpq1V788k918SolaFlowRef",
-    recipient: "SolaFlow9xUSDC882K19z88Kx198aa7DevDevnet",
-    recipientAta: "AtaRecipientSolaFlow9xUSDC882K19z88Kx198aa7",
-    mint: "4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU",
-    amountAtomic: "25000000",
-    credits: 2500,
-    priceVersion: "credits-2026-10-07",
-    createdAt: new Date().toISOString(),
-    expiresAt: new Date(Date.now() + 20 * 60 * 1000).toISOString(),
-    status: "awaiting_payment",
-    signature: null,
-  },
-  payUrl: "solana:SolaFlow9xUSDC882K19z88Kx198aa7DevDevnet?amount=25.000000&spl-token=4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU",
-  qr: "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='white'/><rect x='10' y='10' width='30' height='30' fill='black'/><rect x='60' y='10' width='30' height='30' fill='black'/><rect x='10' y='60' width='30' height='60' fill='black'/></svg>",
-};
-
-let fallbackClient: QueryClient | null = null;
-function getFallbackClient() {
-  if (!fallbackClient) {
-    fallbackClient = new QueryClient();
-  }
-  return fallbackClient;
-}
-
 export interface SolanaPayModalProps {
   open?: boolean;
   checkout?: Checkout;
   onClose: () => void;
 }
 
-function SolanaPayModalInner({ checkout, open, onClose }: SolanaPayModalProps) {
+function SolanaPayModalInner({ checkout, onClose }: { checkout: Checkout; onClose: () => void }) {
   const dialog = useRef<HTMLDialogElement>(null);
   const client = useQueryClient();
-  const isDemo = !checkout;
-  const activeCheckout = checkout ?? DEFAULT_DEVNET_CHECKOUT;
+  const activeCheckout = checkout;
 
   const orderQuery = useQuery({
     queryKey: ["payments", activeCheckout.order.tenantId, "order", activeCheckout.order.id],
@@ -60,18 +31,16 @@ function SolanaPayModalInner({ checkout, open, onClose }: SolanaPayModalProps) {
       return result;
     },
     initialData: activeCheckout,
-    enabled: !isDemo && open !== false,
     refetchInterval: (query) => query.state.data?.order.status === "credited" ? false : 5000,
     retry: false,
   });
 
   useEffect(() => {
-    if (open === false) return;
     const element = dialog.current;
     const previous = document.activeElement;
     element?.showModal();
     return () => { element?.close(); if (previous instanceof HTMLElement) previous.focus(); };
-  }, [open]);
+  }, []);
 
   const data = orderQuery.data;
   const order = data.order;
@@ -87,8 +56,6 @@ function SolanaPayModalInner({ checkout, open, onClose }: SolanaPayModalProps) {
     const interval = setInterval(checkExpiration, 1000);
     return () => clearInterval(interval);
   }, [order.status, order.expiresAt]);
-
-  if (open === false) return null;
 
   const expired = order.status === "expired" || isExpired;
   return <dialog ref={dialog} aria-labelledby="payment-title" onCancel={onClose} className="m-auto max-h-[90dvh] w-[calc(100%_-_2rem)] max-w-lg overflow-y-auto rounded-xl border border-zinc-200 bg-white p-5 text-zinc-900 shadow-xl backdrop:bg-black/40">
@@ -116,11 +83,24 @@ function SolanaPayModalInner({ checkout, open, onClose }: SolanaPayModalProps) {
   </dialog>;
 }
 
-export function SolanaPayModal(props: SolanaPayModalProps) {
-  if (props.open === false) return null;
-  return (
-    <QueryClientProvider client={getFallbackClient()}>
-      <SolanaPayModalInner {...props} />
-    </QueryClientProvider>
-  );
+// Landing pages have no server quote: navigate rather than fabricate payment data.
+function PaymentEntry({ onClose }: { onClose: () => void }) {
+  const dialog = useRef<HTMLDialogElement>(null);
+  useEffect(() => {
+    const element = dialog.current;
+    const previous = document.activeElement;
+    element?.showModal();
+    return () => { element?.close(); if (previous instanceof HTMLElement) previous.focus(); };
+  }, []);
+  return <dialog ref={dialog} aria-labelledby="payment-entry-title" onCancel={onClose} className="m-auto w-[calc(100%_-_2rem)] max-w-lg rounded-xl bg-white p-6 text-zinc-900 backdrop:bg-black/40">
+    <h2 id="payment-entry-title" className="text-lg font-semibold">创建 Devnet 测试支付</h2>
+    <p className="my-4 text-sm">请到账单页建立本地测试会话并创建服务端报价。此入口不提供假订单或正式权益。</p>
+    <Link href="/console/billing" className="underline">前往账单页</Link>
+    <button className="ml-6 rounded border px-3 py-2" onClick={onClose}>关闭</button>
+  </dialog>;
+}
+
+export function SolanaPayModal({ checkout, open, onClose }: SolanaPayModalProps) {
+  if (open === false) return null;
+  return checkout ? <SolanaPayModalInner key={checkout.order.id} checkout={checkout} onClose={onClose} /> : <PaymentEntry onClose={onClose} />;
 }

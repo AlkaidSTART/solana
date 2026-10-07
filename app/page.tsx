@@ -9,12 +9,7 @@ import { SolanaPayModal } from "@/components/billing/solana-pay-modal";
 import { Button } from "@/components/ui/button";
 import {
   ArrowRight,
-  Globe2,
-  ShieldCheck,
-  Zap,
-  Layers,
   Sparkles,
-  ChevronRight,
 } from "lucide-react";
 import { clsx } from "clsx";
 
