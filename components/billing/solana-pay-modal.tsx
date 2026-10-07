@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import dynamic from "next/dynamic";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { QueryClient, QueryClientProvider, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import { paymentRequest } from "@/lib/payments/client";
 import { checkoutSchema, explorerUrl, formatUsdc, type Checkout } from "@/lib/payments/contracts";
@@ -32,13 +32,21 @@ const DEFAULT_DEVNET_CHECKOUT: Checkout = {
   qr: "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='white'/><rect x='10' y='10' width='30' height='30' fill='black'/><rect x='60' y='10' width='30' height='30' fill='black'/><rect x='10' y='60' width='30' height='60' fill='black'/></svg>",
 };
 
+let fallbackClient: QueryClient | null = null;
+function getFallbackClient() {
+  if (!fallbackClient) {
+    fallbackClient = new QueryClient();
+  }
+  return fallbackClient;
+}
+
 export interface SolanaPayModalProps {
   open?: boolean;
   checkout?: Checkout;
   onClose: () => void;
 }
 
-export function SolanaPayModal({ checkout, open, onClose }: SolanaPayModalProps) {
+function SolanaPayModalInner({ checkout, open, onClose }: SolanaPayModalProps) {
   const dialog = useRef<HTMLDialogElement>(null);
   const client = useQueryClient();
   const isDemo = !checkout;
@@ -106,4 +114,13 @@ export function SolanaPayModal({ checkout, open, onClose }: SolanaPayModalProps)
       <p className="text-xs text-zinc-500">关闭后不取消订单；后台 worker 运行时将继续核对。重开账单可恢复订单。</p>
     </div>
   </dialog>;
+}
+
+export function SolanaPayModal(props: SolanaPayModalProps) {
+  if (props.open === false) return null;
+  return (
+    <QueryClientProvider client={getFallbackClient()}>
+      <SolanaPayModalInner {...props} />
+    </QueryClientProvider>
+  );
 }

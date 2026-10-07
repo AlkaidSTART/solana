@@ -30,7 +30,7 @@
 
 ## 实施补充
 - 钱包使用已安装 wallet 插件的 React hooks 及局部 client，不另装 @solana/react Provider（避免重复上下文）。公共浏览器 Devnet RPC 不携带密钥；服务端 RPC 可单独配置。
-- 账单页保留已有企业视觉，但用隔离测试账本替换假支付 KPI/赠额，不改其他页面。专用 native dialog 管理焦点，不重构共享 Modal。
+- 账单页保留已有企业视觉，但用隔离测试账本替换假支付 KPI/赠额，不改其他页面；首页旧弹窗入口改为账单导航，避免绕过服务端报价。专用 native dialog 管理焦点，不重构共享 Modal。
 - 生产环境完全禁止本模块，必须显式 PAYMENTS_DEVNET_ENABLED=true。钱包提交不明确时禁止自动重发；用户核查后方可手动重试。
 
 ## 最终验收

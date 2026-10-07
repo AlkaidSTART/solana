@@ -5,7 +5,6 @@ import Link from "next/link";
 import { HeroProductDashboard } from "@/components/landing/hero-product-dashboard";
 import { TelemetrySandbox } from "@/components/landing/telemetry-sandbox";
 import { RoiCalculator } from "@/components/landing/roi-calculator";
-import { SolanaPayModal } from "@/components/billing/solana-pay-modal";
 import { Button } from "@/components/ui/button";
 import {
   ArrowRight,
@@ -15,7 +14,6 @@ import { clsx } from "clsx";
 
 export default function LandingPage() {
   const [lang, setLang] = useState<"EN" | "ID" | "ZH">("ZH");
-  const [payModalOpen, setPayModalOpen] = useState(false);
 
   const heroTitles = {
     ZH: {
@@ -78,14 +76,9 @@ export default function LandingPage() {
               ))}
             </div>
 
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setPayModalOpen(true)}
-              className="hidden md:inline-flex"
-            >
-              Solana Pay
-            </Button>
+            <Link href="/console/billing" className="inline-flex items-center justify-center border border-zinc-200 px-3 py-2 text-xs hover:bg-zinc-50 focus-visible:outline-2 hidden md:inline-flex">
+                  Solana Pay
+                </Link>
 
             <Link href="/console">
               <Button variant="outline" size="sm">
@@ -128,14 +121,9 @@ export default function LandingPage() {
                     <ArrowRight className="w-4 h-4 ml-2" />
                   </Button>
                 </a>
-                <Button
-                  variant="outline"
-                  size="lg"
-                  onClick={() => setPayModalOpen(true)}
-                  className="h-11 px-6 text-xs"
-                >
+                <Link href="/console/billing" className="inline-flex items-center justify-center border border-zinc-200 px-3 py-2 text-xs hover:bg-zinc-50 focus-visible:outline-2 h-11 px-6 text-xs">
                   体验 Solana Pay
-                </Button>
+                </Link>
                 <Link href="/onboarding">
                   <Button variant="ghost" size="lg" className="h-11 px-4 text-xs text-zinc-600 hover:text-zinc-900">
                     商户 6 步入驻向导 →
@@ -331,14 +319,9 @@ export default function LandingPage() {
                   立即免费接入 (Claim 100 Credits)
                 </Button>
               </Link>
-              <Button
-                variant="outline"
-                size="lg"
-                onClick={() => setPayModalOpen(true)}
-                className="h-12 px-8 text-xs"
-              >
-                Solana Pay Devnet 充值体验
-              </Button>
+              <Link href="/console/billing" className="inline-flex items-center justify-center border border-zinc-200 px-3 py-2 text-xs hover:bg-zinc-50 focus-visible:outline-2 h-12 px-8 text-xs">
+                  Solana Pay Devnet 充值体验
+                </Link>
             </div>
           </div>
         </section>
@@ -359,7 +342,6 @@ export default function LandingPage() {
       </footer>
 
       {/* Solana Pay 充值模态框 */}
-      <SolanaPayModal open={payModalOpen} onClose={() => setPayModalOpen(false)} />
     </div>
   );
 }
