@@ -63,6 +63,38 @@ describe("PostgreSQL settlement", () => {
       expect((await repository.get(order.id, tenant))?.status).toBe("awaiting_payment");
     } finally { await engine.exec("ALTER TABLE test_credit_ledger DROP CONSTRAINT injected_failure"); }
   });
+  it("cancels awaiting_payment order and prevents background polling", async () => {
+    const order = await repository.create(orderFixture(), randomUUID());
+    const cancelled = await repository.cancel(order.id, tenant);
+    expect(cancelled?.status).toBe("cancelled");
+    expect((await repository.get(order.id, tenant))?.status).toBe("cancelled");
+    const pendingList = await repository.pending();
+    expect(pendingList.some((o) => o.id === order.id)).toBe(false);
+    expect(await repository.cancel(order.id, tenant)).toBeNull();
+  });
+  it("deletes awaiting_payment, expired, or cancelled order and cascade deletes candidates", async () => {
+    const order = await repository.create(orderFixture(), randomUUID());
+    await repository.record(order.id, testSignature, "confirmed");
+    expect(await repository.delete(order.id, tenant)).toBe(true);
+    expect(await repository.get(order.id, tenant)).toBeNull();
+    expect((await db.query("SELECT * FROM payment_candidates WHERE order_id=$1", [order.id])).rows).toHaveLength(0);
+    expect(await repository.delete(order.id, tenant)).toBe(false);
+  });
+  it("forbids deleting credited or confirmed orders to preserve financial records", async () => {
+    const order = await repository.create(orderFixture(), randomUUID());
+    await repository.settle(order, transfer);
+    await expect(repository.delete(order.id, tenant)).rejects.toThrow("已入账订单为财务凭据，不可删除");
+    const otherOrder = await repository.create({ ...orderFixture(), id: randomUUID(), reference: "confirmed-ref" }, randomUUID());
+    await repository.mark(otherOrder.id, "confirmed");
+    await expect(repository.delete(otherOrder.id, tenant)).rejects.toThrow("正在链上确认中的订单不可删除");
+  });
+  it("isolates tenant cancellation and deletion", async () => {
+    const order = await repository.create(orderFixture(), randomUUID());
+    const otherTenant = randomUUID();
+    expect(await repository.cancel(order.id, otherTenant)).toBeNull();
+    expect(await repository.delete(order.id, otherTenant)).toBe(false);
+    expect((await repository.get(order.id, tenant))?.status).toBe("awaiting_payment");
+  });
 });
 function mockChain(finalized: boolean): PaymentChain {
   return { genesis: async () => DEVNET_GENESIS, signatures: async () => [{ signature: testSignature, blockTime: transfer.blockTime }], transaction: async (_signature, commitment) => commitment === "confirmed" || finalized ? transactionFixture() : null };

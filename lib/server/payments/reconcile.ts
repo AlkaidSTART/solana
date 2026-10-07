@@ -5,7 +5,7 @@ import type { PaymentChain } from "./rpc";
 import type { PaymentRepository } from "./repository";
 
 export async function reconcile(order: PaymentOrder, chain: PaymentChain, repository: PaymentRepository) {
-  if (order.status === "credited") return;
+  if (order.status === "credited" || order.status === "cancelled") return;
   const genesis = await chain.genesis();
   if (genesis !== DEVNET_GENESIS) throw new Error("Wrong network");
   let before: string | undefined;

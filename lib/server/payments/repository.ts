@@ -24,14 +24,30 @@ export class PaymentRepository {
     return rows.map((r) => orderSchema.parse(r));
   }
   async pending() {
-    const { rows } = await this.db.query(`SELECT ${projection} FROM payment_orders WHERE status <> 'credited' ORDER BY last_checked_at NULLS FIRST, created_at LIMIT 50`);
+    const { rows } = await this.db.query(`SELECT ${projection} FROM payment_orders WHERE status <> 'credited' AND status <> 'cancelled' ORDER BY last_checked_at NULLS FIRST, created_at LIMIT 50`);
     return rows.map((r) => orderSchema.parse(r));
   }
   async record(id: string, signature: string, result: string) {
     await this.db.query(`INSERT INTO payment_candidates(order_id,signature,result) VALUES ($1,$2,$3) ON CONFLICT(order_id,signature) DO UPDATE SET result=$3, checked_at=now()`, [id, signature, result]);
   }
   async mark(id: string, status: "confirmed" | "expired" | "review_required") {
-    await this.db.query(`UPDATE payment_orders SET status=$2 WHERE id=$1 AND status <> 'credited'`, [id, status]);
+    await this.db.query(`UPDATE payment_orders SET status=$2 WHERE id=$1 AND status <> 'credited' AND status <> 'cancelled'`, [id, status]);
+  }
+  async cancel(id: string, tenant: string) {
+    const { rows } = await this.db.query(`UPDATE payment_orders SET status='cancelled' WHERE id=$1 AND tenant_id=$2 AND status='awaiting_payment' RETURNING ${projection}`, [id, tenant]);
+    return rows[0] ? orderSchema.parse(rows[0]) : null;
+  }
+  async delete(id: string, tenant: string): Promise<boolean> {
+    const { rows } = await this.db.query(`SELECT status FROM payment_orders WHERE id=$1 AND tenant_id=$2`, [id, tenant]);
+    if (!rows[0]) return false;
+    const status = rows[0].status;
+    if (status === "credited") throw new Error("已入账订单为财务凭据，不可删除");
+    if (status === "confirmed") throw new Error("正在链上确认中的订单不可删除");
+    return this.db.transaction(async (sql) => {
+      await sql.query(`DELETE FROM payment_candidates WHERE order_id=$1`, [id]);
+      const result = await sql.query(`DELETE FROM payment_orders WHERE id=$1 AND tenant_id=$2 AND status <> 'credited' AND status <> 'confirmed'`, [id, tenant]);
+      return (result.rowCount ?? 0) > 0;
+    });
   }
   async checked(id: string) { await this.db.query("UPDATE payment_orders SET last_checked_at=now() WHERE id=$1", [id]); }
   async settle(order: PaymentOrder, transfer: VerifiedTransfer) {
