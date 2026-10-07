@@ -1,7 +1,7 @@
 # 需求执行记录：Devnet 原生 SOL 小额付款测试
 计划：docs/plans/2026-10-07-devnet-sol-smoke/plan.md
 - [x] T1 计划：确认用户持有 Devnet SOL，固定 0.001 SOL、独立测试收据、无 Credits；读项目 skill/PRD/现有支付模块与 Next Route Handler；git 初始干净；Solana MCP 已配置。
-- [ ] T1 依赖兼容检查。
+- [x] T1 依赖：`pnpm add @solana-program/system@0.15.0` 成功；peer `@solana/kit ^8.3.0` 兼容本地 8.4.0，沿用官方 System 转账构造器；核验官方 System 仓库、instructions 和 getTransaction 文档及本地类型。只修改 manifest/pnpm lock；发现其他任务的 i18n result.md 改动，保留。下一步 T2。
 - [ ] T2 服务端与验证自动化。
 - [ ] T3 钱包、页面与浏览器回归。
 - [ ] T4 质量闸门及本地配置预检。
