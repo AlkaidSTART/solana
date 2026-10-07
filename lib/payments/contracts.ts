@@ -2,7 +2,7 @@ import { z } from "zod";
 
 export const DEVNET_USDC = "4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU";
 export const TOKEN_PROGRAM = "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA";
-export const DEVNET_GENESIS = "EtWTRABZaYq6iMfeYKouRu166VU2xqa1";
+export const DEVNET_GENESIS = "EtWTRABZaYq6iMfeYKouRu166VU2xqa1wcaWoxPkrZBG";
 export const PRICE_VERSION = "credits-2026-10-07";
 export const QUOTE_SECONDS = 20 * 60;
 export const creditInput = z.object({ credits: z.number().int().min(100).max(100_000) }).strict();

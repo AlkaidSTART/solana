@@ -28,5 +28,10 @@
 3. T3 前端：替换假支付与账本，Query、钱包、QR、焦点/键盘、重开恢复。浏览器隔离 API/RPC mocks 测 loading/empty/error/retry、三档视口、拒签与减少动效；与真实网络结果明确区分。
 4. T4 验收：lint、next typegen + tsc、Vitest、Playwright、build、git diff --check、AGENTS 行数；尝试 Devnet 网络连通/实链联调，保存证据或阻塞原因。运行说明写入 result.md / README，不提交 secrets 或测试产物。
 
+## 实施补充
+- 钱包使用已安装 wallet 插件的 React hooks 及局部 client，不另装 @solana/react Provider（避免重复上下文）。公共浏览器 Devnet RPC 不携带密钥；服务端 RPC 可单独配置。
+- 账单页保留已有企业视觉，但用隔离测试账本替换假支付 KPI/赠额，不改其他页面。专用 native dialog 管理焦点，不重构共享 Modal。
+- 生产环境完全禁止本模块，必须显式 PAYMENTS_DEVNET_ENABLED=true。钱包提交不明确时禁止自动重发；用户核查后方可手动重试。
+
 ## 最终验收
 范围内正常/异常/权限/并发自动化无未处理失败；界面不再伪造支付、费用、耗时或正式 Credits；服务重开可读持久订单，worker 独立运行；所有检查真实记录。只有真实 Devnet 交易验证和全部关键验收完成才标记整个需求完成，否则明确剩余用户操作/环境阻塞。

@@ -7,7 +7,7 @@
   --bg-muted: #f1f5f9;
   --bg-elevated: rgba(255, 255, 255, 0.95);
 
-  /* 几何发丝线与边框 */
+  /* 现代企业级结构分割线与边框 (Precision Borders) */
   --border-hairline: #e2e8f0;
   --border-subtle: #f1f5f9;
   --border-contrast: #0f172a;
@@ -69,7 +69,7 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* 发丝网格辅助类 */
+/* 企业级结构网格与微边框辅助类 */
 .hairline-border {
   border: 1px solid var(--border-hairline);
 }

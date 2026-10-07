@@ -3,13 +3,10 @@
 import React, { useState } from "react";
 import {
   CheckCircle2,
-  Clock,
   MessageSquare,
   ShieldCheck,
   TrendingUp,
   RefreshCw,
-  ShoppingBag,
-  ExternalLink,
   Zap,
   Globe2,
 } from "lucide-react";
