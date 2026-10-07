@@ -4,7 +4,7 @@ import { tenant } from "@/tests/support/payment-fixtures";
 
 const mocks = vi.hoisted(() => ({ query: vi.fn(), get: vi.fn(), set: vi.fn() }));
 vi.mock("next/headers", () => ({ cookies: async () => ({ get: mocks.get, set: mocks.set }) }));
-vi.mock("./database", () => ({ database: () => ({ query: mocks.query }) }));
+vi.mock("./database", () => ({ database: () => ({ query: mocks.query, transaction: <T>(fn: (db: { query: typeof mocks.query }) => Promise<T>) => fn({ query: mocks.query }) }) }));
 import { assertOrigin, createLocalSession, paymentResponse, readBody, tenantSession } from "./http";
 import { paymentConfig } from "./config";
 import { GET as getOrder, PATCH as patchOrder, DELETE as deleteOrder } from "@/app/api/payments/orders/[id]/route";
