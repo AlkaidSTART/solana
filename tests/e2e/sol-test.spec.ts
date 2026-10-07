@@ -31,7 +31,7 @@ for (const width of [375, 768, 1440]) {
     await expect(page.getByText(/已 confirmed，等待 finalized/)).toBeVisible();
     await expect(page.getByText(/SOL 测试支付成功/)).toHaveCount(0);
     state.setFail(true); await page.getByRole("button", { name: "刷新链上状态" }).click();
-    await expect(page.getByRole("alert")).toContainText("Mock RPC 查询失败");
+    await expect(page.locator('p[role="alert"]')).toContainText("Mock RPC 查询失败");
     state.setFail(false); state.setStatus("verified"); await page.getByRole("button", { name: "刷新链上状态" }).click();
     await expect(page.getByText(/SOL 测试支付成功/)).toBeVisible();
     await page.reload();
@@ -47,13 +47,13 @@ test("Mock SOL config error is recoverable and invalid evidence is not success",
   await page.route("**/api/payments/sol-test/quote", async (route) => route.fulfill({ status: 503, json: { error: "SOL 测试未启用或配置不完整" } }));
   await page.goto("/console/billing/sol-test");
   await page.getByRole("button", { name: "创建 0.001 SOL 测试付款" }).click();
-  await expect(page.getByRole("alert")).toContainText("配置不完整");
+  await expect(page.locator('p[role="alert"]')).toContainText("配置不完整");
   await page.unroute("**/api/payments/sol-test/quote");
   await fixture(page);
   await page.getByRole("button", { name: "创建 0.001 SOL 测试付款" }).click();
   await page.getByLabel("交易签名（可从钱包历史粘贴，不是私钥）").fill("invalid");
   await page.getByRole("button", { name: "保存签名并核验" }).click();
-  await expect(page.getByRole("alert")).toContainText("有效的 Solana 交易签名");
+  await expect(page.locator('p[role="alert"]')).toContainText("有效的 Solana 交易签名");
   state.setStatus("invalid");
   await page.route("**/api/payments/sol-test/check", (route) => route.fulfill({ json: { status: "invalid" } }));
   await page.getByLabel("交易签名（可从钱包历史粘贴，不是私钥）").fill(signature);
@@ -84,7 +84,7 @@ test("Mock wallet wrong network prevents auto resend across reload", async ({ pa
   await page.getByRole("button", { name: "创建 0.001 SOL 测试付款" }).click();
   await page.getByRole("button", { name: "连接 Mock Devnet Wallet" }).click();
   const pay = page.getByRole("button", { name: "确认支付 0.001 SOL" });
-  await pay.click(); await expect(page.getByRole("alert")).toContainText("网络不匹配");
+  await pay.click(); await expect(page.locator('p[role="alert"]')).toContainText("网络不匹配");
   await expect(pay).toBeDisabled(); expect(calls).toBe(1);
   await page.reload();
   await page.getByRole("button", { name: "连接 Mock Devnet Wallet" }).click();

@@ -6,7 +6,7 @@ import { QueryClient, QueryClientProvider, useMutation, useQuery, useQueryClient
 import { z } from "zod";
 
 import { paymentRequest } from "@/lib/payments/client";
-import { billingSchema, checkoutSchema, creditInput, explorerUrl, quoteAtomic, formatUsdc, type Checkout } from "@/lib/payments/contracts";
+import { billingSchema, checkoutSchema, creditInput, deleteOrderSchema, explorerUrl, quoteAtomic, formatUsdc, type Checkout } from "@/lib/payments/contracts";
 
 import { SolanaPayModal } from "./solana-pay-modal";
 import "./payments.css";
@@ -45,6 +45,23 @@ function BillingContent() {
     return paymentRequest("orders", checkoutSchema, { method: "POST", headers: { "Content-Type": "application/json", "Idempotency-Key": idempotency.current.key }, body: JSON.stringify(input) });
   }, onSuccess: (data) => { setCheckout(data); idempotency.current = null; void client.invalidateQueries({ queryKey: ["payments", "billing"] }); } });
   const recover = useMutation({ mutationFn: (id: string) => paymentRequest(`orders/${id}`, checkoutSchema), onSuccess: setCheckout });
+  const cancel = useMutation({
+    mutationFn: (id: string) => paymentRequest(`orders/${id}`, checkoutSchema, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ status: "cancelled" }),
+    }),
+    onSuccess: () => { void client.invalidateQueries({ queryKey: ["payments", "billing"] }); },
+  });
+  const remove = useMutation({
+    mutationFn: (id: string) => paymentRequest(`orders/${id}`, deleteOrderSchema, {
+      method: "DELETE",
+    }),
+    onSuccess: (_data, id) => {
+      if (checkout?.order.id === id) setCheckout(null);
+      void client.invalidateQueries({ queryKey: ["payments", "billing"] });
+    },
+  });
   const valid = creditInput.safeParse({ credits: Number(credits) });
   return <div className="space-y-6">
     <header><p className="text-xs font-semibold uppercase tracking-wider text-emerald-700">Solana Pay · Devnet</p><h1 className="mt-2 text-2xl font-semibold tracking-tight text-zinc-900">账单与测试额度</h1><p className="mt-2 text-sm text-zinc-600">此处为隔离的 Devnet 支付验证，不改变其他页面的 Demo 余额，不提供正式服务权益。</p></header>
@@ -73,11 +90,23 @@ function BillingContent() {
         </form>
       </section>
       {recover.error && <p role="alert" className="text-sm text-red-700">{recover.error.message}</p>}
+      {cancel.error && <p role="alert" className="text-sm text-red-700">{cancel.error.message}</p>}
+      {remove.error && <p role="alert" className="text-sm text-red-700">{remove.error.message}</p>}
       {billing.data && !billing.error && <>
         <section className="space-y-3"><h2 className="text-lg font-semibold">支付订单</h2>
           {billing.data.orders.length === 0 ? <p className="text-sm text-zinc-600">暂无支付订单。</p> : <ul className="space-y-2">{billing.data.orders.map((order) => <li className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-zinc-200 bg-white p-4" key={order.id}>
-            <div className="min-w-0 text-sm"><p>{order.credits.toLocaleString()} Credits · {formatUsdc(order.amountAtomic)} USDC</p><p className="mt-1 break-all text-xs text-zinc-500">{order.id}</p><p className="mt-1">{{ awaiting_payment: "待付款", confirmed: "待最终确认", credited: "已入账", expired: "已过期", review_required: "需核查，勿重复付款" }[order.status]}</p></div>
-            <button className="payment-button" disabled={recover.isPending} onClick={(event) => { returnFocusRef.current = event.currentTarget; recover.mutate(order.id); }}>查看 / 恢复订单</button>
+            <div className="min-w-0 text-sm"><p>{order.credits.toLocaleString()} Credits · {formatUsdc(order.amountAtomic)} USDC</p><p className="mt-1 break-all text-xs text-zinc-500">{order.id}</p><p className="mt-1">{{ awaiting_payment: "待付款", confirmed: "待最终确认", credited: "已入账", expired: "已过期", review_required: "需核查，勿重复付款", cancelled: "已取消" }[order.status]}</p></div>
+            <div className="flex flex-wrap items-center gap-2">
+              {order.status !== "cancelled" && (
+                <button className="payment-button" disabled={recover.isPending || cancel.isPending || remove.isPending} onClick={(event) => { returnFocusRef.current = event.currentTarget; recover.mutate(order.id); }}>查看 / 恢复订单</button>
+              )}
+              {order.status === "awaiting_payment" && (
+                <button className="payment-button text-amber-800 hover:text-amber-900" disabled={recover.isPending || cancel.isPending || remove.isPending} onClick={() => cancel.mutate(order.id)}>{cancel.isPending ? "取消中…" : "取消订单"}</button>
+              )}
+              {(order.status === "awaiting_payment" || order.status === "expired" || order.status === "cancelled") && (
+                <button className="payment-button text-red-600 hover:text-red-700" disabled={recover.isPending || cancel.isPending || remove.isPending} onClick={() => remove.mutate(order.id)}>{remove.isPending ? "删除中…" : "删除订单"}</button>
+              )}
+            </div>
           </li>)}</ul>}
         </section>
         <section className="space-y-3"><h2 className="text-lg font-semibold">已校验测试入账流水</h2>

@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import { useAppStore, OrderItem } from "@/stores/use-app-store";
+import { getI18nText } from "@/lib/i18n";
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -23,7 +24,7 @@ import {
 import { clsx } from "clsx";
 
 export default function ConsoleOrdersPage() {
-  const { orders, approveCodOrder, rejectCodOrder, markRecoveredOrder, addOrder } = useAppStore();
+  const { orders, approveCodOrder, rejectCodOrder, markRecoveredOrder, addOrder, locale } = useAppStore();
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("ALL");
   const [typeFilter, setTypeFilter] = useState<string>("ALL");
@@ -46,15 +47,15 @@ export default function ConsoleOrdersPage() {
   const getStatusBadge = (status: OrderItem["status"]) => {
     switch (status) {
       case "RECOVERED":
-        return <Badge variant="success" dot>已挽回支付</Badge>;
+        return <Badge variant="success" dot>{getI18nText(locale, "orders_status_recovered")}</Badge>;
       case "COD_VERIFIED":
-        return <Badge variant="success" dot>COD 已核验</Badge>;
+        return <Badge variant="success" dot>{getI18nText(locale, "orders_status_cod_verified")}</Badge>;
       case "PENDING":
-        return <Badge variant="warning" dot>待核验/待付</Badge>;
+        return <Badge variant="warning" dot>{getI18nText(locale, "orders_status_pending")}</Badge>;
       case "COD_REJECTED":
-        return <Badge variant="danger" dot>高危已拦截</Badge>;
+        return <Badge variant="danger" dot>{getI18nText(locale, "orders_status_rejected")}</Badge>;
       case "CANCELLED":
-        return <Badge variant="neutral">已取消</Badge>;
+        return <Badge variant="neutral">{getI18nText(locale, "orders_status_cancelled")}</Badge>;
     }
   };
 
@@ -145,12 +146,12 @@ export default function ConsoleOrdersPage() {
         <div>
           <div className="flex items-center gap-2">
             <h1 className="text-lg font-mono uppercase tracking-wider font-bold text-zinc-900">
-              订单中心 · Orders Center
+              {getI18nText(locale, "orders_title")}
             </h1>
-            <Badge variant="outline">Demo/Mock</Badge>
+            <Badge variant="outline">{getI18nText(locale, "demo_badge")}</Badge>
           </div>
           <p className="text-xs text-zinc-500 font-mono mt-0.5">
-            监控弃购待支付挽回进度、COD 发货前地标确认与订单全生命周期步进流
+            {getI18nText(locale, "orders_drawer_title")}
           </p>
         </div>
 
@@ -162,7 +163,7 @@ export default function ConsoleOrdersPage() {
             className="bg-emerald-600 hover:bg-emerald-700 text-white"
           >
             <Plus className="w-3.5 h-3.5 mr-1" />
-            + 模拟 COD 订单
+            + {getI18nText(locale, "orders_type_cod")}
           </Button>
           <Button
             size="sm"
@@ -170,15 +171,15 @@ export default function ConsoleOrdersPage() {
             onClick={() => handleCreateMockOrder("ABANDONED_CHECKOUT")}
           >
             <Sparkles className="w-3.5 h-3.5 mr-1 text-indigo-500" />
-            + 模拟弃购订单
+            + {getI18nText(locale, "orders_type_prepaid")}
           </Button>
           <Button
             size="sm"
             variant="outline"
-            onClick={() => alert("已导出隐私脱敏订单对账数据 (orders_export_desensitized.csv)")}
+            onClick={() => alert("CSV Exported")}
           >
             <Download className="w-3.5 h-3.5 mr-1" />
-            导出脱敏 CSV
+            {getI18nText(locale, "action_export")}
           </Button>
         </div>
       </div>
@@ -190,7 +191,7 @@ export default function ConsoleOrdersPage() {
             <Search className="w-3.5 h-3.5 absolute left-3 top-2.5 text-zinc-400" />
             <input
               type="text"
-              placeholder="搜索订单号 / 买家姓名 / 手机号..."
+              placeholder={getI18nText(locale, "orders_search_placeholder")}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full pl-8 pr-3 py-1.5 bg-white border border-zinc-200 rounded-lg text-xs font-mono text-zinc-900 placeholder:text-zinc-400 focus:outline-none focus:border-zinc-900 shadow-2xs"
@@ -203,9 +204,9 @@ export default function ConsoleOrdersPage() {
             onChange={(e) => setTypeFilter(e.target.value)}
             className="bg-white border border-zinc-200 rounded-lg px-2.5 py-1.5 text-xs font-mono text-zinc-700 focus:outline-none cursor-pointer shadow-2xs shrink-0"
           >
-            <option value="ALL">全部类型</option>
-            <option value="COD">仅 COD 订单</option>
-            <option value="ABANDONED_CHECKOUT">仅弃购挽回</option>
+            <option value="ALL">{getI18nText(locale, "status_all")}</option>
+            <option value="COD">{getI18nText(locale, "orders_type_cod")}</option>
+            <option value="ABANDONED_CHECKOUT">{getI18nText(locale, "orders_type_prepaid")}</option>
           </select>
         </div>
 
@@ -216,11 +217,11 @@ export default function ConsoleOrdersPage() {
             activeId={statusFilter}
             onChange={setStatusFilter}
             items={[
-              { id: "ALL", label: "全部" },
-              { id: "PENDING", label: "待处理" },
-              { id: "RECOVERED", label: "已挽回" },
-              { id: "COD_VERIFIED", label: "COD 已核验" },
-              { id: "COD_REJECTED", label: "已拦截" },
+              { id: "ALL", label: getI18nText(locale, "status_all") },
+              { id: "PENDING", label: getI18nText(locale, "orders_tab_pending") },
+              { id: "RECOVERED", label: getI18nText(locale, "orders_tab_recovered") },
+              { id: "COD_VERIFIED", label: getI18nText(locale, "orders_tab_cod_verified") },
+              { id: "COD_REJECTED", label: getI18nText(locale, "orders_tab_rejected") },
             ]}
           />
         </div>
@@ -231,20 +232,20 @@ export default function ConsoleOrdersPage() {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>订单编号</TableHead>
-              <TableHead>买家信息</TableHead>
-              <TableHead>金额 (本地 / USD)</TableHead>
-              <TableHead>类型</TableHead>
-              <TableHead>状态</TableHead>
-              <TableHead>时间</TableHead>
-              <TableHead className="text-right">操作</TableHead>
+              <TableHead>{getI18nText(locale, "orders_col_number")}</TableHead>
+              <TableHead>{getI18nText(locale, "orders_col_customer")}</TableHead>
+              <TableHead>{getI18nText(locale, "orders_col_amount")}</TableHead>
+              <TableHead>{getI18nText(locale, "orders_col_type")}</TableHead>
+              <TableHead>{getI18nText(locale, "orders_col_status")}</TableHead>
+              <TableHead>{getI18nText(locale, "orders_col_time")}</TableHead>
+              <TableHead className="text-right">{getI18nText(locale, "orders_col_action")}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {filteredOrders.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={7} className="text-center py-10 text-zinc-400 font-mono">
-                  没有匹配的订单记录。点击上方按钮可快速生成模拟测试订单。
+                  {getI18nText(locale, "overview_empty_title")}
                 </TableCell>
               </TableRow>
             ) : (
@@ -268,7 +269,7 @@ export default function ConsoleOrdersPage() {
                   <TableCell>
                     <div className="flex items-center gap-1.5 flex-wrap">
                       <Badge variant={ord.type === "COD" ? "outline" : "neutral"}>
-                        {ord.type === "COD" ? "COD 货到付款" : "弃购挽回"}
+                        {ord.type === "COD" ? getI18nText(locale, "orders_type_cod") : getI18nText(locale, "orders_type_prepaid")}
                       </Badge>
                       <span className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-zinc-100 text-zinc-600 border border-zinc-200">
                         {ord.language}
@@ -279,7 +280,7 @@ export default function ConsoleOrdersPage() {
                   <TableCell className="text-zinc-500 text-[11px] font-mono">{ord.createdAt}</TableCell>
                   <TableCell className="text-right" onClick={(e) => e.stopPropagation()}>
                     <Button size="sm" variant="outline" onClick={() => setSelectedOrder(ord)}>
-                      详情
+                      {getI18nText(locale, "orders_col_action")}
                     </Button>
                   </TableCell>
                 </TableRow>
@@ -293,8 +294,8 @@ export default function ConsoleOrdersPage() {
       <Drawer
         open={!!selectedOrder}
         onClose={() => setSelectedOrder(null)}
-        title={`订单详情 #${selectedOrder?.orderNumber}`}
-        subtitle={`买家: ${selectedOrder?.customerName} (${selectedOrder?.customerPhone})`}
+        title={`${getI18nText(locale, "orders_drawer_title")} #${selectedOrder?.orderNumber}`}
+        subtitle={`${selectedOrder?.customerName} (${selectedOrder?.customerPhone})`}
         width="lg"
       >
         {selectedOrder && (
@@ -302,7 +303,9 @@ export default function ConsoleOrdersPage() {
             {/* 金额与当前状态 */}
             <div className="p-4 bg-zinc-50 rounded-xl border border-zinc-200 flex items-center justify-between">
               <div>
-                <span className="text-zinc-500 text-[10px] uppercase block">订单总额</span>
+                <span className="text-zinc-500 text-[10px] uppercase block">
+                  {getI18nText(locale, "orders_col_amount")}
+                </span>
                 <span className="text-base font-bold text-zinc-900">
                   {selectedOrder.amountLocal} ({selectedOrder.amountUsd})
                 </span>
@@ -313,7 +316,7 @@ export default function ConsoleOrdersPage() {
             {/* 全生命周期工作流步进器 (Stepper) */}
             <div className="space-y-3">
               <h4 className="text-[11px] font-bold uppercase tracking-wider text-zinc-500">
-                全生命周期工作流步进器 (Lifecycle Stepper)
+                {getI18nText(locale, "workflows_title")}
               </h4>
 
               <div className="border border-zinc-200 rounded-xl p-4 bg-white space-y-4">
@@ -353,12 +356,12 @@ export default function ConsoleOrdersPage() {
                 <div className="flex items-center justify-between">
                   <span className="font-bold text-indigo-900 flex items-center gap-1.5">
                     <ShoppingBag className="w-4 h-4 text-indigo-600" />
-                    弃购挽回操作箱
+                    {getI18nText(locale, "workflows_rule_cart_recovery")}
                   </span>
                   <Badge variant="outline">15m Rule Active</Badge>
                 </div>
                 <p className="text-zinc-600 text-[11px] leading-relaxed">
-                  系统已在买家离场 15 分钟时自动推送 WhatsApp 提醒。若线下或独立支付网关已收到款项，可手动标记为已挽回。
+                  WhatsApp automation active.
                 </p>
                 <div className="flex gap-2.5 pt-1">
                   <Button
@@ -366,7 +369,7 @@ export default function ConsoleOrdersPage() {
                     onClick={() => handleRecover(selectedOrder.id)}
                   >
                     <CheckCircle2 className="w-3.5 h-3.5 mr-1.5" />
-                    标记买家已补付 (Recovered)
+                    {getI18nText(locale, "orders_drawer_mark_paid")}
                   </Button>
                   <Button
                     variant="outline"
@@ -378,7 +381,11 @@ export default function ConsoleOrdersPage() {
                     ) : (
                       <Send className="w-3.5 h-3.5 mr-1.5 text-indigo-600" />
                     )}
-                    {resendSuccess ? "已推送提醒" : "补发催付"}
+                    {resending
+                      ? getI18nText(locale, "orders_drawer_resending")
+                      : resendSuccess
+                      ? getI18nText(locale, "orders_drawer_resend_ok")
+                      : getI18nText(locale, "orders_drawer_resend")}
                   </Button>
                 </div>
               </div>
@@ -390,11 +397,11 @@ export default function ConsoleOrdersPage() {
                 <div className="flex items-center justify-between">
                   <h4 className="text-[11px] font-bold uppercase tracking-wider text-zinc-500 flex items-center gap-1.5">
                     <MapPin className="w-3.5 h-3.5 text-zinc-900" />
-                    <span>COD 地址与地标变更对比核验</span>
+                    <span>{getI18nText(locale, "orders_drawer_landmark")}</span>
                   </h4>
                   {selectedOrder.riskScore !== undefined && (
                     <Badge variant={selectedOrder.riskScore > 50 ? "danger" : "success"}>
-                      风控拒签分: {selectedOrder.riskScore}
+                      Risk Score: {selectedOrder.riskScore}
                     </Badge>
                   )}
                 </div>
@@ -402,7 +409,7 @@ export default function ConsoleOrdersPage() {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div className="p-3.5 border border-zinc-200 rounded-lg bg-zinc-50">
                     <span className="text-[10px] text-zinc-500 uppercase block mb-1">
-                      电商店铺原始下单地址
+                      Original Checkout Address
                     </span>
                     <p className="text-zinc-900 leading-relaxed">
                       {selectedOrder.originalAddress || "Jl. Sudirman No. 12, Jakarta"}
@@ -411,10 +418,10 @@ export default function ConsoleOrdersPage() {
 
                   <div className="p-3.5 border border-emerald-500/50 rounded-lg bg-emerald-50/30">
                     <span className="text-[10px] text-emerald-700 uppercase font-bold block mb-1">
-                      买家在 WhatsApp 补充的有效真实地标
+                      WhatsApp Verified Landmark
                     </span>
                     <p className="text-zinc-900 leading-relaxed font-semibold">
-                      {selectedOrder.modifiedAddress || "未要求补充"}
+                      {selectedOrder.modifiedAddress || "Indomaret depan lapangan"}
                     </p>
                   </div>
                 </div>
@@ -423,7 +430,7 @@ export default function ConsoleOrdersPage() {
                 {selectedOrder.status === "PENDING" && (
                   <div className="p-4 border border-zinc-200 rounded-xl bg-zinc-50 space-y-3">
                     <div className="text-[11px] text-zinc-600">
-                      买家已通过 WhatsApp 确认该订单，请核验地标后决定是否安排打包发货：
+                      {getI18nText(locale, "workflows_rule_cod_verify")}
                     </div>
                     <div className="flex gap-3">
                       <Button
@@ -431,14 +438,14 @@ export default function ConsoleOrdersPage() {
                         onClick={() => handleApprove(selectedOrder.id)}
                       >
                         <CheckCircle2 className="w-3.5 h-3.5 mr-1.5" />
-                        批准发货并同步店铺
+                        {getI18nText(locale, "orders_drawer_approve")}
                       </Button>
                       <Button
                         variant="danger"
                         onClick={() => handleReject(selectedOrder.id)}
                       >
                         <XCircle className="w-3.5 h-3.5 mr-1.5" />
-                        驳回拦截该订单
+                        {getI18nText(locale, "orders_drawer_reject")}
                       </Button>
                     </div>
                   </div>
@@ -448,7 +455,7 @@ export default function ConsoleOrdersPage() {
 
             <div className="pt-4 border-t border-zinc-200">
               <Button variant="outline" className="w-full" onClick={() => setSelectedOrder(null)}>
-                关闭抽屉
+                {getI18nText(locale, "action_close")}
               </Button>
             </div>
           </div>

@@ -2,7 +2,7 @@ import "server-only";
 import { Pool } from "pg";
 
 export interface SqlConnection {
-  query(sql: string, values?: unknown[]): Promise<{ rows: Record<string, unknown>[] }>;
+  query(sql: string, values?: unknown[]): Promise<{ rows: Record<string, unknown>[]; rowCount?: number | null }>;
 }
 export interface Database extends SqlConnection {
   transaction<T>(work: (sql: SqlConnection) => Promise<T>): Promise<T>;

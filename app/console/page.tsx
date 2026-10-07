@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { useAppStore } from "@/stores/use-app-store";
+import { getI18nText } from "@/lib/i18n";
 import { StatCard } from "@/components/ui/stat-card";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -15,7 +16,7 @@ import {
 import { Tabs } from "@/components/ui/tabs";
 
 export default function ConsoleOverviewPage() {
-  const { credits, orders, conversations } = useAppStore();
+  const { credits, orders, conversations, locale } = useAppStore();
   const [viewState, setViewState] = useState<"normal" | "loading" | "empty" | "error">("normal");
 
   const pendingTakeovers = conversations.filter((c) => c.isHumanTakeover || c.unread);
@@ -27,7 +28,7 @@ export default function ConsoleOverviewPage() {
         <div className="flex justify-between items-center">
           <div className="h-6 w-48 bg-[#F4F4F5] animate-pulse" />
           <Button size="sm" variant="outline" onClick={() => setViewState("normal")}>
-            恢复正常视图
+            {getI18nText(locale, "action_reset_view")}
           </Button>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -45,10 +46,10 @@ export default function ConsoleOverviewPage() {
       <div className="space-y-6">
         <div className="flex justify-between items-center">
           <h1 className="text-lg font-mono uppercase tracking-wider font-bold text-[#09090B]">
-            监控总览 · Overview
+            {getI18nText(locale, "overview_title")}
           </h1>
           <Button size="sm" variant="outline" onClick={() => setViewState("normal")}>
-            恢复正常视图
+            {getI18nText(locale, "action_reset_view")}
           </Button>
         </div>
         <div className="border border-dashed border-[#E4E4E7] p-12 text-center bg-[#FAFAFA] space-y-4">
@@ -57,14 +58,14 @@ export default function ConsoleOverviewPage() {
           </div>
           <div>
             <h3 className="text-sm font-mono uppercase font-bold text-[#09090B]">
-              暂未绑定店铺或尚无事件数据
+              {getI18nText(locale, "overview_empty_title")}
             </h3>
             <p className="text-xs font-mono text-[#71717A] mt-1 max-w-md mx-auto">
-              请前往“店铺与通道”授权您的首个 WooCommerce 或 Shopify 店铺，系统将自动开始监听 Webhook。
+              {getI18nText(locale, "overview_empty_desc")}
             </p>
           </div>
           <Link href="/console/stores">
-            <Button size="md">立即绑定店铺</Button>
+            <Button size="md">{getI18nText(locale, "overview_bind_store")}</Button>
           </Link>
         </div>
       </div>
@@ -76,26 +77,26 @@ export default function ConsoleOverviewPage() {
       <div className="space-y-6">
         <div className="flex justify-between items-center">
           <h1 className="text-lg font-mono uppercase tracking-wider font-bold text-[#09090B]">
-            监控总览 · Overview
+            {getI18nText(locale, "overview_title")}
           </h1>
           <Button size="sm" variant="outline" onClick={() => setViewState("normal")}>
-            恢复正常视图
+            {getI18nText(locale, "action_reset_view")}
           </Button>
         </div>
         <div className="border border-[#E11D48]/30 bg-white p-6 space-y-3">
           <div className="flex items-center gap-2 text-xs font-mono text-[#E11D48] font-bold">
             <AlertTriangle className="w-4 h-4" />
-            <span>网络与通道异常告警 (TraceID: req_err_99812x)</span>
+            <span>{getI18nText(locale, "overview_error_title")} (TraceID: req_err_99812x)</span>
           </div>
           <p className="text-xs font-mono text-[#71717A]">
-            Meta WhatsApp Cloud API 返回凭证过期 (Code 190, Access Token Expired)。当前待发送队列已自动降级暂存。
+            {getI18nText(locale, "overview_error_desc")}
           </p>
           <div className="pt-2 flex gap-3">
             <Button size="sm" variant="danger" onClick={() => setViewState("normal")}>
-              重试连通性测试
+              {getI18nText(locale, "overview_retry_conn")}
             </Button>
             <Button size="sm" variant="outline">
-              查看诊断日志
+              Diagnostic Logs
             </Button>
           </div>
         </div>
@@ -110,27 +111,27 @@ export default function ConsoleOverviewPage() {
         <div>
           <div className="flex items-center gap-2">
             <h1 className="text-lg font-mono uppercase tracking-wider font-bold text-[#09090B]">
-              监控总览 · Overview
+              {getI18nText(locale, "overview_title")}
             </h1>
-            <Badge variant="outline">Demo/Mock</Badge>
+            <Badge variant="outline">{getI18nText(locale, "demo_badge")}</Badge>
           </div>
           <p className="text-xs text-[#71717A] font-mono mt-0.5">
-            实时监控通道健康度、待办积压与 20% 对照组真实催付增量效果
+            {getI18nText(locale, "overview_recent_activity")}
           </p>
         </div>
 
         {/* 状态机演示调试切换器 (对齐设计规范) */}
         <div className="flex items-center gap-2 self-start sm:self-auto">
-          <span className="text-[11px] font-mono text-zinc-400">状态演示:</span>
+          <span className="text-[11px] font-mono text-zinc-400">Demo State:</span>
           <Tabs
             variant="capsule"
             activeId={viewState}
             onChange={(id) => setViewState(id as "normal" | "loading" | "empty" | "error")}
             items={[
-              { id: "normal", label: "正常" },
-              { id: "loading", label: "加载" },
-              { id: "empty", label: "空态" },
-              { id: "error", label: "告警" },
+              { id: "normal", label: getI18nText(locale, "status_normal") },
+              { id: "loading", label: "Loading" },
+              { id: "empty", label: "Empty" },
+              { id: "error", label: getI18nText(locale, "status_warning") },
             ]}
           />
         </div>
@@ -139,31 +140,31 @@ export default function ConsoleOverviewPage() {
       {/* ROW 1: 四大核心高密指标卡片 */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard
-          label="待处理订单 (COD/改址)"
+          label={`${getI18nText(locale, "orders_tab_pending")} (${pendingOrders.length})`}
           value="18"
-          subValue="高危待核验: 3"
-          trend={{ text: "较昨日同期: +4 单", warning: true }}
-          indicator={<Badge variant="warning">待办</Badge>}
+          subValue="COD / Pre-dispatch"
+          trend={{ text: "+4 today", warning: true }}
+          indicator={<Badge variant="warning">{getI18nText(locale, "status_pending")}</Badge>}
         />
         <StatCard
-          label="待人工接管会话"
+          label={getI18nText(locale, "overview_stat_human_queue")}
           value={pendingTakeovers.length}
-          subValue="临界窗口: 14m"
-          trend={{ text: "Meta 24h 窗口保护中", positive: true }}
-          indicator={<Badge variant="danger">紧急</Badge>}
+          subValue="Critical SLA: 14m"
+          trend={{ text: "Meta 24h Window", positive: true }}
+          indicator={<Badge variant="danger">{getI18nText(locale, "status_warning")}</Badge>}
         />
         <StatCard
-          label="可用 Credits 余额"
+          label={getI18nText(locale, "overview_stat_credits")}
           value={credits.available.toLocaleString()}
-          subValue="已预留: 120 / 试用: 0"
-          trend={{ text: "充足可发 ~8,400 消息", positive: true }}
-          indicator={<Badge variant="success">正常</Badge>}
+          subValue="Reserved: 120"
+          trend={{ text: "~8,400 messages", positive: true }}
+          indicator={<Badge variant="success">{getI18nText(locale, "status_normal")}</Badge>}
         />
         <StatCard
-          label="今日已挽回金额"
+          label={getI18nText(locale, "overview_stat_recovered")}
           value="$ 1,420.00"
-          subValue="约 22.4 Juta IDR"
-          trend={{ text: "相对对照组净增量 +47.1%", positive: true }}
+          subValue={getI18nText(locale, "overview_stat_cod_rate") + ": 90.6%"}
+          trend={{ text: "Lift: +47.1%", positive: true }}
           indicator={<TrendingUp className="w-3.5 h-3.5 text-[#059669]" />}
         />
       </div>
@@ -173,13 +174,13 @@ export default function ConsoleOverviewPage() {
         <CardHeader>
           <div className="flex flex-col sm:flex-row sm:items-center justify-between w-full gap-2">
             <div className="flex items-center gap-2">
-              <CardTitle>真实催付增量效果分析 — 20% 对照组差异模型</CardTitle>
+              <CardTitle>{getI18nText(locale, "settings_control_group_title")}</CardTitle>
               <Badge variant="success" dot>
-                置信度 95% 已达标
+                95% Confidence Verified
               </Badge>
             </div>
             <div className="text-[11px] font-mono text-[#71717A]">
-              统计观察期: 2026-09-24 ~ 2026-10-07 (14 天滚动窗口)
+              14-Day Rolling Window
             </div>
           </div>
         </CardHeader>
@@ -188,10 +189,10 @@ export default function ConsoleOverviewPage() {
           <div className="space-y-2">
             <div className="flex justify-between items-center text-xs font-mono">
               <span className="font-semibold text-[#09090B]">
-                【指标 1】待支付订单弃购挽回转化率 (Abandoned Cart Lift)
+                【1】{getI18nText(locale, "workflows_rule_cart_recovery")}
               </span>
               <span className="text-[#059669] font-bold">
-                净增量 (Lift): +5.7% (绝对值) / +47.1% (相对提升)
+                Net Lift: +5.7% (Abs) / +47.1% (Rel)
               </span>
             </div>
 
@@ -199,30 +200,30 @@ export default function ConsoleOverviewPage() {
               {/* 提醒组 */}
               <div className="p-3.5 border border-[#E4E4E7] bg-[#FAFAFA] space-y-1">
                 <div className="flex justify-between text-xs font-mono">
-                  <span className="text-[#71717A]">智能提醒组 (80% 样本, 1,240 单)</span>
-                  <span className="font-bold text-[#09090B]">17.8% 支付转化</span>
+                  <span className="text-[#71717A]">WhatsApp Active (80%, 1,240 orders)</span>
+                  <span className="font-bold text-[#09090B]">17.8% Conversion</span>
                 </div>
                 <div className="w-full bg-[#E4E4E7] h-2">
                   <div className="bg-[#09090B] h-2" style={{ width: "17.8%" }} />
                 </div>
                 <div className="text-[11px] font-mono text-[#71717A] flex justify-between pt-1">
-                  <span>成功挽回: 221 笔</span>
-                  <span>挽回 GMV: $ 6,851.00</span>
+                  <span>{getI18nText(locale, "orders_status_recovered")}: 221</span>
+                  <span>GMV: $ 6,851.00</span>
                 </div>
               </div>
 
               {/* 对照组 */}
               <div className="p-3.5 border border-[#E4E4E7] bg-white space-y-1">
                 <div className="flex justify-between text-xs font-mono">
-                  <span className="text-[#71717A]">纯自然对照组 (20% 样本, 310 单)</span>
-                  <span className="font-bold text-[#71717A]">12.1% 自然支付</span>
+                  <span className="text-[#71717A]">Silent Control (20%, 310 orders)</span>
+                  <span className="font-bold text-[#71717A]">12.1% Organic</span>
                 </div>
                 <div className="w-full bg-[#E4E4E7] h-2">
                   <div className="bg-[#A1A1AA] h-2" style={{ width: "12.1%" }} />
                 </div>
                 <div className="text-[11px] font-mono text-[#71717A] flex justify-between pt-1">
-                  <span>自然完成: 38 笔</span>
-                  <span>参考 GMV: $ 1,178.00</span>
+                  <span>Organic: 38</span>
+                  <span>GMV: $ 1,178.00</span>
                 </div>
               </div>
             </div>
@@ -232,37 +233,37 @@ export default function ConsoleOverviewPage() {
           <div className="space-y-2 pt-4 border-t border-[#EEEEEE]">
             <div className="flex justify-between items-center text-xs font-mono">
               <span className="font-semibold text-[#09090B]">
-                【指标 2】COD 货到付款签收率与防损截流 (Rejection Prevention)
+                【2】{getI18nText(locale, "workflows_rule_cod_verify")}
               </span>
               <span className="text-[#059669] font-bold">
-                截流防损: 挽回拒签损失 $ 2,480.00
+                Loss Avoidance: $ 2,480.00 Saved
               </span>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-1">
               <div className="p-3.5 border border-[#E4E4E7] bg-[#FAFAFA] space-y-1">
                 <div className="flex justify-between text-xs font-mono">
-                  <span className="text-[#71717A]">发货前核查组 (COD 确认)</span>
-                  <span className="font-bold text-[#059669]">90.6% 最终签收 (拒签 9.4%)</span>
+                  <span className="text-[#71717A]">Landmark Verified (COD)</span>
+                  <span className="font-bold text-[#059669]">90.6% Delivered (9.4% RTS)</span>
                 </div>
                 <div className="w-full bg-[#E4E4E7] h-2">
                   <div className="bg-[#059669] h-2" style={{ width: "90.6%" }} />
                 </div>
                 <div className="text-[11px] font-mono text-[#71717A] pt-1">
-                  拦截空号/错误地址: 38 单 (成功止损往返退运费)
+                  Intercepted fake addresses: 38 (Prevented round-trip freight loss)
                 </div>
               </div>
 
               <div className="p-3.5 border border-[#E4E4E7] bg-white space-y-1">
                 <div className="flex justify-between text-xs font-mono">
-                  <span className="text-[#71717A]">盲发对照组 (未核验)</span>
-                  <span className="font-bold text-[#E11D48]">83.8% 最终签收 (拒签 16.2%)</span>
+                  <span className="text-[#71717A]">Unverified Baseline</span>
+                  <span className="font-bold text-[#E11D48]">83.8% Delivered (16.2% RTS)</span>
                 </div>
                 <div className="w-full bg-[#E4E4E7] h-2">
                   <div className="bg-[#E11D48] h-2" style={{ width: "83.8%" }} />
                 </div>
                 <div className="text-[11px] font-mono text-[#71717A] pt-1">
-                  盲发退货率超基准线 +6.8%，产生无效运费支出
+                  RTS Rate exceeds baseline by +6.8%
                 </div>
               </div>
             </div>
@@ -276,10 +277,12 @@ export default function ConsoleOverviewPage() {
         <Card>
           <CardHeader>
             <div className="flex items-center justify-between w-full">
-              <CardTitle>待人工接管会话 ({pendingTakeovers.length})</CardTitle>
+              <CardTitle>
+                {getI18nText(locale, "inbox_queue_human")} ({pendingTakeovers.length})
+              </CardTitle>
               <Link href="/console/inbox">
                 <Button variant="ghost" size="sm">
-                  进入会话中心 →
+                  {getI18nText(locale, "nav_inbox")} →
                 </Button>
               </Link>
             </div>
@@ -296,18 +299,18 @@ export default function ConsoleOverviewPage() {
                       ({chat.customerPhone})
                     </span>
                     {chat.isHumanTakeover ? (
-                      <Badge variant="warning">人工已接管</Badge>
+                      <Badge variant="warning">{getI18nText(locale, "inbox_btn_takeover")}</Badge>
                     ) : (
-                      <Badge variant="outline">AI 托管中</Badge>
+                      <Badge variant="neutral">{getI18nText(locale, "inbox_queue_ai")}</Badge>
                     )}
                   </div>
-                  <p className="text-xs text-[#27272A] truncate max-w-xs sm:max-w-md font-sans">
+                  <p className="text-xs font-mono text-[#71717A] truncate max-w-xs">
                     {chat.lastMessage}
                   </p>
                 </div>
                 <Link href="/console/inbox">
                   <Button size="sm" variant="outline">
-                    处理
+                    {getI18nText(locale, "action_search")}
                   </Button>
                 </Link>
               </div>
@@ -315,42 +318,41 @@ export default function ConsoleOverviewPage() {
           </CardContent>
         </Card>
 
-        {/* 卡片 B: COD 改址/取消待审核 */}
+        {/* 卡片 B: 待处理订单列表 */}
         <Card>
           <CardHeader>
             <div className="flex items-center justify-between w-full">
-              <CardTitle>COD 改址与高危审核 ({pendingOrders.length})</CardTitle>
+              <CardTitle>
+                {getI18nText(locale, "orders_tab_pending")} ({pendingOrders.length})
+              </CardTitle>
               <Link href="/console/orders">
                 <Button variant="ghost" size="sm">
-                  批量审核 →
+                  {getI18nText(locale, "nav_orders")} →
                 </Button>
               </Link>
             </div>
           </CardHeader>
           <CardContent className="divide-y divide-[#EEEEEE] p-0">
-            {orders.slice(0, 3).map((ord) => (
+            {pendingOrders.slice(0, 3).map((ord) => (
               <div key={ord.id} className="p-4 hover:bg-[#FAFAFA] transition-colors flex items-center justify-between">
                 <div className="space-y-1">
                   <div className="flex items-center gap-2">
                     <span className="text-xs font-mono font-bold text-[#09090B]">
                       #{ord.orderNumber}
                     </span>
-                    <span className="text-xs font-mono text-[#09090B]">
-                      {ord.amountLocal}
-                    </span>
-                    {ord.riskScore && ord.riskScore > 50 ? (
-                      <Badge variant="danger">高危风险 ({ord.riskScore})</Badge>
-                    ) : (
-                      <Badge variant="success">建议发货</Badge>
-                    )}
+                    <Badge variant={ord.type === "COD" ? "outline" : "neutral"}>
+                      {ord.type === "COD" ? getI18nText(locale, "orders_type_cod") : getI18nText(locale, "orders_type_prepaid")}
+                    </Badge>
                   </div>
-                  <p className="text-xs text-[#71717A] font-mono truncate max-w-xs">
-                    {ord.modifiedAddress || ord.originalAddress || "买家已确认地址"}
-                  </p>
+                  <div className="text-[11px] font-mono text-[#71717A] flex gap-2">
+                    <span>{ord.customerName}</span>
+                    <span>·</span>
+                    <span className="font-bold text-[#09090B]">{ord.amountLocal}</span>
+                  </div>
                 </div>
                 <Link href="/console/orders">
                   <Button size="sm" variant="outline">
-                    审核
+                    {getI18nText(locale, "orders_col_action")}
                   </Button>
                 </Link>
               </div>

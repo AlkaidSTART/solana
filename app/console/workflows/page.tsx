@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import { useAppStore, WorkflowRule } from "@/stores/use-app-store";
+import { getI18nText } from "@/lib/i18n";
 import { Card, CardHeader, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -16,7 +17,7 @@ import {
 import { clsx } from "clsx";
 
 export default function ConsoleWorkflowsPage() {
-  const { workflows, toggleWorkflow, rollbackWorkflow } = useAppStore();
+  const { workflows, toggleWorkflow, rollbackWorkflow, locale } = useAppStore();
   const [selectedWorkflow, setSelectedWorkflow] = useState<WorkflowRule | null>(null);
   const [rollbackSuccess, setRollbackSuccess] = useState(false);
 
@@ -55,12 +56,12 @@ export default function ConsoleWorkflowsPage() {
         <div>
           <div className="flex items-center gap-2">
             <h1 className="text-lg font-mono uppercase tracking-wider font-bold text-zinc-900">
-              工作流引擎 · Workflows Engine
+              {getI18nText(locale, "workflows_title")}
             </h1>
-            <Badge variant="outline">Demo/Mock</Badge>
+            <Badge variant="outline">{getI18nText(locale, "demo_badge")}</Badge>
           </div>
           <p className="text-xs text-zinc-500 font-mono mt-0.5">
-            配置 15 分钟待支付挽回、COD 发货前核查、+62/+66 国家区分流与静默时段排期
+            {getI18nText(locale, "workflows_subhead")}
           </p>
         </div>
 
@@ -70,7 +71,7 @@ export default function ConsoleWorkflowsPage() {
           className="bg-emerald-600 hover:bg-emerald-700 text-white"
         >
           <Plus className="w-3.5 h-3.5 mr-1" />
-          新建自定义规则
+          + {getI18nText(locale, "action_save")}
         </Button>
       </div>
 
@@ -116,7 +117,7 @@ export default function ConsoleWorkflowsPage() {
                         wf.enabled ? "bg-emerald-400" : "bg-zinc-400"
                       )}
                     />
-                    <span>{wf.enabled ? "ACTIVE (已激活)" : "DISABLED (已停用)"}</span>
+                    <span>{wf.enabled ? `ACTIVE (${getI18nText(locale, "status_active")})` : `DISABLED (${getI18nText(locale, "status_paused")})`}</span>
                   </button>
 
                   <Button
@@ -125,7 +126,7 @@ export default function ConsoleWorkflowsPage() {
                     onClick={() => setSelectedWorkflow(wf)}
                   >
                     <Sliders className="w-3.5 h-3.5 mr-1 text-zinc-500" />
-                    配置规则
+                    {getI18nText(locale, "action_filter")}
                   </Button>
                 </div>
               </div>
@@ -143,7 +144,7 @@ export default function ConsoleWorkflowsPage() {
                   <span className="text-indigo-700 font-medium">{wf.languages.join(", ")}</span>
                 </div>
                 <div>
-                  <span className="text-zinc-400 block text-[10px] uppercase">静默时段排期</span>
+                  <span className="text-zinc-400 block text-[10px] uppercase">{getI18nText(locale, "workflows_quiet_hours")}</span>
                   <span className="text-zinc-900">{wf.quietHours}</span>
                 </div>
                 <div>
@@ -159,7 +160,7 @@ export default function ConsoleWorkflowsPage() {
       {/* 东南亚国家代码多语言分流路由表 (PRD 3.2 规范) */}
       <div className="space-y-3">
         <h2 className="text-xs font-mono uppercase tracking-wider font-bold text-zinc-500">
-          SOUTHEAST ASIA COUNTRY-CODE ROUTING MATRIX (国家区分流矩阵)
+          {getI18nText(locale, "workflows_matrix_title")}
         </h2>
         <Card className="rounded-xl overflow-hidden shadow-2xs">
           <div className="divide-y divide-zinc-200 text-xs font-mono">
