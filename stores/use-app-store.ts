@@ -118,9 +118,12 @@ interface AppState {
   sendChatMessage: (conversationId: string, text: string) => void;
   approveCodOrder: (orderId: string) => void;
   rejectCodOrder: (orderId: string) => void;
+  markRecoveredOrder: (orderId: string) => void;
+  addOrder: (order: OrderItem) => void;
   toggleWorkflow: (workflowId: string) => void;
   rollbackWorkflow: (workflowId: string, targetVersion: string) => void;
   updateKnowledgeItem: (id: string, updates: Partial<KnowledgeItem>) => void;
+  addKnowledgeItem: (item: KnowledgeItem) => void;
 }
 
 export const useAppStore = create<AppState>((set) => ({
@@ -482,6 +485,25 @@ export const useAppStore = create<AppState>((set) => ({
           : o
       ),
     })),
+  markRecoveredOrder: (orderId) =>
+    set((state) => ({
+      orders: state.orders.map((o) =>
+        o.id === orderId
+          ? {
+              ...o,
+              status: "RECOVERED",
+              steps: [
+                ...o.steps,
+                { title: "买家完成补付 (GMV Recovered)", timestamp: "刚刚", completed: true },
+              ],
+            }
+          : o
+      ),
+    })),
+  addOrder: (order) =>
+    set((state) => ({
+      orders: [order, ...state.orders],
+    })),
   toggleWorkflow: (workflowId) =>
     set((state) => ({
       workflows: state.workflows.map((w) =>
@@ -499,5 +521,9 @@ export const useAppStore = create<AppState>((set) => ({
       knowledgeItems: state.knowledgeItems.map((item) =>
         item.id === id ? { ...item, ...updates } : item
       ),
+    })),
+  addKnowledgeItem: (item) =>
+    set((state) => ({
+      knowledgeItems: [item, ...state.knowledgeItems],
     })),
 }));

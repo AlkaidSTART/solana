@@ -154,13 +154,13 @@ export const RoiCalculator: React.FC = () => {
         {/* 右侧：产出大盘 (大字号黑铅排版) */}
         <div className="lg:col-span-5 p-6 bg-[#FAFAFA] border border-[#E4E4E7] flex flex-col justify-between">
           <div className="space-y-4">
-            <div className="text-[10px] font-mono uppercase tracking-wider text-[#71717A]">
-              Estimated Net Value Recovered // Monthly
+            <div className="text-[10px] font-mono uppercase tracking-wider text-emerald-700 font-bold">
+              Estimated Net Value Recovered · Monthly
             </div>
 
             <div className="border-b border-[#E4E4E7] pb-3">
               <div className="text-xs font-mono text-[#71717A]">每月待支付净挽回 GMV</div>
-              <div className="text-2xl sm:text-3xl font-mono font-bold text-[#09090B] mt-1">
+              <div className="text-2xl sm:text-3xl font-mono font-bold text-emerald-600 mt-1">
                 {formatAmount(recoveredGmvUsd)}
               </div>
             </div>

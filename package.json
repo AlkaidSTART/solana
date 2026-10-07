@@ -6,7 +6,11 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "test": "vitest run",
+    "test:e2e": "playwright test",
+    "payments:db": "tsx scripts/payment-db.ts",
+    "payments:worker": "node --conditions=react-server --import tsx scripts/payment-worker.ts"
   },
   "dependencies": {
     "@solana-program/token": "^0.17.0",

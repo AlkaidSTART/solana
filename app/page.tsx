@@ -196,8 +196,8 @@ export default function LandingPage() {
         <section id="sandbox" className="w-full border-b border-[#E4E4E7] py-20 px-4 sm:px-8">
           <div className="max-w-7xl mx-auto space-y-8">
             <div className="space-y-2">
-              <div className="text-[11px] font-mono text-[#71717A] uppercase tracking-wider">
-                02 // DUAL-TELEMETRY SANDBOX
+              <div className="text-[11px] font-mono text-emerald-600 font-bold uppercase tracking-wider">
+                02 · DUAL-TELEMETRY SANDBOX
               </div>
               <h2 className="text-2xl sm:text-3xl font-mono font-bold text-[#09090B] uppercase">
                 双向实时遥测沙盒 (买家 WhatsApp 视窗 × 神经规则引擎)
@@ -211,23 +211,23 @@ export default function LandingPage() {
           </div>
         </section>
 
-        {/* SECTION 3: BENTO 架构矩阵 (5 大黑白发丝线单元) */}
+        {/* SECTION 3: BENTO 架构矩阵 (5 大黑白精密系统架构) */}
         <section className="w-full border-b border-[#E4E4E7] py-20 px-4 sm:px-8 bg-[#FAFAFA]/40">
           <div className="max-w-7xl mx-auto space-y-8">
             <div className="space-y-2">
-              <div className="text-[11px] font-mono text-[#71717A] uppercase tracking-wider">
-                03 // ARCHITECTURE BENTO
+              <div className="text-[11px] font-mono text-indigo-600 font-bold uppercase tracking-wider">
+                03 · ARCHITECTURE BENTO
               </div>
               <h2 className="text-2xl sm:text-3xl font-mono font-bold text-[#09090B] uppercase">
-                5 大黑白精密系统架构
+                5 大精密系统架构
               </h2>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
               {/* 卡片 1 (7 栏) */}
-              <div className="md:col-span-7 p-6 sm:p-8 border border-[#E4E4E7] bg-white flex flex-col justify-between">
+              <div className="md:col-span-7 p-6 sm:p-8 border border-[#E4E4E7] rounded-xl bg-white flex flex-col justify-between hover:border-emerald-500/50 transition-colors shadow-xs">
                 <div>
-                  <div className="text-xs font-mono text-[#71717A] mb-4">01 // NLP & DIALECT</div>
+                  <div className="text-xs font-mono text-emerald-700 font-semibold mb-4">01 · NLP & DIALECT</div>
                   <h3 className="text-xl font-mono font-bold text-[#09090B] mb-2">
                     东南亚多语言与印尼俚语深度解构
                   </h3>
@@ -236,15 +236,15 @@ export default function LandingPage() {
                   </p>
                 </div>
                 <div className="mt-6 pt-4 border-t border-[#E4E4E7] flex items-center justify-between text-xs font-mono text-[#71717A]">
-                  <span>印尼语 • 泰语 • 英语 • 越南语</span>
-                  <span>99.8% 意图分类率</span>
+                  <span className="text-emerald-700 font-medium">印尼语 • 泰语 • 英语 • 越南语</span>
+                  <span className="font-semibold text-[#09090B]">99.8% 意图分类率</span>
                 </div>
               </div>
 
               {/* 卡片 2 (5 栏) */}
-              <div className="md:col-span-5 p-6 sm:p-8 border border-[#E4E4E7] bg-white flex flex-col justify-between">
+              <div className="md:col-span-5 p-6 sm:p-8 border border-[#E4E4E7] rounded-xl bg-white flex flex-col justify-between hover:border-indigo-500/50 transition-colors shadow-xs">
                 <div>
-                  <div className="text-xs font-mono text-[#71717A] mb-4">02 // SOLANA PAY</div>
+                  <div className="text-xs font-mono text-indigo-700 font-semibold mb-4">02 · SOLANA PAY</div>
                   <h3 className="text-xl font-mono font-bold text-[#09090B] mb-2">
                     Solana Pay 毫秒级原生结算
                   </h3>
@@ -252,15 +252,15 @@ export default function LandingPage() {
                     0 传统跨国信用卡 3% 货币兑换与通道手续费损耗。原生 USDC 充值即时到账，单笔手续费低至 $0.00025。
                   </p>
                 </div>
-                <div className="mt-6 pt-4 border-t border-[#E4E4E7] flex items-center justify-between text-xs font-mono text-[#059669]">
+                <div className="mt-6 pt-4 border-t border-[#E4E4E7] flex items-center justify-between text-xs font-mono text-indigo-600 font-semibold">
                   <span>418ms Finality</span>
                   <span>$0.00025 Gas Fee</span>
                 </div>
               </div>
 
               {/* 卡片 3 (4 栏) */}
-              <div className="md:col-span-4 p-6 sm:p-8 border border-[#E4E4E7] bg-white">
-                <div className="text-xs font-mono text-[#71717A] mb-4">03 // STORE WEBHOOK</div>
+              <div className="md:col-span-4 p-6 sm:p-8 border border-[#E4E4E7] rounded-xl bg-white hover:border-zinc-400 transition-colors shadow-xs">
+                <div className="text-xs font-mono text-[#71717A] mb-4">03 · STORE WEBHOOK</div>
                 <h3 className="text-lg font-mono font-bold text-[#09090B] mb-2">
                   零代码电商店铺直连
                 </h3>
@@ -270,8 +270,8 @@ export default function LandingPage() {
               </div>
 
               {/* 卡片 4 (4 栏) */}
-              <div className="md:col-span-4 p-6 sm:p-8 border border-[#E4E4E7] bg-white">
-                <div className="text-xs font-mono text-[#71717A] mb-4">04 // COD SHIELD</div>
+              <div className="md:col-span-4 p-6 sm:p-8 border border-[#E4E4E7] rounded-xl bg-white hover:border-rose-400 transition-colors shadow-xs">
+                <div className="text-xs font-mono text-rose-600 font-semibold mb-4">04 · COD SHIELD</div>
                 <h3 className="text-lg font-mono font-bold text-[#09090B] mb-2">
                   COD 拒签发货前防护盾
                 </h3>
@@ -281,8 +281,8 @@ export default function LandingPage() {
               </div>
 
               {/* 卡片 5 (4 栏) */}
-              <div className="md:col-span-4 p-6 sm:p-8 border border-[#E4E4E7] bg-white">
-                <div className="text-xs font-mono text-[#71717A] mb-4">05 // HUMAN TAKEOVER</div>
+              <div className="md:col-span-4 p-6 sm:p-8 border border-[#E4E4E7] rounded-xl bg-white hover:border-amber-400 transition-colors shadow-xs">
+                <div className="text-xs font-mono text-amber-600 font-semibold mb-4">05 · HUMAN TAKEOVER</div>
                 <h3 className="text-lg font-mono font-bold text-[#09090B] mb-2">
                   无损无感人工接管
                 </h3>
@@ -298,8 +298,8 @@ export default function LandingPage() {
         <section className="w-full border-b border-[#E4E4E7] py-20 px-4 sm:px-8">
           <div className="max-w-7xl mx-auto space-y-8">
             <div className="space-y-2">
-              <div className="text-[11px] font-mono text-[#71717A] uppercase tracking-wider">
-                04 // PROFIT RECOVERY MODEL
+              <div className="text-[11px] font-mono text-emerald-600 font-bold uppercase tracking-wider">
+                04 · PROFIT RECOVERY MODEL
               </div>
               <h2 className="text-2xl sm:text-3xl font-mono font-bold text-[#09090B] uppercase">
                 跨境出海 ROI 动态利润计算器
@@ -321,7 +321,7 @@ export default function LandingPage() {
             </p>
             <div className="flex flex-wrap items-center justify-center gap-4 pt-4">
               <Link href="/onboarding">
-                <Button size="lg" className="h-12 px-8 text-xs">
+                <Button size="lg" className="h-12 px-8 text-xs bg-emerald-600 hover:bg-emerald-700 text-white">
                   立即免费接入 (Claim 100 Credits)
                 </Button>
               </Link>
@@ -347,7 +347,7 @@ export default function LandingPage() {
             <span>• Southeast Asia E-Commerce Core</span>
           </div>
           <div>
-            <span>Markets: ID • TH • VN • PH • MY • SG // Copyright © 2026</span>
+            <span>Markets: ID • TH • VN • PH • MY • SG · Copyright © 2026</span>
           </div>
         </div>
       </footer>
