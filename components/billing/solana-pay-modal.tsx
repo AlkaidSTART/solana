@@ -90,7 +90,6 @@ function SolanaPayModalInner({ checkout, onClose, returnFocusRef }: SolanaPayMod
         {order.status === "awaiting_payment" && (
           <button
             className="payment-button text-amber-800 hover:text-amber-900"
-            aria-label="取消此订单并退出"
             disabled={cancelMutation.isPending || deleteMutation.isPending}
             onClick={() => cancelMutation.mutate()}
           >
@@ -100,7 +99,6 @@ function SolanaPayModalInner({ checkout, onClose, returnFocusRef }: SolanaPayMod
         {(order.status === "awaiting_payment" || order.status === "expired" || order.status === "cancelled") && (
           <button
             className="payment-button text-red-600 hover:text-red-700"
-            aria-label="删除此订单并退出"
             disabled={cancelMutation.isPending || deleteMutation.isPending}
             onClick={() => deleteMutation.mutate()}
           >

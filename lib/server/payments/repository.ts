@@ -45,8 +45,8 @@ export class PaymentRepository {
     if (status === "confirmed") throw new Error("正在链上确认中的订单不可删除");
     return this.db.transaction(async (sql) => {
       await sql.query(`DELETE FROM payment_candidates WHERE order_id=$1`, [id]);
-      const result = await sql.query(`DELETE FROM payment_orders WHERE id=$1 AND tenant_id=$2 AND status <> 'credited' AND status <> 'confirmed'`, [id, tenant]);
-      return (result.rowCount ?? 0) > 0;
+      const result = await sql.query(`DELETE FROM payment_orders WHERE id=$1 AND tenant_id=$2 AND status <> 'credited' AND status <> 'confirmed' RETURNING id`, [id, tenant]);
+      return (result.rowCount ?? result.rows.length) > 0;
     });
   }
   async checked(id: string) { await this.db.query("UPDATE payment_orders SET last_checked_at=now() WHERE id=$1", [id]); }

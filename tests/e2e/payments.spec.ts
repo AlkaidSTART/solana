@@ -21,6 +21,14 @@ async function fixture(page: Page, creationGate?: Promise<void>) {
     }
     if (path.endsWith("/billing")) return route.fulfill({ json: { tenantId: tenant, availableCredits: order.status === "credited" ? 100 : 0, orders: created ? [order] : [], ledger: order.status === "credited" ? [{ orderId: order.id, credits: 100, signature: testSignature, createdAt: order.createdAt, expiresAt: "2027-10-07T00:00:00.000Z" }] : [] } });
     if (path.endsWith("/orders") && method === "POST") { posts++; created = true; await creationGate; }
+    if (method === "DELETE") {
+      created = false;
+      return route.fulfill({ json: { success: true, id: order.id } });
+    }
+    if (method === "PATCH") {
+      order = { ...order, status: "cancelled" };
+      return route.fulfill({ json: { order, payUrl: paymentUrl(order), qr } });
+    }
     await route.fulfill({ json: { order, payUrl: paymentUrl(order), qr } });
   });
   return { setStatus(status: PaymentOrder["status"]) { order = { ...order, status, signature: status === "credited" ? testSignature : null }; }, setFailed(value: boolean) { fail = value; }, setAuthenticated(value: boolean) { authenticated = value; }, posts: () => posts };
@@ -153,4 +161,34 @@ test("Mock slow quote restores focus to its trigger after Escape", async ({ page
   await page.keyboard.press("Escape");
   await expect(page.getByRole("dialog")).not.toBeVisible();
   await expect(create).toBeFocused();
+});
+
+test("Mock cancel order from modal exits and marks order as cancelled in list", async ({ page }) => {
+  await fixture(page);
+  await page.goto("/console/billing");
+  await page.getByRole("button", { name: "创建 Devnet 支付报价" }).click();
+  const dialog = page.getByRole("dialog");
+  await expect(dialog).toBeVisible();
+  const cancelBtn = dialog.getByRole("button", { name: "取消订单" });
+  await expect(cancelBtn).toBeVisible();
+  await cancelBtn.click();
+  await expect(dialog).not.toBeVisible();
+  await expect(page.getByText("已取消")).toBeVisible();
+  const deleteBtn = page.getByRole("button", { name: "删除订单" });
+  await expect(deleteBtn).toBeVisible();
+  await deleteBtn.click();
+  await expect(page.getByText("暂无支付订单。")).toBeVisible();
+});
+
+test("Mock delete order directly from modal closes dialog and clears order list", async ({ page }) => {
+  await fixture(page);
+  await page.goto("/console/billing");
+  await page.getByRole("button", { name: "创建 Devnet 支付报价" }).click();
+  const dialog = page.getByRole("dialog");
+  await expect(dialog).toBeVisible();
+  const deleteBtn = dialog.getByRole("button", { name: "删除订单" });
+  await expect(deleteBtn).toBeVisible();
+  await deleteBtn.click();
+  await expect(dialog).not.toBeVisible();
+  await expect(page.getByText("暂无支付订单。")).toBeVisible();
 });
