@@ -90,11 +90,23 @@ function BillingContent() {
         </form>
       </section>
       {recover.error && <p role="alert" className="text-sm text-red-700">{recover.error.message}</p>}
+      {cancel.error && <p role="alert" className="text-sm text-red-700">{cancel.error.message}</p>}
+      {remove.error && <p role="alert" className="text-sm text-red-700">{remove.error.message}</p>}
       {billing.data && !billing.error && <>
         <section className="space-y-3"><h2 className="text-lg font-semibold">支付订单</h2>
           {billing.data.orders.length === 0 ? <p className="text-sm text-zinc-600">暂无支付订单。</p> : <ul className="space-y-2">{billing.data.orders.map((order) => <li className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-zinc-200 bg-white p-4" key={order.id}>
-            <div className="min-w-0 text-sm"><p>{order.credits.toLocaleString()} Credits · {formatUsdc(order.amountAtomic)} USDC</p><p className="mt-1 break-all text-xs text-zinc-500">{order.id}</p><p className="mt-1">{{ awaiting_payment: "待付款", confirmed: "待最终确认", credited: "已入账", expired: "已过期", review_required: "需核查，勿重复付款" }[order.status]}</p></div>
-            <button className="payment-button" disabled={recover.isPending} onClick={(event) => { returnFocusRef.current = event.currentTarget; recover.mutate(order.id); }}>查看 / 恢复订单</button>
+            <div className="min-w-0 text-sm"><p>{order.credits.toLocaleString()} Credits · {formatUsdc(order.amountAtomic)} USDC</p><p className="mt-1 break-all text-xs text-zinc-500">{order.id}</p><p className="mt-1">{{ awaiting_payment: "待付款", confirmed: "待最终确认", credited: "已入账", expired: "已过期", review_required: "需核查，勿重复付款", cancelled: "已取消" }[order.status]}</p></div>
+            <div className="flex flex-wrap items-center gap-2">
+              {order.status !== "cancelled" && (
+                <button className="payment-button" disabled={recover.isPending || cancel.isPending || remove.isPending} onClick={(event) => { returnFocusRef.current = event.currentTarget; recover.mutate(order.id); }}>查看 / 恢复订单</button>
+              )}
+              {order.status === "awaiting_payment" && (
+                <button className="payment-button text-amber-800 hover:text-amber-900" disabled={recover.isPending || cancel.isPending || remove.isPending} onClick={() => cancel.mutate(order.id)}>{cancel.isPending ? "取消中…" : "取消订单"}</button>
+              )}
+              {(order.status === "awaiting_payment" || order.status === "expired" || order.status === "cancelled") && (
+                <button className="payment-button text-red-600 hover:text-red-700" disabled={recover.isPending || cancel.isPending || remove.isPending} onClick={() => remove.mutate(order.id)}>{remove.isPending ? "删除中…" : "删除订单"}</button>
+              )}
+            </div>
           </li>)}</ul>}
         </section>
         <section className="space-y-3"><h2 className="text-lg font-semibold">已校验测试入账流水</h2>
