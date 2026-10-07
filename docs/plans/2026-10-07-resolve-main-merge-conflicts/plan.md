@@ -37,7 +37,7 @@
 - 解决 `README.md` 冲突，融合两边文档与架构索引。
 - 解决 `package.json` 冲突，确保依赖以 `dev-m` 完整可运行环境为准。
 - 解决 `pnpm-lock.yaml` 冲突，确保锁文件与依赖完全同步。
-- 阶段测试：检查工作区文件无冲突标记 `<<<<<<<`。
+- 阶段测试：检查工作区文件无 Git 冲突标记（例如三路对比分隔符）。
 
 ### 阶段 3：代码质量与测试验证
 - 阶段测试 T1：`pnpm exec next typegen && pnpm exec tsc --noEmit`（TypeScript 零错误）。
