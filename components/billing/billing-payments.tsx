@@ -6,7 +6,7 @@ import { QueryClient, QueryClientProvider, useMutation, useQuery, useQueryClient
 import { z } from "zod";
 
 import { paymentRequest } from "@/lib/payments/client";
-import { billingSchema, checkoutSchema, creditInput, explorerUrl, quoteAtomic, formatUsdc, type Checkout } from "@/lib/payments/contracts";
+import { billingSchema, checkoutSchema, creditInput, deleteOrderSchema, explorerUrl, quoteAtomic, formatUsdc, type Checkout } from "@/lib/payments/contracts";
 
 import { SolanaPayModal } from "./solana-pay-modal";
 import "./payments.css";
@@ -45,6 +45,23 @@ function BillingContent() {
     return paymentRequest("orders", checkoutSchema, { method: "POST", headers: { "Content-Type": "application/json", "Idempotency-Key": idempotency.current.key }, body: JSON.stringify(input) });
   }, onSuccess: (data) => { setCheckout(data); idempotency.current = null; void client.invalidateQueries({ queryKey: ["payments", "billing"] }); } });
   const recover = useMutation({ mutationFn: (id: string) => paymentRequest(`orders/${id}`, checkoutSchema), onSuccess: setCheckout });
+  const cancel = useMutation({
+    mutationFn: (id: string) => paymentRequest(`orders/${id}`, checkoutSchema, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ status: "cancelled" }),
+    }),
+    onSuccess: () => { void client.invalidateQueries({ queryKey: ["payments", "billing"] }); },
+  });
+  const remove = useMutation({
+    mutationFn: (id: string) => paymentRequest(`orders/${id}`, deleteOrderSchema, {
+      method: "DELETE",
+    }),
+    onSuccess: (_data, id) => {
+      if (checkout?.order.id === id) setCheckout(null);
+      void client.invalidateQueries({ queryKey: ["payments", "billing"] });
+    },
+  });
   const valid = creditInput.safeParse({ credits: Number(credits) });
   return <div className="space-y-6">
     <header><p className="text-xs font-semibold uppercase tracking-wider text-emerald-700">Solana Pay · Devnet</p><h1 className="mt-2 text-2xl font-semibold tracking-tight text-zinc-900">账单与测试额度</h1><p className="mt-2 text-sm text-zinc-600">此处为隔离的 Devnet 支付验证，不改变其他页面的 Demo 余额，不提供正式服务权益。</p></header>
