@@ -13,25 +13,71 @@ import {
 } from "lucide-react";
 import { clsx } from "clsx";
 
+type LandingLang = "ZH" | "EN" | "SG" | "ID" | "MY" | "TH" | "VI" | "PH";
+
+const LANDING_LANGS = [
+  { code: "ZH", label: "中文", flag: "🇨🇳" },
+  { code: "EN", label: "EN", flag: "🌐" },
+  { code: "SG", label: "SG (Singlish)", flag: "🇸🇬" },
+  { code: "ID", label: "ID (Bahasa)", flag: "🇮🇩" },
+  { code: "MY", label: "MY (Melayu)", flag: "🇲🇾" },
+  { code: "TH", label: "TH (ไทย)", flag: "🇹🇭" },
+  { code: "VI", label: "VI (Tiếng Việt)", flag: "🇻🇳" },
+  { code: "PH", label: "PH (Filipino)", flag: "🇵🇭" },
+] as const;
+
 export default function LandingPage() {
-  const [lang, setLang] = useState<"EN" | "ID" | "ZH">("ZH");
+  const [lang, setLang] = useState<LandingLang>("ZH");
   const [payModalOpen, setPayModalOpen] = useState(false);
 
-  const heroTitles = {
+  const heroTitles: Record<LandingLang, { headline: string; subhead: string; badge: string }> = {
     ZH: {
       headline: "Autonomous WhatsApp Agents.\nSettled on Solana.",
       subhead:
         "专为东南亚跨境电商打造：待支付订单 15 分钟温和挽回，印尼 COD 订单发货前智能地标核验。官方 WhatsApp 商业 API 直连，USDC 零汇损即时结算。",
+      badge: "2026 东南亚电商 AI · 新加坡 / 印尼 / 大马 / 泰国 / 越南 / 菲律宾",
     },
     EN: {
       headline: "Autonomous WhatsApp Agents.\nSettled on Solana.",
       subhead:
         "Engineered for Southeast Asian cross-border e-commerce: 15-minute abandoned cart recovery and pre-dispatch COD address verification. Official WhatsApp API with instant USDC settlement.",
+      badge: "2026 SOUTHEAST ASIA COMMERCE AI · SOLANA PAY",
+    },
+    SG: {
+      headline: "Autonomous WhatsApp Agents.\nSettled on Solana.",
+      subhead:
+        "Built for SG & Southeast Asian cross-border sellers: 15-minute gentle cart recovery and pre-delivery COD landmark verification lah. Official WhatsApp Cloud API with zero-slippage USDC settlement.",
+      badge: "SINGAPORE & SEA HUB · FAST PAYNOW & SOLANA USDC SETTLEMENT",
     },
     ID: {
       headline: "Asisten Pesanan WhatsApp Otonom.\nSelesai di Solana.",
       subhead:
-        "Solusi cerdas untuk e-commerce Asia Tenggara: pemulihan keranjang belanja 15 menit dan verifikasi alamat COD pra-pengiriman. Terhubung ke API resmi WhatsApp dengan settlement USDC instan.",
+        "Solusi cerdas e-commerce Asia Tenggara: pemulihan keranjang belanja 15 menit dan verifikasi alamat COD pra-pengiriman. Terhubung ke API resmi WhatsApp dengan settlement USDC instan.",
+      badge: "AI E-COMMERCE ASIA TENGGARA 2026 · SOLANA PAY",
+    },
+    MY: {
+      headline: "Ejen Pesanan WhatsApp Autonomi.\nSelesai di Solana.",
+      subhead:
+        "Khas untuk e-dagang rentas sempadan Asia Tenggara: pemulihan troli terbiar 15 minit & pengesahan COD sebelum pos laju. API rasmi WhatsApp dengan penyelesaian USDC segera.",
+      badge: "AI E-DAGANG ASIA TENGGARA · MALAYSIA & REGIONAL",
+    },
+    TH: {
+      headline: "ระบบผู้ช่วยคำสั่งซื้อ WhatsApp อัตโนมัติ\nชำระเงินบน Solana",
+      subhead:
+        "ออกแบบมาเพื่ออีคอมเมิร์ซเอเชียตะวันออกเฉียงใต้: กู้คืนตะกร้าสินค้าใน 15 นาที และยืนยันที่อยู่ COD ก่อนจัดส่ง เชื่อมต่อ WhatsApp Business API ทางการ พร้อมชำระเงิน USDC ทันที",
+      badge: "AI อีคอมเมิร์ซเอเชียตะวันออกเฉียงใต้ 2026 · SOLANA PAY",
+    },
+    VI: {
+      headline: "Trợ Lý Đơn Hàng WhatsApp Tự Động.\nThanh Toán Trên Solana.",
+      subhead:
+        "Thiết kế riêng cho thương mại điện tử Đông Nam Á: thu hồi giỏ hàng bỏ quên sau 15 phút, xác minh địa chỉ giao COD trước khi gửi hàng. Kết nối trực tiếp WhatsApp Cloud API, tất toán USDC không trượt giá.",
+      badge: "AI THƯƠNG MẠI ĐIỆN TỬ ĐÔNG NAM Á 2026 · SOLANA PAY",
+    },
+    PH: {
+      headline: "Awtomatikong WhatsApp Order Assistant.\nSettled sa Solana.",
+      subhead:
+        "Ginawa para sa e-commerce sa Southeast Asia: 15-minutong pagbawi ng abandoned cart at beripikasyon ng landmark sa COD bago i-dispatch po. Opisyal na WhatsApp API na may instant settlement gamit ang USDC.",
+      badge: "SOUTHEAST ASIA COMMERCE AI 2026 · PILIPINAS & REGIONAL",
     },
   };
 
@@ -59,23 +105,41 @@ export default function LandingPage() {
           </div>
 
           {/* 右侧：语言切换胶囊与行动链接 */}
-          <div className="flex items-center gap-3 sm:gap-4">
-            {/* 语言切换胶囊 */}
-            <div className="inline-flex p-1 border border-zinc-200/80 bg-zinc-100/80 rounded-xl">
-              {(["EN", "ID", "ZH"] as const).map((l) => (
+          <div className="flex items-center gap-2 sm:gap-4">
+            {/* 语言切换器：大屏为药丸组，小屏为下拉选择 */}
+            <div className="hidden xl:inline-flex p-1 border border-zinc-200/80 bg-zinc-100/80 rounded-xl">
+              {LANDING_LANGS.map((l) => (
                 <button
-                  key={l}
-                  onClick={() => setLang(l)}
+                  key={l.code}
+                  onClick={() => setLang(l.code)}
                   className={clsx(
-                    "px-2.5 py-1 text-xs font-mono font-medium transition-all cursor-pointer rounded-lg",
-                    lang === l
+                    "px-2 py-1 text-xs font-mono font-medium transition-all cursor-pointer rounded-lg flex items-center gap-1",
+                    lang === l.code
                       ? "bg-white text-zinc-950 shadow-xs"
                       : "text-zinc-500 hover:text-zinc-900"
                   )}
+                  title={l.label}
                 >
-                  {l === "ZH" ? "中文" : l}
+                  <span className="text-[11px]">{l.flag}</span>
+                  <span>{l.code}</span>
                 </button>
               ))}
+            </div>
+
+            {/* 中小屏精简下拉切换 */}
+            <div className="xl:hidden flex items-center border border-zinc-200/80 rounded-lg px-2 py-1 bg-zinc-50 text-xs font-mono">
+              <select
+                value={lang}
+                onChange={(e) => setLang(e.target.value as LandingLang)}
+                className="bg-transparent text-zinc-900 font-semibold focus:outline-none cursor-pointer"
+                aria-label="切换出海官网语言"
+              >
+                {LANDING_LANGS.map((l) => (
+                  <option key={l.code} value={l.code}>
+                    {l.flag} {l.code} - {l.label}
+                  </option>
+                ))}
+              </select>
             </div>
 
             <Button
@@ -112,7 +176,7 @@ export default function LandingPage() {
             {/* 顶部微胶囊标签 */}
             <div className="inline-flex items-center gap-2 text-xs font-mono text-zinc-600 border border-zinc-200/80 px-3.5 py-1.5 bg-zinc-50/80 rounded-full mb-6 shadow-2xs">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-              <span>2026 SOUTHEAST ASIA COMMERCE AI · SOLANA PAY</span>
+              <span>{t.badge}</span>
             </div>
 
             {/* 极简超大标题 */}

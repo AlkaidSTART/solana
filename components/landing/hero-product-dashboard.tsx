@@ -94,6 +94,26 @@ const LIVE_ORDERS: FeedOrder[] = [
       erpSyncedText: "库存锁定就绪 · 避免夜间买家跳失流失",
     },
   },
+  {
+    id: "ord_4",
+    orderNumber: "ORD-SG-1092",
+    buyerName: "Marcus Tan",
+    location: "新加坡 (Jurong West)",
+    amount: "S$ 148.00",
+    currency: "SGD",
+    type: "RECOVERED",
+    typeLabel: "Singlish 极速召回",
+    timeAgo: "刚刚",
+    riskScore: 2,
+    botDialogue: {
+      buyerText: "Hi can PayNow anot? Need size 10 chopped before checkout leh.",
+      buyerTime: "15:28 SGT",
+      botText: "No problem Marcus! Size 10 chopped for you already, PayNow dynamic QR attached lah!",
+      botTime: "15:28 SGT",
+      actionBadge: "PayNow QR + Singlish 亲和召回 · USDC 瞬时入账",
+      erpSyncedText: "Shopify SG #1092 已支付 (S$ 148.00) · NinjaVan 门到门配送",
+    },
+  },
 ];
 
 export const HeroProductDashboard: React.FC = () => {

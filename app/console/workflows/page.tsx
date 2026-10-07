@@ -172,6 +172,16 @@ export default function ConsoleWorkflowsPage() {
 
             <div className="p-4 grid grid-cols-1 sm:grid-cols-4 gap-2 items-center">
               <span className="font-bold text-zinc-900 flex items-center gap-1.5">
+                <span className="px-1.5 py-0.2 rounded bg-amber-500/10 border border-amber-500/20 text-amber-700 text-[10px]">SG</span>
+                <span>新加坡 (+65)</span>
+              </span>
+              <span>en_SG (Singlish / 英语)</span>
+              <span>Asia/Singapore (SGT, UTC+8)</span>
+              <span className="text-amber-700">Singlish (lah, leh, PayNow, chope)</span>
+            </div>
+
+            <div className="p-4 grid grid-cols-1 sm:grid-cols-4 gap-2 items-center">
+              <span className="font-bold text-zinc-900 flex items-center gap-1.5">
                 <span className="px-1.5 py-0.2 rounded bg-emerald-500/10 border border-emerald-500/20 text-emerald-700 text-[10px]">ID</span>
                 <span>印度尼西亚 (+62)</span>
               </span>
@@ -182,22 +192,42 @@ export default function ConsoleWorkflowsPage() {
 
             <div className="p-4 grid grid-cols-1 sm:grid-cols-4 gap-2 items-center">
               <span className="font-bold text-zinc-900 flex items-center gap-1.5">
+                <span className="px-1.5 py-0.2 rounded bg-cyan-500/10 border border-cyan-500/20 text-cyan-700 text-[10px]">MY</span>
+                <span>马来西亚 (+60)</span>
+              </span>
+              <span>ms_MY (马来语)</span>
+              <span>Asia/Kuala_Lumpur (MYT, UTC+8)</span>
+              <span className="text-cyan-700">Melayu Pasar (sis, Pos Laju, boleh pos)</span>
+            </div>
+
+            <div className="p-4 grid grid-cols-1 sm:grid-cols-4 gap-2 items-center">
+              <span className="font-bold text-zinc-900 flex items-center gap-1.5">
                 <span className="px-1.5 py-0.2 rounded bg-purple-500/10 border border-purple-500/20 text-purple-700 text-[10px]">TH</span>
                 <span>泰国 (+66)</span>
               </span>
               <span>th_TH (泰语)</span>
               <span>Asia/Bangkok (ICT, UTC+7)</span>
-              <span className="text-purple-700">Particles (krub/ka, pom)</span>
+              <span className="text-purple-700">Particles (krub/ka, pom, ส่งฟรี)</span>
             </div>
 
             <div className="p-4 grid grid-cols-1 sm:grid-cols-4 gap-2 items-center">
               <span className="font-bold text-zinc-900 flex items-center gap-1.5">
                 <span className="px-1.5 py-0.2 rounded bg-blue-500/10 border border-blue-500/20 text-blue-700 text-[10px]">VN</span>
-                <span>越南 (+84) / 国际</span>
+                <span>越南 (+84)</span>
               </span>
-              <span>en_US (国际英语)</span>
-              <span>Asia/Singapore (SGT, UTC+8)</span>
-              <span className="text-blue-700">Standard E-commerce English</span>
+              <span>vi_VN (越南语)</span>
+              <span>Asia/Ho_Chi_Minh (ICT, UTC+7)</span>
+              <span className="text-blue-700">Tiếng Việt (shop ơi, freeship, GHTK)</span>
+            </div>
+
+            <div className="p-4 grid grid-cols-1 sm:grid-cols-4 gap-2 items-center">
+              <span className="font-bold text-zinc-900 flex items-center gap-1.5">
+                <span className="px-1.5 py-0.2 rounded bg-rose-500/10 border border-rose-500/20 text-rose-700 text-[10px]">PH</span>
+                <span>菲律宾 (+63)</span>
+              </span>
+              <span>fil_PH (Tagalog / Taglish)</span>
+              <span>Asia/Manila (PHT, UTC+8)</span>
+              <span className="text-rose-700">Taglish (po/opo, pwede COD, tapat ng)</span>
             </div>
           </div>
         </Card>

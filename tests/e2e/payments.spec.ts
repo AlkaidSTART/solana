@@ -84,3 +84,57 @@ test("Mock local session bootstrap recovers unauthorized state", async ({ page }
   await page.getByRole("button", { name: "建立本地 Devnet 测试会话" }).click();
   await expect(page.getByText("暂无支付订单。", { exact: true })).toBeVisible();
 });
+
+test("Mock review state withholds payment and credits", async ({ page }) => {
+  const state = await fixture(page);
+  await page.goto("/console/billing");
+  await page.getByRole("button", { name: "创建 Devnet 支付报价" }).click();
+  state.setStatus("review_required");
+  await page.getByRole("button", { name: "刷新订单状态" }).click();
+  await expect(page.getByText("付款证据需核查，尚未入账；请勿重复付款")).toBeVisible();
+  await expect(page.getByRole("dialog").getByRole("img")).toHaveCount(0);
+  await expect(page.getByText("+100 测试 Credits")).toHaveCount(0);
+});
+
+test("Mock Wallet Standard wrong-network failure prevents automatic resend across reopen", async ({ page }) => {
+  await fixture(page);
+  await page.addInitScript(() => {
+    const account = {
+      address: "4vJ9JU1bJJE96FWSJKvHsmmFADCg4gpZQff4P3bkLKi",
+      publicKey: new Uint8Array(32).fill(1), chains: ["solana:devnet"], features: ["solana:signTransaction"],
+    };
+    const wallet = {
+      version: "1.0.0", name: "Mock Devnet Wallet", icon: "data:image/svg+xml;base64,PHN2Zy8+", chains: ["solana:devnet"], accounts: [account],
+      features: {
+        "standard:connect": { version: "1.0.0", connect: async () => ({ accounts: [account] }) },
+        "standard:disconnect": { version: "1.0.0", disconnect: async () => undefined },
+        "standard:events": { version: "1.0.0", on: () => () => undefined },
+        "solana:signTransaction": { version: "1.0.0", supportedTransactionVersions: [0], signTransaction: async () => { throw new Error("Mock must not sign on wrong network"); } },
+      },
+    };
+    window.addEventListener("wallet-standard:app-ready", (event) => {
+      if ("detail" in event && event.detail && typeof event.detail === "object" && "register" in event.detail && typeof event.detail.register === "function") event.detail.register(wallet);
+    });
+  });
+  let rpcCalls = 0;
+  await page.route("https://api.devnet.solana.com/**", async (route) => {
+    rpcCalls++;
+    const request = route.request().postDataJSON();
+    await route.fulfill({ json: { jsonrpc: "2.0", id: request.id, result: "5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp" } });
+  });
+  await page.goto("/console/billing");
+  await page.getByRole("button", { name: "创建 Devnet 支付报价" }).click();
+  await page.getByRole("button", { name: "连接 Mock Devnet Wallet" }).click();
+  const pay = page.getByRole("button", { name: "确认使用 Devnet USDC 支付" });
+  await pay.click();
+  await expect(page.getByText(/签名被拒绝、余额不足或网络响应失败/)).toBeVisible();
+  await expect(pay).toBeDisabled();
+  expect(rpcCalls).toBe(1);
+  await page.keyboard.press("Escape");
+  await page.getByRole("button", { name: "查看 / 恢复订单" }).click();
+  await expect(pay).toBeDisabled();
+  expect(rpcCalls).toBe(1);
+  await page.getByRole("button", { name: "已确认未广播，允许手动重试" }).click();
+  await expect(pay).toBeEnabled();
+  await expect(page.getByText("+100 测试 Credits")).toHaveCount(0);
+});

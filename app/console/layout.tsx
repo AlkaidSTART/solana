@@ -19,17 +19,12 @@ import {
   X,
 } from "lucide-react";
 import { clsx } from "clsx";
-
-const NAV_ITEMS = [
-  { href: "/console", label: "监控总览", icon: LayoutDashboard },
-  { href: "/console/stores", label: "店铺与通道", icon: Store },
-  { href: "/console/workflows", label: "工作流配置", icon: GitBranch },
-  { href: "/console/orders", label: "订单中心", icon: ShoppingBag },
-  { href: "/console/inbox", label: "会话与人工队列", icon: MessageSquare },
-  { href: "/console/knowledge", label: "多语言知识库", icon: BookOpen },
-  { href: "/console/billing", label: "财务充值中心", icon: CreditCard },
-  { href: "/console/settings", label: "报表与设置", icon: Settings },
-];
+import {
+  SUPPORTED_LOCALES,
+  MARKETS,
+  getI18nText,
+  type SupportedLocale,
+} from "@/lib/i18n";
 
 export default function ConsoleLayout({
   children,
@@ -40,6 +35,17 @@ export default function ConsoleLayout({
   const { stores, currentStoreId, setStoreId, credits, locale, setLocale } =
     useAppStore();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  const navItems = [
+    { href: "/console", label: getI18nText(locale, "nav_overview"), icon: LayoutDashboard },
+    { href: "/console/stores", label: getI18nText(locale, "nav_stores"), icon: Store },
+    { href: "/console/workflows", label: getI18nText(locale, "nav_workflows"), icon: GitBranch },
+    { href: "/console/orders", label: getI18nText(locale, "nav_orders"), icon: ShoppingBag },
+    { href: "/console/inbox", label: getI18nText(locale, "nav_inbox"), icon: MessageSquare },
+    { href: "/console/knowledge", label: getI18nText(locale, "nav_knowledge"), icon: BookOpen },
+    { href: "/console/billing", label: getI18nText(locale, "nav_billing"), icon: CreditCard },
+    { href: "/console/settings", label: getI18nText(locale, "nav_settings"), icon: Settings },
+  ];
 
   return (
     <div className="min-h-screen bg-white text-zinc-900 font-sans flex flex-col antialiased">
@@ -66,7 +72,7 @@ export default function ConsoleLayout({
 
           {/* 店铺下拉选择 */}
           <div className="hidden lg:flex items-center gap-2 border border-zinc-200 rounded-lg px-2.5 py-1 bg-zinc-50 text-xs font-mono shadow-2xs">
-            <span className="text-zinc-400">店铺:</span>
+            <span className="text-zinc-400">{getI18nText(locale, "store_label")}:</span>
             <select
               value={currentStoreId}
               onChange={(e) => setStoreId(e.target.value)}
@@ -78,7 +84,7 @@ export default function ConsoleLayout({
                 </option>
               ))}
             </select>
-            <span className="text-[10px] text-zinc-400">[Demo/Mock]</span>
+            <span className="text-[10px] text-zinc-400">[{getI18nText(locale, "demo_badge")}]</span>
           </div>
         </div>
 
@@ -90,13 +96,13 @@ export default function ConsoleLayout({
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
               <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
             </span>
-            <span>WABA: 正常</span>
+            <span>{getI18nText(locale, "waba_status")}</span>
           </div>
 
           {/* Webhook 健康度灯 */}
           <div className="hidden lg:flex items-center gap-1.5 text-[11px] text-zinc-500">
             <span className="w-2 h-2 rounded-full bg-emerald-500" />
-            <span>Webhook: 正常</span>
+            <span>{getI18nText(locale, "webhook_status")}</span>
           </div>
 
           {/* Credits 额度指示器 */}
@@ -105,7 +111,7 @@ export default function ConsoleLayout({
             className="flex items-center gap-1.5 px-3 py-1 border border-zinc-200 rounded-lg hover:border-emerald-500 transition-colors bg-gradient-to-r from-zinc-50 to-emerald-50/30 shadow-2xs group"
           >
             <Coins className="w-3.5 h-3.5 text-emerald-600 group-hover:rotate-12 transition-transform" />
-            <span className="text-zinc-500">额度:</span>
+            <span className="text-zinc-500">{getI18nText(locale, "credits_label")}:</span>
             <span className="font-bold text-zinc-900 group-hover:text-emerald-700">
               {credits.available.toLocaleString()}
             </span>
@@ -115,14 +121,19 @@ export default function ConsoleLayout({
           <select
             value={locale}
             onChange={(e) =>
-              setLocale(e.target.value as "zh_CN" | "en_US" | "id_ID")
+              setLocale(e.target.value as SupportedLocale)
             }
             aria-label="界面语言"
-            className="max-w-20 sm:max-w-none border border-zinc-200 rounded-lg px-2.5 py-1 bg-white text-[11px] font-mono text-zinc-900 focus:outline-none cursor-pointer shadow-2xs"
+            className="border border-zinc-200 rounded-lg px-2.5 py-1 bg-white text-[11px] font-mono text-zinc-900 focus:outline-none cursor-pointer shadow-2xs"
           >
-            <option value="zh_CN">中文 (zh_CN)</option>
-            <option value="en_US">English (en_US)</option>
-            <option value="id_ID">Bahasa (id_ID)</option>
+            {SUPPORTED_LOCALES.map((loc) => {
+              const meta = MARKETS[loc];
+              return (
+                <option key={loc} value={loc}>
+                  {meta.flag} {meta.shortLabel} · {meta.nativeLabel}
+                </option>
+              );
+            })}
           </select>
 
           {/* 官网返回入口 */}
@@ -130,7 +141,7 @@ export default function ConsoleLayout({
             href="/"
             className="hidden sm:flex items-center gap-1 text-[11px] text-zinc-500 hover:text-zinc-900 transition-colors"
           >
-            <span>出海官网</span>
+            <span>{getI18nText(locale, "official_site")}</span>
             <ExternalLink className="w-3 h-3 opacity-60" />
           </Link>
         </div>
@@ -147,7 +158,7 @@ export default function ConsoleLayout({
         >
           {/* 导航菜单列表 */}
           <nav className="p-3 space-y-1 overflow-y-auto">
-            {NAV_ITEMS.map((item) => {
+            {navItems.map((item) => {
               const Icon = item.icon;
               const isActive =
                 item.href === "/console"
