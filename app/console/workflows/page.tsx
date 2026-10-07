@@ -56,12 +56,12 @@ export default function ConsoleWorkflowsPage() {
         <div>
           <div className="flex items-center gap-2">
             <h1 className="text-lg font-mono uppercase tracking-wider font-bold text-zinc-900">
-              工作流引擎 · Workflows Engine
+              {getI18nText(locale, "workflows_title")}
             </h1>
-            <Badge variant="outline">Demo/Mock</Badge>
+            <Badge variant="outline">{getI18nText(locale, "demo_badge")}</Badge>
           </div>
           <p className="text-xs text-zinc-500 font-mono mt-0.5">
-            配置 15 分钟待支付挽回、COD 发货前核查、+62/+66 国家区分流与静默时段排期
+            {getI18nText(locale, "workflows_subhead")}
           </p>
         </div>
 
@@ -71,7 +71,7 @@ export default function ConsoleWorkflowsPage() {
           className="bg-emerald-600 hover:bg-emerald-700 text-white"
         >
           <Plus className="w-3.5 h-3.5 mr-1" />
-          新建自定义规则
+          + {getI18nText(locale, "action_save")}
         </Button>
       </div>
 
