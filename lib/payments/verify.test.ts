@@ -5,6 +5,9 @@ import { DEVNET_GENESIS, creditInput, quoteAtomic, paymentUrl } from "./contract
 import { verifyTransfer } from "./verify";
 
 describe("quote", () => {
+  it("pins the complete Devnet genesis returned by the public RPC", () => {
+    expect(DEVNET_GENESIS).toBe("EtWTRABZaYq6iMfeYKouRu166VU2xqa1wcaWoxPkrZBG");
+  });
   it("uses exact atomic amounts and PRD price without bonus", () => {
     expect(quoteAtomic(100)).toBe("2000000");
     expect(quoteAtomic(2500)).toBe("50000000");

@@ -9,6 +9,7 @@ import {
   RefreshCw,
   Zap,
   Globe2,
+  Sparkles,
 } from "lucide-react";
 import { clsx } from "clsx";
 
@@ -42,7 +43,7 @@ const LIVE_ORDERS: FeedOrder[] = [
     amount: "Rp 349.000",
     currency: "IDR",
     type: "COD_VERIFIED",
-    typeLabel: "COD 发货前核验通过",
+    typeLabel: "COD 发货前核验",
     timeAgo: "1 分钟前",
     riskScore: 6,
     botDialogue: {
@@ -51,7 +52,7 @@ const LIVE_ORDERS: FeedOrder[] = [
       botText: "Siap Kak Rizky! Alamat sudah kami lengkapi dengan patokan Alfamart. Paket segera dikirim sore ini ya!",
       botTime: "14:08 WIB",
       actionBadge: "地标自动校准 · J&T 物流面单同步",
-      erpSyncedText: "WooCommerce #9821 状态已变更为: 发货就绪 (COD Verified)",
+      erpSyncedText: "WooCommerce #9821 状态变更: 发货就绪 (COD Verified)",
     },
   },
   {
@@ -62,7 +63,7 @@ const LIVE_ORDERS: FeedOrder[] = [
     amount: "฿ 1,250",
     currency: "THB",
     type: "RECOVERED",
-    typeLabel: "15 分钟弃购温和挽回",
+    typeLabel: "15 分钟弃购挽回",
     timeAgo: "3 分钟前",
     riskScore: 2,
     botDialogue: {
@@ -70,7 +71,7 @@ const LIVE_ORDERS: FeedOrder[] = [
       buyerTime: "14:05 ICT",
       botText: "สวัสดีครับคุณ Somchai! มอบส่วนลดพิเศษ 10% ให้ทันที กดลิงก์นี้เพื่อชำระเงินได้เลยครับ ขอบคุณครับ",
       botTime: "14:05 ICT",
-      actionBadge: "动态结账优惠券已发放 · QRIS 扫码支付",
+      actionBadge: "动态结账优惠券已发放 · PromptPay 扫码支付",
       erpSyncedText: "Shopify #TH-4412 补付成功: GMV 已挽回 (US$ 36.80)",
     },
   },
@@ -101,40 +102,48 @@ export const HeroProductDashboard: React.FC = () => {
   const currentOrder = LIVE_ORDERS.find((o) => o.id === selectedId) || LIVE_ORDERS[0];
 
   return (
-    <div className="w-full bg-white border border-[#E4E4E7] rounded-xl shadow-lg shadow-zinc-200/50 overflow-hidden flex flex-col text-left">
-      {/* 视窗企业级控制栏 (Topbar) */}
-      <div className="w-full bg-[#FAFAFA] border-b border-[#E4E4E7] px-4 py-2.5 flex items-center justify-between text-xs font-mono">
-        <div className="flex items-center gap-2">
+    <div className="w-full bg-white border border-zinc-200/90 rounded-2xl shadow-xl shadow-zinc-950/[0.04] overflow-hidden text-left transition-all">
+      {/* 视窗顶部标题栏 (Window Header) */}
+      <div className="w-full bg-zinc-50/80 border-b border-zinc-200/80 px-4 sm:px-6 py-3 flex items-center justify-between text-xs">
+        <div className="flex items-center gap-3">
+          {/* Mac 风格三色圆点 */}
           <div className="flex items-center gap-1.5">
-            <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 inline-block animate-pulse" />
-            <span className="font-semibold text-[#09090B]">SolaFlow Live Ops</span>
+            <span className="w-2.5 h-2.5 rounded-full bg-zinc-300 inline-block" />
+            <span className="w-2.5 h-2.5 rounded-full bg-zinc-300 inline-block" />
+            <span className="w-2.5 h-2.5 rounded-full bg-zinc-300 inline-block" />
           </div>
-          <span className="text-[#A1A1AA] hidden sm:inline">|</span>
-          <span className="text-[#71717A] hidden sm:inline">TokoSepatu_ID (Shopify Connected)</span>
+          <div className="h-3.5 w-px bg-zinc-200 mx-1" />
+          <div className="flex items-center gap-2">
+            <span className="w-2 h-2 rounded-full bg-emerald-500 inline-block animate-pulse" />
+            <span className="font-semibold text-zinc-900 tracking-tight">SolaFlow Live Ops Console</span>
+            <span className="text-zinc-400 hidden sm:inline">·</span>
+            <span className="text-zinc-500 hidden sm:inline font-mono text-[11px]">TokoSepatu_ID (Shopify)</span>
+          </div>
         </div>
-        <div className="flex items-center gap-3 text-[11px]">
-          <span className="inline-flex items-center gap-1 text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded">
+
+        <div className="flex items-center gap-3 text-[11px] font-mono">
+          <span className="inline-flex items-center gap-1.5 text-emerald-700 bg-emerald-50/80 border border-emerald-200/60 px-2 py-0.5 rounded-md font-medium">
             <ShieldCheck className="w-3 h-3 text-emerald-600" />
-            Meta BAA Active
+            Meta BAA
           </span>
-          <span className="text-[#71717A] hidden md:inline">418ms Finality</span>
+          <span className="text-zinc-500 hidden md:inline">Solana 418ms</span>
         </div>
       </div>
 
-      {/* 主展示区：左侧订单流 + 右侧 WhatsApp 对话视窗 */}
-      <div className="grid grid-cols-1 md:grid-cols-12 min-h-[360px]">
-        {/* 左侧：实时履约流 (5 栏) */}
-        <div className="md:col-span-5 border-b md:border-b-0 md:border-r border-[#E4E4E7] bg-[#FAFAFA]/40 p-3 sm:p-4 flex flex-col justify-between space-y-3">
-          <div className="space-y-2">
-            <div className="flex items-center justify-between text-[11px] font-mono text-[#71717A] px-1">
-              <span className="font-semibold uppercase tracking-wider text-[#09090B]">实时订单履约流</span>
-              <span className="inline-flex items-center gap-1 text-emerald-600">
-                <RefreshCw className="w-2.5 h-2.5 animate-spin" />
+      {/* 主展示区：宽幅布局与充裕留白 */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 min-h-[420px]">
+        {/* 左侧：实时履约流 (4 栏) */}
+        <div className="lg:col-span-5 border-b lg:border-b-0 lg:border-r border-zinc-200/80 bg-zinc-50/40 p-4 sm:p-5 flex flex-col justify-between space-y-4">
+          <div className="space-y-3">
+            <div className="flex items-center justify-between text-xs font-mono text-zinc-500 px-0.5">
+              <span className="font-semibold uppercase tracking-wider text-zinc-900">实时出海订单流</span>
+              <span className="inline-flex items-center gap-1 text-emerald-600 font-medium">
+                <RefreshCw className="w-3 h-3 animate-spin" />
                 Live Feed
               </span>
             </div>
 
-            <div className="space-y-2">
+            <div className="space-y-2.5">
               {LIVE_ORDERS.map((item) => {
                 const isSelected = item.id === selectedId;
                 return (
@@ -143,31 +152,31 @@ export const HeroProductDashboard: React.FC = () => {
                     type="button"
                     onClick={() => setSelectedId(item.id)}
                     className={clsx(
-                      "w-full text-left p-2.5 rounded-lg border transition-all cursor-pointer",
+                      "w-full text-left p-3.5 rounded-xl border transition-all cursor-pointer text-xs",
                       isSelected
-                        ? "bg-white border-zinc-400 shadow-xs ring-1 ring-zinc-300"
-                        : "bg-white/80 border-[#E4E4E7] hover:border-zinc-300 hover:bg-white"
+                        ? "bg-white border-zinc-900/40 shadow-sm ring-1 ring-zinc-900/10"
+                        : "bg-white/70 border-zinc-200/70 hover:border-zinc-300 hover:bg-white"
                     )}
                   >
-                    <div className="flex items-center justify-between text-[11px] font-mono mb-1">
-                      <span className="font-bold text-[#09090B]">{item.orderNumber}</span>
-                      <span className="text-[#71717A]">{item.timeAgo}</span>
+                    <div className="flex items-center justify-between font-mono text-[11px] mb-1.5">
+                      <span className="font-bold text-zinc-900">{item.orderNumber}</span>
+                      <span className="text-zinc-400">{item.timeAgo}</span>
                     </div>
 
-                    <div className="flex items-center justify-between text-xs mb-1.5">
-                      <span className="font-medium text-[#27272A] truncate max-w-[120px]">{item.buyerName}</span>
-                      <span className="font-mono font-semibold text-[#09090B]">{item.amount}</span>
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="font-medium text-zinc-800 truncate max-w-[140px]">{item.buyerName}</span>
+                      <span className="font-mono font-semibold text-zinc-900">{item.amount}</span>
                     </div>
 
                     <div className="flex items-center justify-between">
                       <span
                         className={clsx(
-                          "text-[10px] font-mono px-1.5 py-0.5 rounded flex items-center gap-1",
+                          "text-[10px] font-mono px-2 py-0.5 rounded-md flex items-center gap-1 font-medium",
                           item.type === "COD_VERIFIED"
-                            ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
+                            ? "bg-emerald-50 text-emerald-700 border border-emerald-200/60"
                             : item.type === "RECOVERED"
-                            ? "bg-indigo-50 text-indigo-700 border border-indigo-200"
-                            : "bg-amber-50 text-amber-700 border border-amber-200"
+                            ? "bg-indigo-50 text-indigo-700 border border-indigo-200/60"
+                            : "bg-amber-50 text-amber-700 border border-amber-200/60"
                         )}
                       >
                         {item.type === "COD_VERIFIED" && <ShieldCheck className="w-2.5 h-2.5" />}
@@ -175,8 +184,8 @@ export const HeroProductDashboard: React.FC = () => {
                         {item.type === "AUTO_INQUIRY" && <MessageSquare className="w-2.5 h-2.5" />}
                         {item.typeLabel}
                       </span>
-                      <span className="text-[10px] font-mono text-[#71717A]">
-                        风险分: {item.riskScore}/100
+                      <span className="text-[10px] font-mono text-zinc-500">
+                        风险分: {item.riskScore}
                       </span>
                     </div>
                   </button>
@@ -185,83 +194,82 @@ export const HeroProductDashboard: React.FC = () => {
             </div>
           </div>
 
-          {/* 底部指标提示 */}
-          <div className="pt-2 border-t border-[#E4E4E7] text-[11px] font-mono text-[#71717A] flex items-center justify-between">
-            <span>点击切换模拟不同出海场景</span>
-            <span className="text-emerald-700 font-semibold">99.8% 意图分类</span>
+          <div className="pt-3 border-t border-zinc-200/70 text-[11px] font-mono text-zinc-500 flex items-center justify-between">
+            <span>点击任意订单切换模拟</span>
+            <span className="text-emerald-700 font-medium">99.8% 意图分类</span>
           </div>
         </div>
 
-        {/* 右侧：WhatsApp 对话与自动化处理卡片 (7 栏) */}
-        <div className="md:col-span-7 p-4 sm:p-5 flex flex-col justify-between bg-white space-y-4">
-          <div className="space-y-3">
-            {/* 对话卡片头部 */}
-            <div className="flex items-center justify-between border-b border-[#E4E4E7] pb-3">
-              <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-full bg-emerald-600 text-white flex items-center justify-center text-xs font-bold">
+        {/* 右侧：WhatsApp 对话与智能流转 (7 栏) */}
+        <div className="lg:col-span-7 p-5 sm:p-6 flex flex-col justify-between bg-white space-y-5">
+          <div className="space-y-4">
+            {/* 对话视窗头部 */}
+            <div className="flex items-center justify-between border-b border-zinc-200/80 pb-4">
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-full bg-emerald-600 text-white flex items-center justify-center text-sm font-bold shadow-xs">
                   {currentOrder.buyerName.charAt(0)}
                 </div>
                 <div>
-                  <div className="text-xs font-bold text-[#09090B] flex items-center gap-1.5">
+                  <div className="text-sm font-semibold text-zinc-900 flex items-center gap-2">
                     <span>{currentOrder.buyerName}</span>
-                    <span className="text-[10px] font-mono text-emerald-600 bg-emerald-50 px-1 py-0.2 rounded border border-emerald-200">
+                    <span className="text-[10px] font-mono text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200/60 font-medium">
                       WhatsApp Verified
                     </span>
                   </div>
-                  <div className="text-[11px] font-mono text-[#71717A] flex items-center gap-1">
-                    <Globe2 className="w-3 h-3" />
+                  <div className="text-xs text-zinc-500 flex items-center gap-1.5 mt-0.5">
+                    <Globe2 className="w-3 h-3 text-zinc-400" />
                     <span>{currentOrder.location}</span>
                   </div>
                 </div>
               </div>
 
-              <div className="text-right font-mono text-[11px] text-[#71717A]">
-                <div>{currentOrder.orderNumber}</div>
-                <div className="font-semibold text-[#09090B]">{currentOrder.amount}</div>
+              <div className="text-right font-mono text-xs">
+                <div className="text-zinc-500">{currentOrder.orderNumber}</div>
+                <div className="font-bold text-zinc-900 text-sm mt-0.5">{currentOrder.amount}</div>
               </div>
             </div>
 
-            {/* 对话气泡区 */}
-            <div className="space-y-2.5 pt-1 text-xs">
+            {/* 对话气泡展示 */}
+            <div className="space-y-3.5 py-1 text-xs">
               {/* 买家气泡 */}
-              <div className="flex flex-col items-start max-w-[88%]">
-                <div className="bg-[#F4F4F5] text-[#18181B] p-2.5 rounded-lg rounded-tl-none border border-[#E4E4E7] leading-relaxed">
+              <div className="flex flex-col items-start max-w-[85%]">
+                <div className="bg-zinc-100/80 text-zinc-900 px-3.5 py-2.5 rounded-2xl rounded-tl-sm border border-zinc-200/60 leading-relaxed text-xs">
                   <p className="font-sans">{currentOrder.botDialogue.buyerText}</p>
                 </div>
-                <span className="text-[10px] font-mono text-[#71717A] mt-1 ml-1">
+                <span className="text-[10px] font-mono text-zinc-400 mt-1 ml-1">
                   买家原声 · {currentOrder.botDialogue.buyerTime}
                 </span>
               </div>
 
               {/* AI Agent 回复气泡 */}
-              <div className="flex flex-col items-end ml-auto max-w-[88%]">
-                <div className="bg-emerald-50/80 text-emerald-950 p-2.5 rounded-lg rounded-tr-none border border-emerald-200 leading-relaxed">
-                  <div className="text-[10px] font-mono text-emerald-700 font-semibold mb-0.5 flex items-center gap-1">
+              <div className="flex flex-col items-end ml-auto max-w-[85%]">
+                <div className="bg-emerald-50 text-emerald-950 px-3.5 py-2.5 rounded-2xl rounded-tr-sm border border-emerald-200/80 leading-relaxed text-xs">
+                  <div className="text-[10px] font-mono text-emerald-700 font-semibold mb-1 flex items-center gap-1">
                     <Zap className="w-2.5 h-2.5" />
-                    SolaFlow AI Agent (自动化规则触发)
+                    SolaFlow AI Agent
                   </div>
                   <p className="font-sans">{currentOrder.botDialogue.botText}</p>
                 </div>
-                <span className="text-[10px] font-mono text-[#71717A] mt-1 mr-1">
-                  已送达 · 耗时 1.2s · {currentOrder.botDialogue.botTime}
+                <span className="text-[10px] font-mono text-zinc-400 mt-1 mr-1">
+                  自动化送达 · 耗时 1.2s · {currentOrder.botDialogue.botTime}
                 </span>
               </div>
             </div>
           </div>
 
-          {/* 底部业务状态同步标签 */}
-          <div className="space-y-2 pt-2 border-t border-[#E4E4E7]">
-            <div className="bg-[#FAFAFA] border border-[#E4E4E7] rounded-md p-2 flex items-center justify-between text-[11px] font-mono">
-              <div className="flex items-center gap-1.5 text-emerald-700 font-medium">
-                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
-                <span>{currentOrder.botDialogue.actionBadge}</span>
+          {/* 底部自动化同步卡片 */}
+          <div className="space-y-2.5 pt-3 border-t border-zinc-200/80">
+            <div className="bg-zinc-50/80 border border-zinc-200/80 rounded-xl p-3 flex items-center justify-between text-xs font-mono">
+              <div className="flex items-center gap-2 text-emerald-700 font-medium">
+                <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                <span className="truncate">{currentOrder.botDialogue.actionBadge}</span>
               </div>
-              <span className="text-[#71717A] text-[10px]">Webhook 150ms 响应</span>
+              <span className="text-zinc-400 text-[11px] shrink-0">150ms Webhook</span>
             </div>
 
-            <div className="text-[11px] font-mono text-[#71717A] flex items-center justify-between px-1">
-              <span>{currentOrder.botDialogue.erpSyncedText}</span>
-              <span className="text-[#09090B] font-semibold">Solana USDC $0.00025</span>
+            <div className="text-[11px] font-mono text-zinc-500 flex items-center justify-between px-1">
+              <span className="truncate">{currentOrder.botDialogue.erpSyncedText}</span>
+              <span className="text-zinc-900 font-semibold shrink-0 ml-2">USDC 结算 $0.00025</span>
             </div>
           </div>
         </div>

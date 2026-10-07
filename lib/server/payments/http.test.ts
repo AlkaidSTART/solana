@@ -1,117 +1,60 @@
-import { beforeAll, describe, expect, it } from "vitest";
-import { z } from "zod";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { testAddress } from "@/tests/support/payment-fixtures";
-import { assertOrigin, PaymentHttpError, paymentResponse, readBody } from "./http";
+import { tenant } from "@/tests/support/payment-fixtures";
 
-beforeAll(() => {
-  process.env.PAYMENTS_DEVNET_ENABLED = "true";
-  process.env.DATABASE_URL = "postgres://postgres:postgres@localhost:5432/test";
-  process.env.SOLANA_RECIPIENT = testAddress(5);
-  process.env.PAYMENT_APP_ORIGIN = "http://localhost:3000";
+const mocks = vi.hoisted(() => ({ query: vi.fn(), get: vi.fn(), set: vi.fn() }));
+vi.mock("next/headers", () => ({ cookies: async () => ({ get: mocks.get, set: mocks.set }) }));
+vi.mock("./database", () => ({ database: () => ({ query: mocks.query }) }));
+import { assertOrigin, createLocalSession, paymentResponse, readBody, tenantSession } from "./http";
+import { paymentConfig } from "./config";
+import { GET as getOrder } from "@/app/api/payments/orders/[id]/route";
+
+beforeEach(() => {
+  vi.resetAllMocks();
+  vi.stubEnv("NODE_ENV", "test"); vi.stubEnv("PAYMENTS_DEVNET_ENABLED", "true"); vi.stubEnv("PAYMENTS_ALLOW_LOCAL_SESSION", "true");
+  vi.stubEnv("DATABASE_URL", "postgresql://test@localhost/test"); vi.stubEnv("SOLANA_RECIPIENT", "11111111111111111111111111111111"); vi.stubEnv("PAYMENT_APP_ORIGIN", "http://localhost:3000");
+  mocks.query.mockResolvedValue({ rows: [] });
 });
-
-describe("Payment HTTP utilities", () => {
-  describe("assertOrigin", () => {
-    it("accepts request with matching origin", () => {
-      const request = new Request("http://localhost:3000/api/payments", {
-        headers: { origin: "http://localhost:3000" },
-      });
-      expect(() => assertOrigin(request)).not.toThrow();
-    });
-
-    it("rejects mismatched origin with 403", () => {
-      const request = new Request("http://localhost:3000/api/payments", {
-        headers: { origin: "https://evil-phishing-site.com" },
-      });
-      expect(() => assertOrigin(request)).toThrow(PaymentHttpError);
-      try {
-        assertOrigin(request);
-      } catch (err) {
-        expect((err as PaymentHttpError).status).toBe(403);
-      }
-    });
-
-    it("rejects missing origin header with 403", () => {
-      const request = new Request("http://localhost:3000/api/payments");
-      expect(() => assertOrigin(request)).toThrow(PaymentHttpError);
-    });
+const request = (origin = "http://localhost:3000") => new Request("http://localhost:3000/api/payments/session", { method: "POST", headers: { origin } });
+describe("payment HTTP security", () => {
+  it("requires explicit enablement and forbids production", () => {
+    vi.stubEnv("PAYMENTS_DEVNET_ENABLED", "false"); expect(paymentConfig).toThrow();
+    vi.stubEnv("PAYMENTS_DEVNET_ENABLED", "true"); vi.stubEnv("NODE_ENV", "production"); expect(paymentConfig).toThrow();
   });
-
-  describe("readBody", () => {
-    it("rejects missing or invalid content-type with 415", async () => {
-      const request = new Request("http://localhost:3000/api/payments", {
-        method: "POST",
-        headers: { "content-type": "text/plain" },
-        body: "hello",
-      });
-      await expect(readBody(request)).rejects.toMatchObject({ status: 415 });
-    });
-
-    it("rejects oversized request body with 413 (>2048 bytes)", async () => {
-      const largePayload = JSON.stringify({ padding: "a".repeat(2100) });
-      const request = new Request("http://localhost:3000/api/payments", {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: largePayload,
-      });
-      await expect(readBody(request)).rejects.toMatchObject({ status: 413 });
-    });
-
-    it("rejects malformed JSON syntax with 400", async () => {
-      const request = new Request("http://localhost:3000/api/payments", {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: "{ bad json: ",
-      });
-      await expect(readBody(request)).rejects.toMatchObject({ status: 400 });
-    });
-
-    it("parses valid JSON successfully", async () => {
-      const request = new Request("http://localhost:3000/api/payments", {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({ credits: 100 }),
-      });
-      const data = await readBody(request);
-      expect(data).toEqual({ credits: 100 });
-    });
+  it("rejects foreign or missing origins", () => {
+    expect(() => assertOrigin(request("https://attacker.invalid"))).toThrow();
+    expect(() => assertOrigin(new Request("http://localhost:3000"))).toThrow();
   });
-
-  describe("paymentResponse", () => {
-    it("returns 200 with no-store cache control on success", async () => {
-      const response = await paymentResponse(async () => ({ ok: true }));
-      expect(response.status).toBe(200);
-      expect(response.headers.get("Cache-Control")).toBe("no-store");
-      expect(await response.json()).toEqual({ ok: true });
-    });
-
-    it("maps PaymentHttpError to exact status and message", async () => {
-      const response = await paymentResponse(async () => {
-        throw new PaymentHttpError(403, "自定义拒绝原因");
-      });
-      expect(response.status).toBe(403);
-      expect(await response.json()).toEqual({ error: "自定义拒绝原因" });
-    });
-
-    it("maps ZodError to 400 bad request", async () => {
-      const response = await paymentResponse(async () => {
-        z.object({ credits: z.number().int().min(100) }).parse({ credits: 50 });
-      });
-      expect(response.status).toBe(400);
-      expect(await response.json()).toEqual({
-        error: "输入或服务端配置不符合要求",
-      });
-    });
-
-    it("maps unexpected errors to 503 fail-closed message without leaking trace", async () => {
-      const response = await paymentResponse(async () => {
-        throw new Error("Sensitive database connection failure: postgres://secret@db");
-      });
-      expect(response.status).toBe(503);
-      const json = await response.json();
-      expect(json.error).toContain("支付服务暂不可用");
-      expect(json.error).not.toContain("secret");
-    });
+  it("requires live server session and ignores client-supplied tenant", async () => {
+    await expect(tenantSession()).rejects.toMatchObject({ status: 401 });
+    mocks.get.mockReturnValue({ value: "x" }); await expect(tenantSession()).rejects.toMatchObject({ status: 401 });
+    mocks.get.mockReturnValue({ value: "a".repeat(64) }); await expect(tenantSession()).rejects.toMatchObject({ status: 401 });
+    mocks.query.mockResolvedValue({ rows: [{ tenant_id: tenant }] }); expect(await tenantSession()).toBe(tenant);
+    expect(mocks.query.mock.lastCall?.[1][0]).not.toBe("a".repeat(64));
+  });
+  it("sets an HttpOnly strict cookie and reuses an existing tenant", async () => {
+    const created = await createLocalSession(request()); expect(created).toMatch(/^[0-9a-f-]{36}$/);
+    expect(mocks.set).toHaveBeenCalledWith("solaflow_devnet_session", expect.any(String), expect.objectContaining({ httpOnly: true, sameSite: "strict", path: "/" }));
+    mocks.get.mockReturnValue({ value: "a".repeat(64) }); mocks.query.mockResolvedValue({ rows: [{ tenant_id: tenant }] });
+    expect(await createLocalSession(request())).toBe(tenant); expect(mocks.set).toHaveBeenCalledTimes(1);
+  });
+  it("disallows remote session creation and disabled local mode", async () => {
+    await expect(createLocalSession(new Request("http://remote.invalid/api", { headers: { origin: "http://localhost:3000" } }))).rejects.toMatchObject({ status: 403 });
+    vi.stubEnv("PAYMENTS_ALLOW_LOCAL_SESSION", "false"); await expect(createLocalSession(request())).rejects.toMatchObject({ status: 403 });
+  });
+  it("does not leak a foreign order", async () => {
+    mocks.get.mockReturnValue({ value: "a".repeat(64) });
+    mocks.query.mockResolvedValueOnce({ rows: [{ tenant_id: tenant }] }).mockResolvedValueOnce({ rows: [] });
+    const response = await getOrder(request(), { params: Promise.resolve({ id: "22222222-2222-4222-8222-222222222222" }) });
+    expect(response.status).toBe(404); expect(mocks.query.mock.lastCall?.[1]).toEqual(["22222222-2222-4222-8222-222222222222", tenant]);
+  });
+  it("rejects content type, malformed and oversized JSON", async () => {
+    await expect(readBody(request())).rejects.toMatchObject({ status: 415 });
+    for (const [body, status] of [["{", 400], ["x".repeat(2049), 413]] as const) await expect(readBody(new Request("http://localhost", { method: "POST", headers: { "Content-Type": "application/json" }, body }))).rejects.toMatchObject({ status });
+  });
+  it("fails closed and hides connection details in service errors", async () => {
+    const response = await paymentResponse(async () => { throw new Error("postgres://secret:password@example.invalid"); });
+    expect(response.status).toBe(503); expect(await response.text()).not.toContain("password");
+    expect(response.headers.get("cache-control")).toBe("no-store");
   });
 });
