@@ -5,7 +5,7 @@
 ## 1. 项目边界与依据
 - 产品：SolaFlow AI，面向东南亚电商的 WhatsApp 多语言订单助手。
 - 业务以 `docs/PRD.md` 为准，视觉与交互以 `docs/UI_DESIGN.md` 为准；冲突时先记录并澄清，不能为视觉效果改变业务规则。
-- 当前仓库是 Web 前端起步阶段；文档里的目标架构不代表已实现，演示数据必须标注 Demo/Mock。
+- 当前仓库是 Next.js 全栈应用起步阶段；页面与 `app/api/**/route.ts` 共用同一代码库，文档里的目标能力不代表已实现，演示数据必须标注 Demo/Mock。
 - 开始前阅读相关文件及局部 `AGENTS.md`，检查 `git status`；保留用户和其他任务的改动，不擅自重置或清理。
 
 ## 2. 技术栈与依赖约束
@@ -16,7 +16,7 @@
 - 动效用 `motion`，3D 用 `three`；状态管理固定分层：简单局部状态用 React Hooks，共享客户端状态用 `zustand`，服务端数据状态用 TanStack Query（`@tanstack/react-query`）。
 - Zustand 已安装，TanStack Query 尚未安装；首次接入相关数据需求时纳入计划并安装，不引入重复的状态管理库。
 - 质量配置沿用 ESLint 9、`eslint-config-next` 的 Core Web Vitals 和 TypeScript 规则；不通过禁用规则隐藏问题。
-- PRD 目标后端：Node.js/NestJS、PostgreSQL、BullMQ/Redis；尚未落地，相关需求先计划再引入，不另起无关服务栈。
+- 服务端固定使用 Next.js App Router Route Handlers + `lib/server/**`，目标数据/任务基础设施为 PostgreSQL、BullMQ/Redis；禁止另起独立 NestJS/backend 工程，未落地依赖须先计划再引入。
 - 依赖版本以 manifest 和锁文件为准；新增/升级依赖须在计划说明必要性、兼容性与替代方案，同步锁文件。
 - 涉及 Solana 实现时先读 `.agents/skills/solana-dev/SKILL.md`，核验官方资料及 SDK 兼容性；禁止凭记忆拼接过期 API。
 
@@ -40,9 +40,9 @@
 ```
 
 ## 4. 目录与职责
-- `app/`：路由、布局、页面与 Route Handlers；页面负责组合，不堆叠业务计算、支付记账或第三方协议逻辑。
+- `app/`：路由、布局、页面与 `app/api/v1/**/route.ts`；页面负责组合，Route Handler 只处理 HTTP 边界，不堆叠业务计算、支付记账或第三方协议逻辑。
 - `components/`：可复用 UI；按需创建 `ui/` 基础组件及业务子目录，不提前搭空壳架构。
-- `lib/`：纯函数、业务规则、协议适配；按需创建 `lib/server/` 放服务端敏感逻辑，避免客户端导入。
+- `lib/`：纯函数、业务规则、协议适配；`lib/server/` 放数据库、认证、服务、Webhook、任务与敏感逻辑，并使用服务端边界避免客户端导入。
 - `hooks/`、`stores/`、`types/`：仅在有复用需求时创建；领域类型靠近领域模块，避免万能 utils/types 文件。
 - `public/` 放静态资源；`app/globals.css` 放主题令牌和全局基础样式，组件细节就近维护。
 - 单元/组件测试采用同目录 `*.test.ts(x)`；E2E 放 `tests/e2e/*.spec.ts`；测试数据与生产数据隔离。

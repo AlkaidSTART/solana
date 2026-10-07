@@ -1,5 +1,16 @@
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
+## SolaFlow AI
+
+本仓库采用 Next.js 16 App Router 全栈架构。页面与 `app/api/v1/**/route.ts` 位于同一应用，服务端领域逻辑统一放在 `lib/server/**`；不建立独立后端工程。
+
+- [产品需求文档](docs/PRD.md)
+- [Next.js 全栈 API 接口契约](docs/API.md)
+- [WhatsApp 接入指南](docs/whatsapp-integration-guide.md)
+- [UI 设计规范索引](ui_design/README.md)
+
+当前业务 API 仍处于文档规划阶段。文档中的接口、外部连接、消息状态和支付状态不代表已经实现或通过真实验收。
+
 ## Getting Started
 
 First, run the development server:
