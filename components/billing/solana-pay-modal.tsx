@@ -10,7 +10,7 @@ import { paymentRequest } from "@/lib/payments/client";
 import { checkoutSchema, explorerUrl, formatUsdc, type Checkout } from "@/lib/payments/contracts";
 
 const PaymentWallet = dynamic(() => import("./payment-wallet").then((module) => module.PaymentWallet), { ssr: false, loading: () => <p>正在加载钱包…</p> });
-const statusLabels = { awaiting_payment: "等待付款", confirmed: "已确认，等待 finalized；尚未入账", credited: "已 finalized 并校验入账", expired: "报价已过期，请勿继续支付" };
+const statusLabels = { awaiting_payment: "等待付款", confirmed: "已确认，等待 finalized；尚未入账", credited: "已 finalized 并校验入账", expired: "报价已过期，请勿继续支付", review_required: "付款证据需核查，尚未入账；请勿重复付款" };
 
 export interface SolanaPayModalProps {
   open?: boolean;
@@ -27,6 +27,7 @@ function SolanaPayModalInner({ checkout, onClose }: { checkout: Checkout; onClos
     queryKey: ["payments", activeCheckout.order.tenantId, "order", activeCheckout.order.id],
     queryFn: async ({ signal }) => {
       const result = await paymentRequest(`orders/${activeCheckout.order.id}`, checkoutSchema, { method: "POST", signal });
+      if (result.order.tenantId !== activeCheckout.order.tenantId || result.order.id !== activeCheckout.order.id) throw new Error("会话或订单已改变，请重新打开账单");
       if (result.order.status === "credited") await client.invalidateQueries({ queryKey: ["payments", "billing"] });
       return result;
     },
@@ -70,7 +71,7 @@ function SolanaPayModalInner({ checkout, onClose }: { checkout: Checkout; onClos
       <p className="text-xs">报价截止（UTC）：{order.expiresAt.replace("T", " ").replace(".000Z", " UTC")}</p>
       <dl className="space-y-2 break-all text-xs text-zinc-600"><dt>收款人</dt><dd>{order.recipient}</dd><dt>USDC mint（Devnet）</dt><dd>{order.mint}</dd><dt>订单</dt><dd>{order.id}</dd></dl>
       {orderQuery.error && <p role="alert" className="text-sm text-red-700">状态检查失败：{orderQuery.error.message}。不要重复付款，稍后刷新。</p>}
-      {order.status === "awaiting_payment" && !expired && <>
+      {order.status === "awaiting_payment" && !expired && !orderQuery.error && <>
         <Image className="mx-auto" src={data.qr} alt="仅限 Devnet 钱包扫描的 Solana Pay 付款二维码" width={240} height={240} unoptimized />
         <a className="block text-center text-sm underline" href={data.payUrl}>用已切换至 Devnet 的钱包打开 Solana Pay</a>
         <PaymentWallet key={order.id} order={order} onSubmitted={() => { void orderQuery.refetch(); }} />

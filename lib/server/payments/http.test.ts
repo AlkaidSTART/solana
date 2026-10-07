@@ -21,6 +21,14 @@ describe("payment HTTP security", () => {
     vi.stubEnv("PAYMENTS_DEVNET_ENABLED", "false"); expect(paymentConfig).toThrow();
     vi.stubEnv("PAYMENTS_DEVNET_ENABLED", "true"); vi.stubEnv("NODE_ENV", "production"); expect(paymentConfig).toThrow();
   });
+  it("blocks session reads before database access when disabled or in production", async () => {
+    mocks.get.mockReturnValue({ value: "a".repeat(64) });
+    vi.stubEnv("PAYMENTS_DEVNET_ENABLED", "false");
+    await expect(tenantSession()).rejects.toThrow("disabled");
+    vi.stubEnv("PAYMENTS_DEVNET_ENABLED", "true"); vi.stubEnv("NODE_ENV", "production");
+    await expect(tenantSession()).rejects.toThrow("disabled");
+    expect(mocks.query).not.toHaveBeenCalled();
+  });
   it("rejects foreign or missing origins", () => {
     expect(() => assertOrigin(request("https://attacker.invalid"))).toThrow();
     expect(() => assertOrigin(new Request("http://localhost:3000"))).toThrow();

@@ -28,3 +28,8 @@ CREATE TABLE IF NOT EXISTS test_credit_ledger (
 CREATE INDEX IF NOT EXISTS payment_scan_idx ON payment_orders(last_checked_at) WHERE status <> 'credited';
 CREATE INDEX IF NOT EXISTS payment_tenant_idx ON payment_orders(tenant_id, created_at);
 CREATE INDEX IF NOT EXISTS test_credit_tenant_idx ON test_credit_ledger(tenant_id);
+
+-- Upgrade the isolated Devnet schema without deleting orders or financial evidence.
+ALTER TABLE payment_orders DROP CONSTRAINT IF EXISTS payment_orders_status_check;
+ALTER TABLE payment_orders ADD CONSTRAINT payment_orders_status_check
+  CHECK (status IN ('awaiting_payment','confirmed','credited','expired','review_required'));

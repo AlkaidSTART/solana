@@ -30,8 +30,8 @@ export class PaymentRepository {
   async record(id: string, signature: string, result: string) {
     await this.db.query(`INSERT INTO payment_candidates(order_id,signature,result) VALUES ($1,$2,$3) ON CONFLICT(order_id,signature) DO UPDATE SET result=$3, checked_at=now()`, [id, signature, result]);
   }
-  async mark(id: string, status: "confirmed" | "expired") {
-    await this.db.query(`UPDATE payment_orders SET status=$2 WHERE id=$1 AND status <> 'credited' AND (status <> 'confirmed' OR $2 <> 'expired')`, [id, status]);
+  async mark(id: string, status: "confirmed" | "expired" | "review_required") {
+    await this.db.query(`UPDATE payment_orders SET status=$2 WHERE id=$1 AND status <> 'credited'`, [id, status]);
   }
   async checked(id: string) { await this.db.query("UPDATE payment_orders SET last_checked_at=now() WHERE id=$1", [id]); }
   async settle(order: PaymentOrder, transfer: VerifiedTransfer) {

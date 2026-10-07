@@ -1,4 +1,14 @@
 import { create } from "zustand";
+import type { SupportedLocale } from "@/lib/i18n";
+
+export type OrderLanguage =
+  | "id_ID"
+  | "th_TH"
+  | "en_US"
+  | "en_SG"
+  | "ms_MY"
+  | "vi_VN"
+  | "fil_PH";
 
 export interface StoreInfo {
   id: string;
@@ -19,7 +29,7 @@ export interface OrderItem {
   amountUsd: string;
   type: "ABANDONED_CHECKOUT" | "COD";
   status: "PENDING" | "RECOVERED" | "COD_VERIFIED" | "COD_REJECTED" | "CANCELLED";
-  language: "id_ID" | "th_TH" | "en_US";
+  language: OrderLanguage;
   createdAt: string;
   originalAddress?: string;
   modifiedAddress?: string;
@@ -48,7 +58,7 @@ export interface Conversation {
   customerName: string;
   customerPhone: string;
   countryCode: string;
-  language: "id_ID" | "th_TH" | "en_US";
+  language: OrderLanguage;
   orderId?: string;
   unread: boolean;
   isHumanTakeover: boolean;
@@ -79,6 +89,10 @@ export interface KnowledgeItem {
   idGaul: string;
   en: string;
   th: string;
+  enSg?: string;
+  ms?: string;
+  vi?: string;
+  fil?: string;
   status: "PUBLISHED" | "PENDING_REVIEW" | "DRAFT";
   lastUpdated: string;
 }
@@ -97,7 +111,7 @@ export interface LedgerTransaction {
 interface AppState {
   currentStoreId: string;
   stores: StoreInfo[];
-  locale: "zh_CN" | "en_US" | "id_ID";
+  locale: SupportedLocale;
   credits: {
     available: number;
     reserved: number;
@@ -112,7 +126,7 @@ interface AppState {
 
   // Actions
   setStoreId: (id: string) => void;
-  setLocale: (locale: "zh_CN" | "en_US" | "id_ID") => void;
+  setLocale: (locale: SupportedLocale) => void;
   topupCredits: (usdc: number, credits: number, txHash: string) => void;
   toggleHumanTakeover: (conversationId: string) => void;
   sendChatMessage: (conversationId: string, text: string) => void;
@@ -145,6 +159,22 @@ export const useAppStore = create<AppState>((set) => ({
       timezone: "Asia/Bangkok (ICT, UTC+7)",
       status: "connected",
     },
+    {
+      id: "store_sg_sneakers",
+      name: "SG_Sneakers_Hub (Shopify)",
+      platform: "Shopify",
+      currency: "SGD",
+      timezone: "Asia/Singapore (SGT, UTC+8)",
+      status: "connected",
+    },
+    {
+      id: "store_my_boutique",
+      name: "MY_Boutique_KL (WooCommerce)",
+      platform: "WooCommerce",
+      currency: "MYR",
+      timezone: "Asia/Kuala_Lumpur (MYT, UTC+8)",
+      status: "connected",
+    },
   ],
   locale: "zh_CN",
   credits: {
@@ -153,6 +183,45 @@ export const useAppStore = create<AppState>((set) => ({
     trial: 0,
   },
   orders: [
+    {
+      id: "ord_sg_7721",
+      orderNumber: "SG-7721",
+      storeId: "store_sg_sneakers",
+      customerName: "Marcus Tan",
+      customerPhone: "+65 9123-4567",
+      amountLocal: "S$ 148.00",
+      amountUsd: "$112.50",
+      type: "ABANDONED_CHECKOUT",
+      status: "RECOVERED",
+      language: "en_SG",
+      createdAt: "15 分钟前",
+      steps: [
+        { title: "新加坡弃购待支付事件触发", timestamp: "15:10 SGT", completed: true },
+        { title: "Singlish 优惠券提醒送达", timestamp: "15:25 SGT", completed: true },
+        { title: "买家使用 PayNow / 信用卡完成结算", timestamp: "15:32 SGT", completed: true },
+      ],
+    },
+    {
+      id: "ord_my_3310",
+      orderNumber: "MY-3310",
+      storeId: "store_my_boutique",
+      customerName: "Farah Nadia",
+      customerPhone: "+60 12-345 6789",
+      amountLocal: "RM 189.00",
+      amountUsd: "$42.80",
+      type: "COD",
+      status: "COD_VERIFIED",
+      language: "ms_MY",
+      createdAt: "25 分钟前",
+      originalAddress: "No 15, Jalan SS2/10, Petaling Jaya, Selangor",
+      modifiedAddress: "Tingkat 2 atas kedai roti, depan LRT Taman Bahagia",
+      riskScore: 8,
+      steps: [
+        { title: "大马 COD 订单生成", timestamp: "14:40 MYT", completed: true },
+        { title: "WhatsApp 马来语核验发送", timestamp: "14:45 MYT", completed: true },
+        { title: "买家核对地址并确认 Pos Laju 签收", timestamp: "14:52 MYT", completed: true },
+      ],
+    },
     {
       id: "ord_9821",
       orderNumber: "ID-9821",

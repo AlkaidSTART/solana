@@ -21,6 +21,7 @@ export async function readBody(request: Request): Promise<unknown> {
   try { return JSON.parse(text); } catch { throw new PaymentHttpError(400, "JSON 格式错误"); }
 }
 export async function tenantSession(): Promise<string> {
+  paymentConfig();
   const token = (await cookies()).get(COOKIE)?.value;
   if (!token || !/^[a-f0-9]{64}$/.test(token)) throw new PaymentHttpError(401, "请先建立本地 Devnet 测试会话");
   const { rows } = await database().query("SELECT tenant_id FROM payment_sessions WHERE token_hash=$1 AND expires_at>now()", [digest(token)]);

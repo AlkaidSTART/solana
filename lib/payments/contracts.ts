@@ -11,7 +11,7 @@ export const orderSchema = z.object({
   reference: z.string(), recipient: z.string(), recipientAta: z.string(), mint: z.literal(DEVNET_USDC),
   amountAtomic: z.string().regex(/^\d+$/), credits: z.number().int(), priceVersion: z.literal(PRICE_VERSION),
   createdAt: z.iso.datetime(), expiresAt: z.iso.datetime(),
-  status: z.enum(["awaiting_payment", "confirmed", "credited", "expired"]),
+  status: z.enum(["awaiting_payment", "confirmed", "credited", "expired", "review_required"]),
   signature: z.string().nullable(),
 });
 export type PaymentOrder = z.infer<typeof orderSchema>;

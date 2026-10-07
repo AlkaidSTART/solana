@@ -10,6 +10,7 @@ export async function reconcile(order: PaymentOrder, chain: PaymentChain, reposi
   if (genesis !== DEVNET_GENESIS) throw new Error("Wrong network");
   let before: string | undefined;
   let detected = false;
+  let needsReview = false;
   // Scan all pages in the quote interval, not merely the newest invalid transfer.
   for (;;) {
     const candidates = await chain.signatures(order.reference, before);
@@ -20,7 +21,10 @@ export async function reconcile(order: PaymentOrder, chain: PaymentChain, reposi
       if (!raw) continue;
       const result = verifyTransfer(order, candidate.signature, raw, genesis);
       await repository.record(order.id, candidate.signature, result.kind === "valid" ? (finalized ? "finalized" : "confirmed") : result.reason);
-      if (result.kind !== "valid") continue;
+      if (result.kind !== "valid") {
+        if (["wrong_received_amount", "outside_quote", "missing_chain_time"].includes(result.reason)) needsReview = true;
+        continue;
+      }
       if (finalized) { await repository.settle(order, result.transfer); await repository.checked(order.id); return; }
       detected = true;
     }
@@ -30,6 +34,7 @@ export async function reconcile(order: PaymentOrder, chain: PaymentChain, reposi
     before = last.signature;
   }
   if (detected) await repository.mark(order.id, "confirmed");
+  else if (needsReview || order.status === "confirmed" || order.status === "review_required") await repository.mark(order.id, "review_required");
   else if (Date.now() > Date.parse(order.expiresAt)) await repository.mark(order.id, "expired");
   await repository.checked(order.id);
 }

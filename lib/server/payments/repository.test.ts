@@ -73,6 +73,24 @@ describe("reconciliation", () => {
     await reconcile(order, mockChain(true), repository);
     expect((await repository.billing(tenant)).availableCredits).toBe(100);
   });
+  it("moves a disappeared confirmed candidate to review without credit", async () => {
+    const order = await repository.create({ ...orderFixture(), status: "confirmed" }, randomUUID());
+    const chain = mockChain(false); chain.signatures = async () => [];
+    await reconcile(order, chain, repository);
+    expect((await repository.get(order.id, tenant))?.status).toBe("review_required");
+    expect((await repository.billing(tenant)).availableCredits).toBe(0);
+  });
+  it("reviews mismatched amount then accepts a later valid candidate", async () => {
+    const order = await repository.create(orderFixture(), randomUUID());
+    const chain = mockChain(true);
+    const invalid = transactionFixture(); invalid.meta.postTokenBalances[1].uiTokenAmount.amount = "1000000";
+    chain.transaction = async () => invalid;
+    await reconcile(order, chain, repository);
+    expect((await repository.get(order.id, tenant))?.status).toBe("review_required");
+    expect((await repository.billing(tenant)).availableCredits).toBe(0);
+    await reconcile(order, mockChain(true), repository);
+    expect((await repository.billing(tenant)).availableCredits).toBe(100);
+  });
   it("continues after invalid candidate and across pages", async () => {
     const order = await repository.create(orderFixture(), randomUUID());
     const chain = mockChain(true);
