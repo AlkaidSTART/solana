@@ -1,6 +1,8 @@
 "use client";
 
 import React, { useState } from "react";
+import { useAppStore } from "@/stores/use-app-store";
+import { getI18nText } from "@/lib/i18n";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -13,6 +15,7 @@ import {
 } from "lucide-react";
 
 export default function ConsoleSettingsPage() {
+  const { locale } = useAppStore();
   const [controlGroupEnabled, setControlGroupEnabled] = useState(true);
   const [windowDays, setWindowDays] = useState(14);
   const [confidenceRate, setConfidenceRate] = useState(95);
@@ -30,24 +33,24 @@ export default function ConsoleSettingsPage() {
         <div>
           <div className="flex items-center gap-2">
             <h1 className="text-lg font-mono uppercase tracking-wider font-bold text-[#09090B]">
-              报表与设置 · Analytics & Settings
+              {getI18nText(locale, "settings_title")}
             </h1>
-            <Badge variant="outline">Demo/Mock</Badge>
+            <Badge variant="outline">{getI18nText(locale, "demo_badge")}</Badge>
           </div>
           <p className="text-xs text-[#71717A] font-mono mt-0.5">
-            配置 20% 对照组归因模型、店铺本土时区货币、团队 RBAC 权限与隐私合规
+            {getI18nText(locale, "settings_subhead")}
           </p>
         </div>
 
         <Button size="sm" onClick={handleSave}>
-          保存全局设置
+          {getI18nText(locale, "settings_save_btn")}
         </Button>
       </div>
 
       {saveSuccess && (
         <div className="p-3 bg-[#059669]/10 text-[#059669] border border-[#059669]/20 text-xs font-mono flex items-center gap-2">
           <CheckCircle2 className="w-4 h-4" />
-          <span>全局配置已成功保存并立即在整个工作台生效！</span>
+          <span>{getI18nText(locale, "settings_saved_success")}</span>
         </div>
       )}
 
@@ -59,34 +62,34 @@ export default function ConsoleSettingsPage() {
         <Card>
           <CardHeader>
             <div className="flex items-center justify-between w-full">
-              <CardTitle>真实催付效果归因与 20% 对照组科学分流</CardTitle>
+              <CardTitle>{getI18nText(locale, "settings_control_group_title")}</CardTitle>
               <Badge variant={controlGroupEnabled ? "success" : "neutral"} dot>
-                {controlGroupEnabled ? "分流实验已激活" : "已关闭对照组"}
+                {controlGroupEnabled ? getI18nText(locale, "status_active") : getI18nText(locale, "status_paused")}
               </Badge>
             </div>
           </CardHeader>
           <CardContent className="space-y-5 text-xs font-mono">
             <p className="text-[#27272A] leading-relaxed font-sans">
-              为杜绝将自然支付订单冒功为 AI 催付效果，系统自动将 20% 的待支付与 COD 订单划入沉默对照组，不发送 WhatsApp 提醒，以此精准计算净增量 (Net Lift)。
+              {getI18nText(locale, "settings_control_group_desc")}
             </p>
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 p-4 bg-[#FAFAFA] border border-[#E4E4E7]">
               <div>
                 <label className="text-[#71717A] text-[10px] uppercase block mb-1">
-                  20% 对照组分流开关
+                  20% Control Group Toggle
                 </label>
                 <button
                   type="button"
                   onClick={() => setControlGroupEnabled(!controlGroupEnabled)}
                   className="px-3 py-1.5 bg-white border border-[#E4E4E7] text-[#09090B] font-bold cursor-pointer hover:border-[#09090B]"
                 >
-                  {controlGroupEnabled ? "启用对照组 (推荐)" : "停用对照组 (不测算Lift)"}
+                  {controlGroupEnabled ? getI18nText(locale, "settings_control_enabled") : getI18nText(locale, "settings_control_disabled")}
                 </button>
               </div>
 
               <div>
                 <label className="text-[#71717A] text-[10px] uppercase block mb-1">
-                  滚动统计分析窗口 (天)
+                  {getI18nText(locale, "settings_window_label")}
                 </label>
                 <select
                   value={windowDays}
@@ -128,7 +131,7 @@ export default function ConsoleSettingsPage() {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="text-[#71717A] text-[10px] uppercase block mb-1 font-bold">
-                  电商店铺锚定时区 (严格禁止客户端推断)
+                  {getI18nText(locale, "settings_timezone_label")}
                 </label>
                 <select
                   defaultValue="Asia/Jakarta"
@@ -145,7 +148,7 @@ export default function ConsoleSettingsPage() {
 
               <div>
                 <label className="text-[#71717A] text-[10px] uppercase block mb-1 font-bold">
-                  本土主结算币种
+                  {getI18nText(locale, "settings_currency_label")}
                 </label>
                 <select
                   defaultValue="IDR"
