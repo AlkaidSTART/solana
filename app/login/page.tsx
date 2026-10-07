@@ -52,7 +52,7 @@ export default function LoginPage() {
         <div className="w-full max-w-md border border-[#E4E4E7] bg-white p-8 space-y-6">
           <div className="space-y-1">
             <div className="text-[10px] font-mono uppercase tracking-wider text-[#71717A]">
-              SOLAFLOW CONSOLE // MERCHANT AUTH
+              SOLAFLOW CONSOLE · MERCHANT AUTH
             </div>
             <h1 className="text-xl font-mono font-bold uppercase text-[#09090B]">
               商家工作台免密登录
