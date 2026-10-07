@@ -22,7 +22,7 @@
 
 ## 阶段与检查
 
-- [x] 阶段 1：创建本计划与专属 result 文档（`docs/plans/2026-10-07-plan-specific-result-docs.result.md`）。
+- [x] 阶段 1：创建本计划与专属 result 文档（`docs/plans/2026-10-07-plan-specific-result-docs/result.md`）。
 - [x] 阶段 2：修改 `AGENTS.md`，更新 MVP 工作流记录规则及交付闸门，核验行数（≤ 200 行）与原区块。
 - [x] 阶段 3：拆分迁移既有 5 个 plan 的 result 记录至各自同名 `*.result.md`，更新根目录 `result.md` 为索引。
 - [x] 阶段 4：自动化结构校验与回归测试（T1–T5）。

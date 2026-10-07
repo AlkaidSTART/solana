@@ -1,6 +1,6 @@
 # 需求执行记录：前端状态管理分层
 
-计划：`docs/plans/2026-10-07-agent-state-management.md`
+计划：`docs/plans/2026-10-07-agent-state-management/plan.md`
 
 - [x] 阶段 1：核对 AGENTS.md 与 package.json；尝试获取 TanStack Query 官方 Next.js 指南未成功（直接请求返回 HTTP 403），不将其记作已验证。测试 T2：检查 dependencies；预期 Zustand 已安装、TanStack Query 未安装；实际符合。测试 T3：将弹窗开关/跨页面筛选草稿/订单列表分别归类；预期 Hooks/Zustand/TanStack Query；实际可明确分类。遗留：无；下一步：更新规范。
 - [x] 阶段 2：补充技术栈、状态边界及测试矩阵。测试 T1/T3：检查三类状态归属及租户切换缓存规则；预期职责清楚且不重复缓存；实际人工检查通过。原 Next.js 区块写入前后精确比对一致。遗留：待最终验证；下一步：执行 T1–T4。

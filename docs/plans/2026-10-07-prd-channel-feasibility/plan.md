@@ -19,4 +19,4 @@
 4. 文档校验：T4 对本计划、同名 `.result.md`、`docs/channel-feasibility-review.md` 与根目录索引执行结构断言和 git diff --check；预期无空白错误且历史记录保留。
 
 ## 最终验收
-完成审查与可行性讨论交付，交付 `docs/channel-feasibility-review.md`；详细结果写入 `docs/plans/2026-10-07-prd-channel-feasibility.result.md`，根目录 result.md 保留索引；明确用户待确认事项。研究交付完成不代表 PRD 决策已批准或平台集成已通过。
+完成审查与可行性讨论交付，交付 `docs/channel-feasibility-review.md`；详细结果写入 `docs/plans/2026-10-07-prd-channel-feasibility/result.md`，根目录 result.md 保留索引；明确用户待确认事项。研究交付完成不代表 PRD 决策已批准或平台集成已通过。
