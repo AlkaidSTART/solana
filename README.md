@@ -3,6 +3,9 @@
 > 面向东南亚跨境电商的 WhatsApp 多语言智能订单助手与自动化引擎。
 > Multilingual WhatsApp order assistant & automation engine for Southeast Asia cross-border e-commerce.
 
+本仓库采用 Next.js 16 App Router 全栈架构。页面与 `app/api/**/route.ts` 位于同一应用，服务端领域逻辑统一放在 `lib/server/**`；不建立独立后端工程。
+
+
 [![Next.js](https://img.shields.io/badge/Next.js-16.3.8-black?style=flat&logo=next.js)](https://nextjs.org/)
 [![React](https://img.shields.io/badge/React-19.2.8-blue?style=flat&logo=react)](https://react.dev/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5-blue?style=flat&logo=typescript)](https://www.typescriptlang.org/)
@@ -259,6 +262,7 @@ pnpm start
 ### 7.1 核心文档导航
 
 - 📘 [PRD 业务需求文档 (v1.1)](docs/PRD.md)：业务定义、KPI 口径、场景规则与验收标准。
+- ⚡ [Next.js 全栈 API 接口契约](docs/API.md)：App Router Route Handlers 全栈接口契约与请求响应规范。
 - 🎨 [UI 设计规范](docs/UI_DESIGN.md)：视觉设计语言、色彩令牌、排版系统与交互规范。
 - 🔌 [后端接口与 Zod 契约](docs/backend-api-spec.md)：RESTful 接口表、数据传输对象及复杂校验逻辑。
 - 💬 [WhatsApp 官方接入指南](docs/whatsapp-integration-guide.md)：Cloud API 接入流程、模板规则与扣费说明。
