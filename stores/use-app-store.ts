@@ -1,4 +1,14 @@
 import { create } from "zustand";
+import type { SupportedLocale } from "@/lib/i18n";
+
+export type OrderLanguage =
+  | "id_ID"
+  | "th_TH"
+  | "en_US"
+  | "en_SG"
+  | "ms_MY"
+  | "vi_VN"
+  | "fil_PH";
 
 export interface StoreInfo {
   id: string;
@@ -19,7 +29,7 @@ export interface OrderItem {
   amountUsd: string;
   type: "ABANDONED_CHECKOUT" | "COD";
   status: "PENDING" | "RECOVERED" | "COD_VERIFIED" | "COD_REJECTED" | "CANCELLED";
-  language: "id_ID" | "th_TH" | "en_US";
+  language: OrderLanguage;
   createdAt: string;
   originalAddress?: string;
   modifiedAddress?: string;
@@ -48,7 +58,7 @@ export interface Conversation {
   customerName: string;
   customerPhone: string;
   countryCode: string;
-  language: "id_ID" | "th_TH" | "en_US";
+  language: OrderLanguage;
   orderId?: string;
   unread: boolean;
   isHumanTakeover: boolean;
@@ -79,6 +89,10 @@ export interface KnowledgeItem {
   idGaul: string;
   en: string;
   th: string;
+  enSg?: string;
+  ms?: string;
+  vi?: string;
+  fil?: string;
   status: "PUBLISHED" | "PENDING_REVIEW" | "DRAFT";
   lastUpdated: string;
 }
@@ -97,7 +111,7 @@ export interface LedgerTransaction {
 interface AppState {
   currentStoreId: string;
   stores: StoreInfo[];
-  locale: "zh_CN" | "en_US" | "id_ID";
+  locale: SupportedLocale;
   credits: {
     available: number;
     reserved: number;
@@ -112,15 +126,18 @@ interface AppState {
 
   // Actions
   setStoreId: (id: string) => void;
-  setLocale: (locale: "zh_CN" | "en_US" | "id_ID") => void;
+  setLocale: (locale: SupportedLocale) => void;
   topupCredits: (usdc: number, credits: number, txHash: string) => void;
   toggleHumanTakeover: (conversationId: string) => void;
   sendChatMessage: (conversationId: string, text: string) => void;
   approveCodOrder: (orderId: string) => void;
   rejectCodOrder: (orderId: string) => void;
+  markRecoveredOrder: (orderId: string) => void;
+  addOrder: (order: OrderItem) => void;
   toggleWorkflow: (workflowId: string) => void;
   rollbackWorkflow: (workflowId: string, targetVersion: string) => void;
   updateKnowledgeItem: (id: string, updates: Partial<KnowledgeItem>) => void;
+  addKnowledgeItem: (item: KnowledgeItem) => void;
 }
 
 export const useAppStore = create<AppState>((set) => ({
@@ -142,6 +159,22 @@ export const useAppStore = create<AppState>((set) => ({
       timezone: "Asia/Bangkok (ICT, UTC+7)",
       status: "connected",
     },
+    {
+      id: "store_sg_sneakers",
+      name: "SG_Sneakers_Hub (Shopify)",
+      platform: "Shopify",
+      currency: "SGD",
+      timezone: "Asia/Singapore (SGT, UTC+8)",
+      status: "connected",
+    },
+    {
+      id: "store_my_boutique",
+      name: "MY_Boutique_KL (WooCommerce)",
+      platform: "WooCommerce",
+      currency: "MYR",
+      timezone: "Asia/Kuala_Lumpur (MYT, UTC+8)",
+      status: "connected",
+    },
   ],
   locale: "zh_CN",
   credits: {
@@ -150,6 +183,45 @@ export const useAppStore = create<AppState>((set) => ({
     trial: 0,
   },
   orders: [
+    {
+      id: "ord_sg_7721",
+      orderNumber: "SG-7721",
+      storeId: "store_sg_sneakers",
+      customerName: "Marcus Tan",
+      customerPhone: "+65 9123-4567",
+      amountLocal: "S$ 148.00",
+      amountUsd: "$112.50",
+      type: "ABANDONED_CHECKOUT",
+      status: "RECOVERED",
+      language: "en_SG",
+      createdAt: "15 分钟前",
+      steps: [
+        { title: "新加坡弃购待支付事件触发", timestamp: "15:10 SGT", completed: true },
+        { title: "Singlish 优惠券提醒送达", timestamp: "15:25 SGT", completed: true },
+        { title: "买家使用 PayNow / 信用卡完成结算", timestamp: "15:32 SGT", completed: true },
+      ],
+    },
+    {
+      id: "ord_my_3310",
+      orderNumber: "MY-3310",
+      storeId: "store_my_boutique",
+      customerName: "Farah Nadia",
+      customerPhone: "+60 12-345 6789",
+      amountLocal: "RM 189.00",
+      amountUsd: "$42.80",
+      type: "COD",
+      status: "COD_VERIFIED",
+      language: "ms_MY",
+      createdAt: "25 分钟前",
+      originalAddress: "No 15, Jalan SS2/10, Petaling Jaya, Selangor",
+      modifiedAddress: "Tingkat 2 atas kedai roti, depan LRT Taman Bahagia",
+      riskScore: 8,
+      steps: [
+        { title: "大马 COD 订单生成", timestamp: "14:40 MYT", completed: true },
+        { title: "WhatsApp 马来语核验发送", timestamp: "14:45 MYT", completed: true },
+        { title: "买家核对地址并确认 Pos Laju 签收", timestamp: "14:52 MYT", completed: true },
+      ],
+    },
     {
       id: "ord_9821",
       orderNumber: "ID-9821",
@@ -328,6 +400,77 @@ export const useAppStore = create<AppState>((set) => ({
         },
       ],
     },
+    {
+      id: "chat_04",
+      customerName: "Marcus Tan",
+      customerPhone: "+65 9123-4567",
+      countryCode: "+65",
+      language: "en_SG",
+      orderId: "ord_sg_7721",
+      unread: false,
+      isHumanTakeover: false,
+      windowExpiresIn: "21h 10m",
+      lastMessage: "Can COD or PayNow bro? Any discount voucher leh?",
+      lastTimestamp: "15:28 SGT",
+      sentiment: "normal",
+      messages: [
+        {
+          id: "m7",
+          sender: "buyer",
+          text: "Hi boss, can COD or PayNow bro? Got discount voucher leh?",
+          translationZh: "老板你好，可以 COD 还是 PayNow 转账？还有折扣券吗？",
+          timestamp: "15:28 SGT",
+          slangTokens: [
+            { token: "PayNow", explanation: "新加坡本地即时转账系统" },
+            { token: "leh", explanation: "新加坡本地语气助词" },
+          ],
+        },
+        {
+          id: "m8",
+          sender: "agent",
+          text: "Hi Marcus! PayNow QR is available at checkout lah, plus 10% coupon applied for you already!",
+          translationZh: "嗨 Marcus！结账页面支持 PayNow 二维码，已为您自动抵扣 10% 优惠券！",
+          timestamp: "15:29 SGT",
+          slangTokens: [
+            { token: "lah", explanation: "Singlish 亲近肯定语气词" },
+          ],
+        },
+      ],
+    },
+    {
+      id: "chat_05",
+      customerName: "Farah Nadia",
+      customerPhone: "+60 12-345 6789",
+      countryCode: "+60",
+      language: "ms_MY",
+      orderId: "ord_my_3310",
+      unread: false,
+      isHumanTakeover: false,
+      windowExpiresIn: "23h 05m",
+      lastMessage: "Boleh pos esok ke sis? Pos Laju ya tq.",
+      lastTimestamp: "14:50 MYT",
+      sentiment: "normal",
+      messages: [
+        {
+          id: "m9",
+          sender: "buyer",
+          text: "Boleh pos esok ke sis? Harap guna Pos Laju ya, terima kasih!",
+          translationZh: "明天能发货吗姐姐？希望能用 Pos Laju 快递，谢谢！",
+          timestamp: "14:50 MYT",
+          slangTokens: [
+            { token: "sis", explanation: "马来西亚网购亲切尊称" },
+            { token: "Pos Laju", explanation: "大马国民快速快递" },
+          ],
+        },
+        {
+          id: "m10",
+          sender: "agent",
+          text: "Boleh sangat Sis Farah! Kami pos esok pagi guna Pos Laju, nanti tracking nombor kami WhatsApp ya.",
+          translationZh: "完全没问题 Farah 姐！我们明早通过 Pos Laju 发出，运单号稍后 WhatsApp 发您。",
+          timestamp: "14:52 MYT",
+        },
+      ],
+    },
   ],
   activeConversationId: "chat_01",
   workflows: [
@@ -339,7 +482,7 @@ export const useAppStore = create<AppState>((set) => ({
       enabled: true,
       version: "v1.2",
       triggerDelay: "15 分钟",
-      languages: ["id_ID", "th_TH", "en_US"],
+      languages: ["en_SG", "id_ID", "ms_MY", "th_TH", "vi_VN", "fil_PH", "en_US"],
       quietHours: "22:00 ~ 08:00 (自动顺延至次日 08:30)",
       maxFrequency: "单订单最多 2 次，间隔 ≥ 24 小时",
     },
@@ -351,7 +494,7 @@ export const useAppStore = create<AppState>((set) => ({
       enabled: true,
       version: "v1.0",
       triggerDelay: "订单创建后 5 分钟",
-      languages: ["id_ID", "en_US"],
+      languages: ["en_SG", "id_ID", "ms_MY", "vi_VN", "fil_PH", "en_US"],
       quietHours: "21:30 ~ 08:30 (免打扰保护)",
       maxFrequency: "单订单最多 1 次，逾期 12h 触发风控提醒",
     },
@@ -360,10 +503,14 @@ export const useAppStore = create<AppState>((set) => ({
     {
       id: "kb_01",
       category: "LOGISTICS",
-      zh: "通常在付款后 24-48 小时内发货，雅加达地区 2-3 天送达，外岛 5-7 天。",
+      zh: "通常在付款后 24-48 小时内发货，新加坡 1-2 日送达，印尼 Jabodetabek 2-3 天送达，外岛 5-7 天。",
       idGaul: "Pengiriman 1-2 hari kerja ya kak. Khusus Jabodetabek 2-3 harian nyampe, luar pulau 5-7 hari.",
-      en: "Orders are shipped within 24-48h. Jabodetabek takes 2-3 days, outer islands take 5-7 days.",
+      en: "Orders are shipped within 24-48h. Singapore 1-2 days, Jabodetabek 2-3 days, outer islands 5-7 days.",
       th: "จัดส่งภายใน 24-48 ชม. กรุงเทพฯ และปริมณฑล 2-3 วัน ต่างจังหวัด 5-7 วันครับ",
+      enSg: "Shipped within 24-48h lah! Islandwide doorstep courier takes 1-2 days only, super fast.",
+      ms: "Penghantaran 1-2 hari bekerja sis. Pos Laju Semenanjung 2-3 hari sampai, Sabah/Sarawak 5-7 hari.",
+      vi: "Đơn hàng gửi trong 24-48h qua GHTK. Nội thành HCM/Hà Nội 1-2 ngày, tỉnh khác 3-5 ngày nha shop.",
+      fil: "Ipapadala sa loob ng 24-48 oras po. Metro Manila 1-2 araw via J&T, provinces 3-5 araw po.",
       status: "PUBLISHED",
       lastUpdated: "2026-10-06",
     },
@@ -374,8 +521,26 @@ export const useAppStore = create<AppState>((set) => ({
       idGaul: "Bisa COD kok kak! Pas kurir dateng pastiin nomor aktif & siapin uang pas ya kak.",
       en: "Cash on Delivery (COD) is supported! Please ensure your phone is reachable and have exact cash ready.",
       th: "รองรับการเก็บเงินปลายทาง (COD) ครับ โปรดเปิดมือถือรอรับสายขนส่งและเตรียมเงินพอดีนะครับ",
+      enSg: "Cash on delivery available! Make sure phone is on when delivery guy comes down ok?",
+      ms: "Boleh bayar masa barang sampai (COD) sis! Pastikan telefon aktif & sediakan duit secukupnya ya.",
+      vi: "Shop có hỗ trợ ship COD nha! Khi shipper giao bạn nhớ giữ máy và chuẩn bị tiền mặt vừa đủ ạ.",
+      fil: "Available po ang COD! Pakisigurong bukas ang cellphone kapag tumawag ang rider po.",
       status: "PUBLISHED",
       lastUpdated: "2026-10-05",
+    },
+    {
+      id: "kb_03",
+      category: "FAQ",
+      zh: "支持本土主流转账：新加坡 PayNow、印尼 QRIS、泰国 PromptPay、马来西亚 Touch 'n Go 及 Solana USDC。",
+      idGaul: "Bisa bayar lewat QRIS, transfer bank lokal, dan instant settlement crypto USDC ya kak.",
+      en: "We support local instant rails: SG PayNow, ID QRIS, TH PromptPay, MY Touch 'n Go & Solana USDC.",
+      th: "รองรับ PromptPay, สแกน QR ธนาคารในไทย และ Solana USDC ได้ทันทีครับ",
+      enSg: "Can use SG PayNow, Nets, credit card or Solana USDC! Scan QR and confirm immediately.",
+      ms: "Boleh bayar guna DuitNow QR, Touch 'n Go eWallet, FPX ataupun Solana USDC.",
+      vi: "Hỗ trợ quét mã VietQR, MoMo, ZaloPay và thanh toán crypto Solana USDC nhận ngay ạ.",
+      fil: "Tumatanggap po ng GCash, Maya, QR Ph at instant crypto Solana USDC settlement.",
+      status: "PUBLISHED",
+      lastUpdated: "2026-10-07",
     },
   ],
   ledgerHistory: [
@@ -482,6 +647,25 @@ export const useAppStore = create<AppState>((set) => ({
           : o
       ),
     })),
+  markRecoveredOrder: (orderId) =>
+    set((state) => ({
+      orders: state.orders.map((o) =>
+        o.id === orderId
+          ? {
+              ...o,
+              status: "RECOVERED",
+              steps: [
+                ...o.steps,
+                { title: "买家完成补付 (GMV Recovered)", timestamp: "刚刚", completed: true },
+              ],
+            }
+          : o
+      ),
+    })),
+  addOrder: (order) =>
+    set((state) => ({
+      orders: [order, ...state.orders],
+    })),
   toggleWorkflow: (workflowId) =>
     set((state) => ({
       workflows: state.workflows.map((w) =>
@@ -499,5 +683,9 @@ export const useAppStore = create<AppState>((set) => ({
       knowledgeItems: state.knowledgeItems.map((item) =>
         item.id === id ? { ...item, ...updates } : item
       ),
+    })),
+  addKnowledgeItem: (item) =>
+    set((state) => ({
+      knowledgeItems: [item, ...state.knowledgeItems],
     })),
 }));
