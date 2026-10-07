@@ -25,13 +25,13 @@ describe("native SOL evidence (isolated RPC fixtures)", () => {
     ["ambiguous transfer", (tx: ReturnType<typeof transactionFixture>) => { tx.transaction.message.instructions.push(tx.transaction.message.instructions[0]); }],
     ["overpayment", (tx: ReturnType<typeof transactionFixture>) => { tx.meta.postBalances[1]++; }],
     ["underpayment", (tx: ReturnType<typeof transactionFixture>) => { tx.meta.postBalances[1]--; }],
-    ["no net receipt", (tx: ReturnType<typeof transactionFixture>) => { tx.meta.postBalances[1] = 0n; }],
+    ["no net receipt", (tx: ReturnType<typeof transactionFixture>) => { tx.meta.postBalances[1] = BigInt(0); }],
     ["before quote", (tx: ReturnType<typeof transactionFixture>) => { tx.blockTime = 999; }],
     ["expired", (tx: ReturnType<typeof transactionFixture>) => { tx.blockTime = 2201; }],
     ["missing time", (tx: ReturnType<typeof transactionFixture>) => { tx.blockTime = null; }],
     ["malformed data", (tx: ReturnType<typeof transactionFixture>) => { tx.transaction.message.instructions[0].data = "!"; }],
   ] as const)("rejects %s", (_, mutate) => { const tx = transactionFixture(); mutate(tx); expect(verify(tx)).not.toBeNull(); });
-  it.each([0n, 999_999n, 1_000_001n])("rejects instruction amount %s despite net receipt", (amount) => {
+  it.each([BigInt(0), BigInt(999_999), BigInt(1_000_001)])("rejects instruction amount %s despite net receipt", (amount) => {
     const tx = transactionFixture(); tx.transaction.message.instructions[0].data = getBase58Decoder().decode(getTransferSolInstructionDataEncoder().encode({ amount }));
     expect(verify(tx)).not.toBeNull();
   });

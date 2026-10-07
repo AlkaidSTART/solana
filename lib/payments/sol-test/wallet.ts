@@ -8,8 +8,8 @@ import { solTestQuoteSchema, type SolTestQuote } from "./contracts";
 
 // Public Devnet only; private server RPC credentials never enter the browser.
 const rpcUrl = "https://api.devnet.solana.com";
-const v1 = paymentWallet.use(solanaRpc({ rpcUrl, transactionConfig: { version: 1, priorityFeeLamports: lamports(0n) } }));
-const v0 = paymentWallet.use(solanaRpc({ rpcUrl, transactionConfig: { version: 0, priorityFeeLamports: lamports(0n) } }));
+const v1 = paymentWallet.use(solanaRpc({ rpcUrl, transactionConfig: { version: 1, priorityFeeLamports: lamports(BigInt(0)) } }));
+const v0 = paymentWallet.use(solanaRpc({ rpcUrl, transactionConfig: { version: 0 } }));
 export async function sendSolTest(input: SolTestQuote): Promise<string> {
   const quote = solTestQuoteSchema.parse(input);
   const connected = paymentWallet.wallet.getState().connected;
