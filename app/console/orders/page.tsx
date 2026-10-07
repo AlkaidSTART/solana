@@ -266,9 +266,14 @@ export default function ConsoleOrdersPage() {
                     <div className="text-[10px] text-zinc-400 font-mono">{ord.amountUsd}</div>
                   </TableCell>
                   <TableCell>
-                    <Badge variant={ord.type === "COD" ? "outline" : "neutral"}>
-                      {ord.type === "COD" ? "COD 货到付款" : "弃购挽回"}
-                    </Badge>
+                    <div className="flex items-center gap-1.5 flex-wrap">
+                      <Badge variant={ord.type === "COD" ? "outline" : "neutral"}>
+                        {ord.type === "COD" ? "COD 货到付款" : "弃购挽回"}
+                      </Badge>
+                      <span className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-zinc-100 text-zinc-600 border border-zinc-200">
+                        {ord.language}
+                      </span>
+                    </div>
                   </TableCell>
                   <TableCell>{getStatusBadge(ord.status)}</TableCell>
                   <TableCell className="text-zinc-500 text-[11px] font-mono">{ord.createdAt}</TableCell>

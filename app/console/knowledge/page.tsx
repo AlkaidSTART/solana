@@ -166,7 +166,7 @@ export default function ConsoleKnowledgePage() {
             <Badge variant="outline">Demo/Mock</Badge>
           </div>
           <p className="text-xs text-zinc-500 font-mono mt-0.5">
-            四列多语言对照编辑器（中/印尼/英/泰）• 跨语言冲突预警 • 东南亚俚语对齐
+            八列多语言对照编辑器（中/印尼/英/泰/新/马/越/菲）• 跨语言冲突预警 • 东南亚俚语对齐
           </p>
         </div>
 
@@ -186,7 +186,7 @@ export default function ConsoleKnowledgePage() {
           <Search className="w-3.5 h-3.5 absolute left-3 top-2.5 text-zinc-400" />
           <input
             type="text"
-            placeholder="搜索问答关键词 (中文 / 印尼俚语 / 英语)..."
+            placeholder="搜索问答关键词 (中文 / 印尼俚语 / 英语 / Singlish)..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="w-full pl-8 pr-3 py-1.5 bg-white border border-zinc-200 rounded-lg text-xs font-mono text-zinc-900 placeholder:text-zinc-400 focus:outline-none focus:border-zinc-900 shadow-2xs"
@@ -210,7 +210,7 @@ export default function ConsoleKnowledgePage() {
         </div>
       </div>
 
-      {/* 四列对照卡片列表 */}
+      {/* 多语言对照卡片列表 */}
       <div className="space-y-4">
         {filteredItems.map((item) => (
           <Card key={item.id} className="hover:border-zinc-900 transition-colors rounded-xl shadow-2xs">
@@ -228,13 +228,13 @@ export default function ConsoleKnowledgePage() {
                   </Badge>
                   <Button size="sm" variant="outline" onClick={() => handleOpenDrawer(item)}>
                     <Edit3 className="w-3.5 h-3.5 mr-1" />
-                    四列对照编辑
+                    多语言对照编辑
                   </Button>
                 </div>
               </div>
             </CardHeader>
-            <CardContent>
-              {/* 四列多语言横向对照网格 */}
+            <CardContent className="space-y-3">
+              {/* 第一行：中 / 印尼 / 英 / 泰 */}
               <div className="grid grid-cols-1 md:grid-cols-4 gap-3.5 text-xs font-mono">
                 {/* 列 1: 中文底稿 */}
                 <div className="p-3.5 bg-zinc-50 rounded-lg border border-zinc-200 space-y-1">
@@ -274,6 +274,47 @@ export default function ConsoleKnowledgePage() {
                   </p>
                 </div>
               </div>
+
+              {/* 第二行：东南亚扩展语言（新加坡 Singlish / 马来西亚 / 越南 / 菲律宾） */}
+              {(item.enSg || item.ms || item.vi || item.fil) && (
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-3.5 text-xs font-mono pt-3 border-t border-zinc-200/70">
+                  {/* 列 SG: 新加坡 Singlish */}
+                  <div className="p-3 bg-amber-50/20 rounded-lg border border-amber-200/70 space-y-1">
+                    <div className="text-[10px] text-amber-800 uppercase font-bold flex items-center gap-1.5">
+                      <span className="px-1 py-0.2 rounded bg-amber-500/10 border border-amber-500/20 text-[9px]">SG</span>
+                      <span>新加坡 (Singlish)</span>
+                    </div>
+                    <p className="text-zinc-900 leading-relaxed font-sans">{item.enSg || "—"}</p>
+                  </div>
+
+                  {/* 列 MY: 马来西亚 */}
+                  <div className="p-3 bg-cyan-50/20 rounded-lg border border-cyan-200/70 space-y-1">
+                    <div className="text-[10px] text-cyan-800 uppercase font-bold flex items-center gap-1.5">
+                      <span className="px-1 py-0.2 rounded bg-cyan-500/10 border border-cyan-500/20 text-[9px]">MY</span>
+                      <span>马来语 (Melayu)</span>
+                    </div>
+                    <p className="text-zinc-900 leading-relaxed font-sans">{item.ms || "—"}</p>
+                  </div>
+
+                  {/* 列 VN: 越南 */}
+                  <div className="p-3 bg-blue-50/20 rounded-lg border border-blue-200/70 space-y-1">
+                    <div className="text-[10px] text-blue-800 uppercase font-bold flex items-center gap-1.5">
+                      <span className="px-1 py-0.2 rounded bg-blue-500/10 border border-blue-500/20 text-[9px]">VN</span>
+                      <span>越南语 (Tiếng Việt)</span>
+                    </div>
+                    <p className="text-zinc-900 leading-relaxed font-sans">{item.vi || "—"}</p>
+                  </div>
+
+                  {/* 列 PH: 菲律宾 */}
+                  <div className="p-3 bg-rose-50/20 rounded-lg border border-rose-200/70 space-y-1">
+                    <div className="text-[10px] text-rose-800 uppercase font-bold flex items-center gap-1.5">
+                      <span className="px-1 py-0.2 rounded bg-rose-500/10 border border-rose-500/20 text-[9px]">PH</span>
+                      <span>菲律宾 (Taglish)</span>
+                    </div>
+                    <p className="text-zinc-900 leading-relaxed font-sans">{item.fil || "—"}</p>
+                  </div>
+                </div>
+              )}
             </CardContent>
           </Card>
         ))}
@@ -316,14 +357,14 @@ export default function ConsoleKnowledgePage() {
               </Button>
             </div>
 
-            {/* 4 个编辑文本框 */}
+            {/* 4 个基础编辑文本框 */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="text-amber-700 uppercase text-[10px] block mb-1 font-bold">
                   1. 中文基准底稿 (卖家业务原意)
                 </label>
                 <textarea
-                  rows={4}
+                  rows={3}
                   value={zhText}
                   onChange={(e) => setZhText(e.target.value)}
                   className="w-full p-2.5 border border-zinc-200 rounded-lg font-sans text-xs focus:outline-none focus:border-zinc-900"
@@ -335,7 +376,7 @@ export default function ConsoleKnowledgePage() {
                   2. 印尼本土口语 (Bahasa Gaul / 电商网购俚语)
                 </label>
                 <textarea
-                  rows={4}
+                  rows={3}
                   value={idText}
                   onChange={(e) => setIdText(e.target.value)}
                   className="w-full p-2.5 border border-zinc-200 rounded-lg font-sans text-xs focus:outline-none focus:border-zinc-900"
@@ -347,7 +388,7 @@ export default function ConsoleKnowledgePage() {
                   3. 国际英语 (English)
                 </label>
                 <textarea
-                  rows={4}
+                  rows={3}
                   value={enText}
                   onChange={(e) => setEnText(e.target.value)}
                   className="w-full p-2.5 border border-zinc-200 rounded-lg font-sans text-xs focus:outline-none focus:border-zinc-900"
@@ -359,11 +400,71 @@ export default function ConsoleKnowledgePage() {
                   4. 泰语本地化 (Thai / 行高保持 1.6 以上)
                 </label>
                 <textarea
-                  rows={4}
+                  rows={3}
                   value={thText}
                   onChange={(e) => setThText(e.target.value)}
                   className="w-full p-2.5 border border-zinc-200 rounded-lg font-sans text-xs leading-[1.6] focus:outline-none focus:border-zinc-900"
                 />
+              </div>
+            </div>
+
+            {/* 东南亚本土扩展语言配置 */}
+            <div className="pt-3 border-t border-zinc-200 space-y-3">
+              <h3 className="text-[11px] font-mono font-bold text-zinc-700 uppercase">
+                东南亚本土扩展语言配置 (Singapore / Malaysia / Vietnam / Philippines)
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="text-amber-800 uppercase text-[10px] block mb-1 font-bold">
+                    5. 新加坡英语 (Singlish / lah, leh, PayNow)
+                  </label>
+                  <textarea
+                    rows={3}
+                    value={enSgText}
+                    onChange={(e) => setEnSgText(e.target.value)}
+                    placeholder="例如: Can lah, islandwide delivery 1-2 days only..."
+                    className="w-full p-2.5 border border-zinc-200 rounded-lg font-sans text-xs focus:outline-none focus:border-zinc-900"
+                  />
+                </div>
+
+                <div>
+                  <label className="text-cyan-800 uppercase text-[10px] block mb-1 font-bold">
+                    6. 马来西亚 (Bahasa Melayu / 电商口语)
+                  </label>
+                  <textarea
+                    rows={3}
+                    value={msText}
+                    onChange={(e) => setMsText(e.target.value)}
+                    placeholder="例如: Boleh sis, kami pos laju 1-2 hari sampai..."
+                    className="w-full p-2.5 border border-zinc-200 rounded-lg font-sans text-xs focus:outline-none focus:border-zinc-900"
+                  />
+                </div>
+
+                <div>
+                  <label className="text-blue-800 uppercase text-[10px] block mb-1 font-bold">
+                    7. 越南语 (Tiếng Việt)
+                  </label>
+                  <textarea
+                    rows={3}
+                    value={viText}
+                    onChange={(e) => setViText(e.target.value)}
+                    placeholder="例如: Dạ được nha shop ơi, giao hàng 1-2 ngày là nhận được ạ..."
+                    className="w-full p-2.5 border border-zinc-200 rounded-lg font-sans text-xs focus:outline-none focus:border-zinc-900"
+                  />
+                </div>
+
+                <div>
+                  <label className="text-rose-800 uppercase text-[10px] block mb-1 font-bold">
+                    8. 菲律宾语 (Taglish / po-opo 敬语)
+                  </label>
+                  <textarea
+                    rows={3}
+                    value={filText}
+                    onChange={(e) => setFilText(e.target.value)}
+                    placeholder="例如: Opo, available po ang delivery sa loob ng 1-2 araw..."
+                    className="w-full p-2.5 border border-zinc-200 rounded-lg font-sans text-xs focus:outline-none focus:border-zinc-900"
+                  />
+                </div>
               </div>
             </div>
 
@@ -428,7 +529,7 @@ export default function ConsoleKnowledgePage() {
                 ) : (
                   <Sparkles className="w-3 h-3 mr-1 text-indigo-600" />
                 )}
-                AI 一键生成印/英/泰
+                AI 一键生成东南亚 7 国语言
               </Button>
             </div>
             <textarea
@@ -447,7 +548,7 @@ export default function ConsoleKnowledgePage() {
                 2. 印尼本土口语 (Bahasa Gaul)
               </label>
               <textarea
-                rows={3}
+                rows={2}
                 placeholder="AI 自动生成或手动输入..."
                 value={newId}
                 onChange={(e) => setNewId(e.target.value)}
@@ -460,7 +561,7 @@ export default function ConsoleKnowledgePage() {
                 3. 国际英语 (English)
               </label>
               <textarea
-                rows={3}
+                rows={2}
                 placeholder="AI 自动生成或手动输入..."
                 value={newEn}
                 onChange={(e) => setNewEn(e.target.value)}
@@ -473,11 +574,65 @@ export default function ConsoleKnowledgePage() {
                 4. 泰语 (Thai)
               </label>
               <textarea
-                rows={3}
+                rows={2}
                 placeholder="AI 自动生成或手动输入..."
                 value={newTh}
                 onChange={(e) => setNewTh(e.target.value)}
                 className="w-full p-2 border border-zinc-200 rounded-lg font-sans text-xs leading-[1.6] focus:outline-none focus:border-zinc-900"
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pt-2 border-t border-zinc-200/60">
+            <div>
+              <label className="text-amber-800 uppercase text-[10px] block mb-1 font-bold">
+                5. 新加坡英语 (Singlish)
+              </label>
+              <textarea
+                rows={2}
+                placeholder="AI 自动生成或手动输入..."
+                value={newEnSg}
+                onChange={(e) => setNewEnSg(e.target.value)}
+                className="w-full p-2 border border-zinc-200 rounded-lg font-sans text-xs focus:outline-none focus:border-zinc-900"
+              />
+            </div>
+
+            <div>
+              <label className="text-cyan-800 uppercase text-[10px] block mb-1 font-bold">
+                6. 马来西亚语 (Bahasa Melayu)
+              </label>
+              <textarea
+                rows={2}
+                placeholder="AI 自动生成或手动输入..."
+                value={newMs}
+                onChange={(e) => setNewMs(e.target.value)}
+                className="w-full p-2 border border-zinc-200 rounded-lg font-sans text-xs focus:outline-none focus:border-zinc-900"
+              />
+            </div>
+
+            <div>
+              <label className="text-blue-800 uppercase text-[10px] block mb-1 font-bold">
+                7. 越南语 (Tiếng Việt)
+              </label>
+              <textarea
+                rows={2}
+                placeholder="AI 自动生成或手动输入..."
+                value={newVi}
+                onChange={(e) => setNewVi(e.target.value)}
+                className="w-full p-2 border border-zinc-200 rounded-lg font-sans text-xs focus:outline-none focus:border-zinc-900"
+              />
+            </div>
+
+            <div>
+              <label className="text-rose-800 uppercase text-[10px] block mb-1 font-bold">
+                8. 菲律宾语 (Taglish)
+              </label>
+              <textarea
+                rows={2}
+                placeholder="AI 自动生成或手动输入..."
+                value={newFil}
+                onChange={(e) => setNewFil(e.target.value)}
+                className="w-full p-2 border border-zinc-200 rounded-lg font-sans text-xs focus:outline-none focus:border-zinc-900"
               />
             </div>
           </div>

@@ -134,9 +134,12 @@ export default function ConsoleSettingsPage() {
                   defaultValue="Asia/Jakarta"
                   className="w-full p-2 bg-white border border-[#E4E4E7] text-[#09090B] cursor-pointer"
                 >
-                  <option value="Asia/Jakarta">Asia/Jakarta (印尼西部时间 WIB, UTC+7)</option>
-                  <option value="Asia/Bangkok">Asia/Bangkok (泰国时间 ICT, UTC+7)</option>
                   <option value="Asia/Singapore">Asia/Singapore (新加坡时间 SGT, UTC+8)</option>
+                  <option value="Asia/Jakarta">Asia/Jakarta (印尼西部时间 WIB, UTC+7)</option>
+                  <option value="Asia/Kuala_Lumpur">Asia/Kuala_Lumpur (马来西亚时间 MYT, UTC+8)</option>
+                  <option value="Asia/Bangkok">Asia/Bangkok (泰国时间 ICT, UTC+7)</option>
+                  <option value="Asia/Ho_Chi_Minh">Asia/Ho_Chi_Minh (越南时间 ICT, UTC+7)</option>
+                  <option value="Asia/Manila">Asia/Manila (菲律宾时间 PHT, UTC+8)</option>
                 </select>
               </div>
 
@@ -148,9 +151,13 @@ export default function ConsoleSettingsPage() {
                   defaultValue="IDR"
                   className="w-full p-2 bg-white border border-[#E4E4E7] text-[#09090B] cursor-pointer"
                 >
+                  <option value="SGD">SGD (S$ 新加坡元)</option>
                   <option value="IDR">IDR (Rp 印尼盾)</option>
+                  <option value="MYR">MYR (RM 马来西亚林吉特)</option>
                   <option value="THB">THB (฿ 泰铢)</option>
-                  <option value="USD">USD ($ 美元)</option>
+                  <option value="VND">VND (₫ 越南盾)</option>
+                  <option value="PHP">PHP (₱ 菲律宾比索)</option>
+                  <option value="USD">USD ($ 美元 / Solana USDC 锚定)</option>
                 </select>
               </div>
             </div>

@@ -2,6 +2,9 @@ import { readFile } from "node:fs/promises";
 import { Pool } from "pg";
 
 async function main() {
+  if (process.env.NODE_ENV === "production" || process.env.PAYMENTS_DEVNET_ENABLED !== "true") {
+    throw new Error("Database initialization requires explicitly enabled non-production Devnet payments");
+  }
   if (!process.env.DATABASE_URL) throw new Error("Set DATABASE_URL to an isolated test PostgreSQL database");
   const pool = new Pool({ connectionString: process.env.DATABASE_URL });
   try {

@@ -18,7 +18,11 @@ const db: Database = {
 };
 const repository = new PaymentRepository(db);
 const transfer = { signature: testSignature, position: 0, blockTime: Date.parse("2026-10-07T00:01:00Z") / 1000 };
-beforeAll(async () => { await engine.exec(await readFile("lib/server/payments/schema.sql", "utf8")); });
+beforeAll(async () => {
+  const schema = await readFile("lib/server/payments/schema.sql", "utf8");
+  await engine.exec(schema);
+  await engine.exec(schema);
+});
 beforeEach(async () => { await engine.exec("TRUNCATE payment_candidates,payment_transfers,test_credit_ledger,payment_orders CASCADE"); });
 afterAll(() => engine.close());
 
