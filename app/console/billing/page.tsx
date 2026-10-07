@@ -3,19 +3,15 @@
 import React, { useState } from "react";
 import { useAppStore } from "@/stores/use-app-store";
 import { StatCard } from "@/components/ui/stat-card";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { SolanaPayModal } from "@/components/billing/solana-pay-modal";
 import {
-  CreditCard,
-  Coins,
   Download,
   ExternalLink,
   Plus,
-  ShieldCheck,
-  CheckCircle2,
   Sparkles,
 } from "lucide-react";
 

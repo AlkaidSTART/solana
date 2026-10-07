@@ -3,9 +3,8 @@
 import React, { useState } from "react";
 import { Modal } from "@/components/ui/modal";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { useAppStore } from "@/stores/use-app-store";
-import { CheckCircle2, QrCode, ArrowUpRight, Loader2, Sparkles } from "lucide-react";
+import { CheckCircle2, QrCode, Loader2, Sparkles } from "lucide-react";
 import { clsx } from "clsx";
 
 interface SolanaPayModalProps {

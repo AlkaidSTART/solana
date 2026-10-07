@@ -7,16 +7,8 @@ import { TelemetrySandbox } from "@/components/landing/telemetry-sandbox";
 import { RoiCalculator } from "@/components/landing/roi-calculator";
 import { SolanaPayModal } from "@/components/billing/solana-pay-modal";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import {
   ArrowRight,
-  Shield,
-  Layers,
-  Zap,
-  Bot,
-  UserCheck,
-  ExternalLink,
-  ChevronRight,
   Globe2,
 } from "lucide-react";
 import { clsx } from "clsx";

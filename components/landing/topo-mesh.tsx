@@ -5,7 +5,7 @@ import * as THREE from "three";
 
 export const TopoMesh: React.FC = () => {
   const containerRef = useRef<HTMLDivElement>(null);
-  const [useFallback, setUseFallback] = useState(() => {
+  const [useFallback] = useState(() => {
     if (typeof window !== "undefined") {
       return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     }

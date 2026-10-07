@@ -2,19 +2,15 @@
 
 import React, { useState } from "react";
 import { useAppStore, KnowledgeItem } from "@/stores/use-app-store";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { Card, CardHeader, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Drawer } from "@/components/ui/drawer";
 import {
-  BookOpen,
   Plus,
-  Search,
   CheckCircle2,
   AlertTriangle,
-  Languages,
   Edit3,
-  Globe,
 } from "lucide-react";
 import { clsx } from "clsx";
 

@@ -1,21 +1,16 @@
 "use client";
 
 import React, { useState } from "react";
-import { useAppStore, Conversation } from "@/stores/use-app-store";
+import { useAppStore } from "@/stores/use-app-store";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
-  MessageSquare,
-  Search,
   UserCheck,
   Bot,
   Send,
   Clock,
   BookOpen,
   Languages,
-  CheckCircle2,
-  AlertCircle,
-  HelpCircle,
 } from "lucide-react";
 import { clsx } from "clsx";
 

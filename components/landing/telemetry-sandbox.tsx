@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { CheckCircle2, ShieldCheck, ArrowRight, RefreshCw, Terminal, PhoneCall } from "lucide-react";
+import { CheckCircle2, ShieldCheck, ArrowRight, RefreshCw, Terminal } from "lucide-react";
 import { clsx } from "clsx";
 
 interface Scenario {

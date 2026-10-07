@@ -4,14 +4,13 @@ import React, { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { ArrowRight, CheckCircle2, ShieldCheck, Mail } from "lucide-react";
+import { Mail } from "lucide-react";
 
 export default function LoginPage() {
   const router = useRouter();
   const [email, setEmail] = useState("merchant@crossborder-shop.com");
-  const [code, setCode] = useState(["8", "9", "2", "1", "0", "4"]);
-  const [sentCode, setSentCode] = useState(true);
+  const code = ["8", "9", "2", "1", "0", "4"];
+  const sentCode = true;
   const [loading, setLoading] = useState(false);
 
   const handleLogin = (e: React.FormEvent) => {

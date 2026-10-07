@@ -1,5 +1,4 @@
 import * as React from "react";
-import { clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
 
 export const Table = React.forwardRef<
