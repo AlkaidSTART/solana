@@ -7,7 +7,7 @@ CREATE TABLE IF NOT EXISTS payment_orders (
   recipient text NOT NULL, recipient_ata text NOT NULL, mint text NOT NULL,
   amount_atomic bigint NOT NULL CHECK (amount_atomic > 0), credits integer NOT NULL CHECK (credits BETWEEN 100 AND 100000),
   price_version text NOT NULL, created_at timestamptz NOT NULL, expires_at timestamptz NOT NULL,
-  status text NOT NULL CHECK (status IN ('awaiting_payment','confirmed','credited','expired')),
+  status text NOT NULL CHECK (status IN ('awaiting_payment','confirmed','credited','expired','review_required','cancelled')),
   signature text, last_checked_at timestamptz,
   UNIQUE (tenant_id, idempotency_key)
 );
@@ -32,4 +32,4 @@ CREATE INDEX IF NOT EXISTS test_credit_tenant_idx ON test_credit_ledger(tenant_i
 -- Upgrade the isolated Devnet schema without deleting orders or financial evidence.
 ALTER TABLE payment_orders DROP CONSTRAINT IF EXISTS payment_orders_status_check;
 ALTER TABLE payment_orders ADD CONSTRAINT payment_orders_status_check
-  CHECK (status IN ('awaiting_payment','confirmed','credited','expired','review_required'));
+  CHECK (status IN ('awaiting_payment','confirmed','credited','expired','review_required','cancelled'));

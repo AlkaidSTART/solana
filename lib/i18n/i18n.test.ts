@@ -57,6 +57,112 @@ describe("i18n Southeast Asia & Singapore Specifications", () => {
       "hero_subhead",
       "hero_cta_start",
       "hero_cta_console",
+
+      // Common actions
+      "action_save",
+      "action_cancel",
+      "action_confirm",
+      "action_refresh",
+      "action_reset_view",
+      "action_search",
+      "action_filter",
+      "action_export",
+      "action_close",
+      "status_all",
+      "status_active",
+      "status_paused",
+      "status_pending",
+      "status_normal",
+      "status_warning",
+
+      // Overview
+      "overview_title",
+      "overview_stat_credits",
+      "overview_stat_recovered",
+      "overview_stat_cod_rate",
+      "overview_stat_human_queue",
+      "overview_empty_title",
+      "overview_empty_desc",
+      "overview_bind_store",
+      "overview_error_title",
+      "overview_error_desc",
+      "overview_retry_conn",
+      "overview_recent_activity",
+
+      // Orders
+      "orders_title",
+      "orders_search_placeholder",
+      "orders_tab_all",
+      "orders_tab_pending",
+      "orders_tab_recovered",
+      "orders_tab_cod_verified",
+      "orders_tab_rejected",
+      "orders_col_number",
+      "orders_col_customer",
+      "orders_col_amount",
+      "orders_col_type",
+      "orders_col_status",
+      "orders_col_time",
+      "orders_col_action",
+      "orders_status_recovered",
+      "orders_status_cod_verified",
+      "orders_status_pending",
+      "orders_status_rejected",
+      "orders_status_cancelled",
+      "orders_type_cod",
+      "orders_type_prepaid",
+      "orders_drawer_title",
+      "orders_drawer_landmark",
+      "orders_drawer_resend",
+      "orders_drawer_resending",
+      "orders_drawer_resend_ok",
+      "orders_drawer_approve",
+      "orders_drawer_reject",
+      "orders_drawer_mark_paid",
+
+      // Workflows
+      "workflows_title",
+      "workflows_subhead",
+      "workflows_quiet_hours",
+      "workflows_quiet_desc",
+      "workflows_rule_cart_recovery",
+      "workflows_rule_cod_verify",
+      "workflows_matrix_title",
+
+      // Settings
+      "settings_title",
+      "settings_subhead",
+      "settings_save_btn",
+      "settings_saved_success",
+      "settings_control_group_title",
+      "settings_control_group_desc",
+      "settings_control_enabled",
+      "settings_control_disabled",
+      "settings_window_label",
+      "settings_timezone_label",
+      "settings_currency_label",
+
+      // Stores
+      "stores_title",
+      "stores_subhead",
+      "stores_btn_connect",
+      "stores_connected",
+      "stores_waba_templates",
+
+      // Inbox
+      "inbox_title",
+      "inbox_subhead",
+      "inbox_queue_human",
+      "inbox_queue_ai",
+      "inbox_btn_takeover",
+      "inbox_btn_release",
+      "inbox_input_placeholder",
+
+      // Billing
+      "billing_title",
+      "billing_subhead",
+      "billing_topup_btn",
+      "billing_history",
     ];
 
     for (const locale of SUPPORTED_LOCALES) {
@@ -99,6 +205,14 @@ describe("i18n Southeast Asia & Singapore Specifications", () => {
     expect(getI18nText("th_TH", "nav_billing")).toBe("ศูนย์การเงินและเครดิต");
     expect(getI18nText("vi_VN", "waba_status")).toBe("WABA: Hoạt động");
     expect(getI18nText("fil_PH", "waba_status")).toBe("WABA: Aktibo po");
+
+    // Test new console keys
+    expect(getI18nText("en_US", "orders_tab_all")).toBe("All Orders");
+    expect(getI18nText("id_ID", "action_save")).toBe("Simpan");
+    expect(getI18nText("en_SG", "overview_title")).toBe("Dashboard Overview (SG)");
+    expect(getI18nText("th_TH", "settings_save_btn")).toBe("บันทึกการตั้งค่าส่วนกลาง");
+    expect(getI18nText("vi_VN", "orders_drawer_approve")).toBe("Duyệt Giao Hàng");
+    expect(getI18nText("fil_PH", "inbox_btn_takeover")).toBe("Kunin ang Pag-uusap");
 
     // Fallback on unknown locale
     expect(getI18nText("fr_FR" as unknown as SupportedLocale, "nav_overview")).toBe("Dashboard");

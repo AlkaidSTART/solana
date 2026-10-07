@@ -6,3 +6,4 @@
 - [ ] T3 钱包、页面与浏览器回归。
 - [ ] T4 质量闸门及本地配置预检。
 - [ ] MVP 实链验收：等待用户钱包签名、finalized 和完整校验；不能以 Mock 测试宣称实链成功。
+- [x] T2（第一段）：新增 `lib/payments/sol-test/{contracts,verify}.ts`、`lib/server/payments/sol-test/{quote,service,http}.ts` 与 quote/check POST routes；金额为整数 lamports，HMAC 绑定收款/reference/时间，非 production + 来源检查，无数据库/额度写入。自动化：`pnpm exec vitest run lib/payments/sol-test/verify.test.ts lib/server/payments/sol-test`，34/34 通过；`pnpm exec tsc --noEmit` 通过。覆盖错额/程序/网络/地址/reference、异常时间、篡改、进程重启、跨来源、confirmed/finalized/重查。下一步 T3 钱包及 UI。

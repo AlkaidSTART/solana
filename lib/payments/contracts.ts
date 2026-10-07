@@ -11,12 +11,14 @@ export const orderSchema = z.object({
   reference: z.string(), recipient: z.string(), recipientAta: z.string(), mint: z.literal(DEVNET_USDC),
   amountAtomic: z.string().regex(/^\d+$/), credits: z.number().int(), priceVersion: z.literal(PRICE_VERSION),
   createdAt: z.iso.datetime(), expiresAt: z.iso.datetime(),
-  status: z.enum(["awaiting_payment", "confirmed", "credited", "expired", "review_required"]),
+  status: z.enum(["awaiting_payment", "confirmed", "credited", "expired", "review_required", "cancelled"]),
   signature: z.string().nullable(),
 });
 export type PaymentOrder = z.infer<typeof orderSchema>;
 export const checkoutSchema = z.object({ order: orderSchema, payUrl: z.string(), qr: z.string() });
 export type Checkout = z.infer<typeof checkoutSchema>;
+export const deleteOrderSchema = z.object({ success: z.boolean(), id: z.uuid() });
+export type DeleteOrderResult = z.infer<typeof deleteOrderSchema>;
 export const billingSchema = z.object({
   tenantId: z.uuid(), availableCredits: z.number().int(),
   orders: z.array(orderSchema),

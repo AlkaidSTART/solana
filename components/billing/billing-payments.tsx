@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useRef, useState } from "react";
 import { QueryClient, QueryClientProvider, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { z } from "zod";
@@ -48,8 +49,9 @@ function BillingContent() {
   return <div className="space-y-6">
     <header><p className="text-xs font-semibold uppercase tracking-wider text-emerald-700">Solana Pay · Devnet</p><h1 className="mt-2 text-2xl font-semibold tracking-tight text-zinc-900">账单与测试额度</h1><p className="mt-2 text-sm text-zinc-600">此处为隔离的 Devnet 支付验证，不改变其他页面的 Demo 余额，不提供正式服务权益。</p></header>
     <section className="rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-950">
-      仅使用测试 SOL / USDC。100 Credits 起购，每 Credit 0.02 USDC，无赠额。测试额度有效期 12 个月；confirmed 不入账，仅 finalized 且服务端校验完整后入账。
+      此 Credits 入口使用测试 USDC，SOL 仅用于手续费。100 Credits 起购，每 Credit 0.02 USDC，无赠额。测试额度有效期 12 个月；confirmed 不入账，仅 finalized 且服务端校验完整后入账。
     </section>
+    <section className="space-y-2 rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-sm"><p>只有 SOL 测试币？无需 USDC，先用 0.001 SOL 跑通钱包付款（不增加 Credits）。</p><Link href="/console/billing/sol-test" className="inline-block font-medium underline">打开原生 SOL 小额测试付款</Link></section>
     {session.isPending && <p role="status">正在读取测试会话…</p>}
     {session.error && <section className="space-y-3 rounded-xl border border-zinc-200 bg-white p-5">
       <p role="alert">{session.error.message}</p><p className="text-sm text-zinc-600">开发者需先配置 PostgreSQL、Devnet 收款地址及本地会话开关。此入口不是生产登录。</p>
