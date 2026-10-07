@@ -1,6 +1,6 @@
 # 需求执行记录：补齐完整项目协作规范（≤ 200 行）
 
-计划：`docs/plans/2026-10-07-agent-project-standards.md`
+计划：`docs/plans/2026-10-07-agent-project-standards/plan.md`
 
 - [x] 阶段 1：完成现状检查和计划。测试 T2：读取 package.json、tsconfig.json、ESLint、app/ 及 PRD/设计规范；预期规范依据真实栈，区分当前实现和目标架构；实际确认 Next.js 16.3.8、React 19.2.8、TS strict、Tailwind 4、pnpm 11.17.0；尚无 test 脚本和测试框架。遗留：无；下一步：编写完整规范。
 - [x] 阶段 2：将 AGENTS.md 扩充为 10 个规范章节，包含技术栈、MVP 流程、目录、代码风格、React 边界、UI、安全、测试和验收命令。测试 T3/T4：逐章核对规则及 10 条测试样例的输入/预期；预期完整且可执行；实际人工核对通过，`wc -l AGENTS.md` 为 132 行，Next.js 原区块保留。遗留：待自动检查；下一步：执行 T1–T6。
