@@ -26,6 +26,25 @@
 
 ---
 
+## 0. 页面级精细化设计规范索引 (`ui_design/`)
+
+为保证每个页面的高保真还原与模块化管理，全站 10 大核心体验页面已全部拆分并细化至根目录 `ui_design/` 下的独立子文件夹中：
+
+| 页面名称 | 页面路由 | 细化规范文档路径 | 核心业务与交互要点 |
+| :--- | :--- | :--- | :--- |
+| **出海官网 Landing Page** | `/` | [`ui_design/00-landing-page/`](../ui_design/00-landing-page/README.md) | 3D 单色拓扑网格雕塑、双向遥测沙盒、Bento 矩阵、ROI 动态计算器、三语切换胶囊 |
+| **1. 监控总览 (Overview)** | `/console` | [`ui_design/01-console-overview/`](../ui_design/01-console-overview/README.md) | 通道健康状态灯、待办/额度高密卡片、20% 对照组真实催付效果分析、COD 防损大盘 |
+| **2. 店铺与通道 (Store & Channel)** | `/console/stores` | [`ui_design/02-console-store-channel/`](../ui_design/02-console-store-channel/README.md) | WooCommerce/Shopify 授权卡片、WhatsApp 号码评级、多语言获批模板矩阵、连通性自测 |
+| **3. 工作流配置 (Workflows)** | `/console/workflows` | [`ui_design/03-console-workflows/`](../ui_design/03-console-workflows/README.md) | 待支付与 COD 规则列表、+62/+66 区号多语言分流路由、静默时段排期、频次上限与版本回退 |
+| **4. 订单中心 (Orders)** | `/console/orders` | [`ui_design/04-console-orders/`](../ui_design/04-console-orders/README.md) | 订单表格与高阶多维筛选、全生命周期工作流步进器、COD 确认与改址核验详情抽屉 |
+| **5. 会话与人工队列 (Inbox)** | `/console/inbox` | [`ui_design/05-console-inbox/`](../ui_design/05-console-inbox/README.md) | 三栏高密度工作台、24h 服务窗口倒计时、双向实时翻译抽屉、印尼俚语词典、人工接管控制器 |
+| **6. 多语言知识库 (Knowledge Base)**| `/console/knowledge`| [`ui_design/06-console-knowledge-base/`](../ui_design/06-console-knowledge-base/README.md)| 商品/FAQ 自动抽取、四列多语言对照编辑器 (中/印尼/英/泰)、跨语言冲突预警、审核发布流 |
+| **7. 财务充值中心 (Billing)** | `/console/billing` | [`ui_design/07-console-billing/`](../ui_design/07-console-billing/README.md) | 订阅周期与配额、Credits 分类账本、逐笔流水、Solana Pay USDC 票据充值与原生 Web Audio |
+| **8. 报表与设置 (Analytics & Settings)**| `/console/settings` | [`ui_design/08-console-settings/`](../ui_design/08-console-settings/README.md) | 归因口径与 20% 对照组设置、时区与语言偏好、团队 RBAC 矩阵、脱敏数据导出与隐私删除 |
+| **入驻向导 (Auth & Onboarding)** | `/login`, `/onboarding` | [`ui_design/09-auth-onboarding/`](../ui_design/09-auth-onboarding/README.md) | 极简邮箱登录、店铺授权、WhatsApp 绑定、模板配置、测试跑通、100 Credits 试用激活 |
+
+---
+
 ## 1. 视觉设计哲学：极简白底与建筑学编排
 
 ### 1.1 核心设计理念：Less, But Better (少，却更好)
