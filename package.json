@@ -5,20 +5,26 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
+    "db:migrate": "tsx scripts/migrate.ts",
     "start": "next start",
+    "test:unit": "vitest run",
     "lint": "eslint"
   },
   "dependencies": {
     "@solana/kit": "6.10.0",
     "@solana/pay": "1.0.0-beta.14",
+    "bullmq": "6.3.11",
     "clsx": "^2.1.1",
+    "ioredis": "6.0.0",
     "lucide-react": "^1.52.0",
     "motion": "^14.0.0",
     "next": "16.3.8",
+    "postgres": "3.4.9",
     "react": "19.2.8",
     "react-dom": "19.2.8",
     "tailwind-merge": "^3.7.0",
     "three": "^0.186.1",
+    "zod": "4.6.5",
     "zustand": "^5.0.15"
   },
   "devDependencies": {
@@ -30,7 +36,9 @@
     "eslint": "^9",
     "eslint-config-next": "16.3.8",
     "tailwindcss": "^4",
-    "typescript": "^5"
+    "tsx": "4.23.15",
+    "typescript": "^5",
+    "vitest": "4.1.11"
   },
   "packageManager": "pnpm@11.17.0"
 }
