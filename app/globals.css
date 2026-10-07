@@ -1,26 +1,97 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* 基础画板与实体纸张 (Canvas & Paper Surfaces) */
+  --bg-canvas: #ffffff;
+  --bg-subtle: #fafafa;
+  --bg-muted: #f4f4f5;
+  --bg-elevated: rgba(255, 255, 255, 0.92);
+
+  /* 几何发丝线与边框 (Hairlines & Precision Borders) */
+  --border-hairline: #e4e4e7;
+  --border-subtle: #eeeeee;
+  --border-contrast: #18181b;
+
+  /* 墨黑铅印文字层级 (Typography & Ink Levels) */
+  --ink-primary: #09090b;
+  --ink-secondary: #27272a;
+  --ink-muted: #71717a;
+  --ink-faint: #a1a1aa;
+
+  /* 功能性限定语义指示色 (严禁作为大面积背景滥用，仅做 6px 状态圆点或文字) */
+  --functional-green: #059669;
+  --functional-red: #e11d48;
+  --functional-amber: #d97706;
+
+  /* 通用兼容变量 */
+  --background: var(--bg-canvas);
+  --foreground: var(--ink-primary);
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --color-canvas: var(--bg-canvas);
+  --color-subtle: var(--bg-subtle);
+  --color-muted-bg: var(--bg-muted);
+  --color-hairline: var(--border-hairline);
+  --color-ink: var(--ink-primary);
+  --color-ink-secondary: var(--ink-secondary);
+  --color-ink-muted: var(--ink-muted);
+  --color-ink-faint: var(--ink-faint);
+  --color-fun-green: var(--functional-green);
+  --color-fun-red: var(--functional-red);
+  --color-fun-amber: var(--functional-amber);
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background-color: var(--bg-canvas);
+  color: var(--ink-primary);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* 瑞士国际主义发丝网格辅助类 */
+.hairline-border {
+  border: 1px solid var(--border-hairline);
+}
+
+.hairline-t {
+  border-top: 1px solid var(--border-hairline);
+}
+
+.hairline-b {
+  border-bottom: 1px solid var(--border-hairline);
+}
+
+.hairline-l {
+  border-left: 1px solid var(--border-hairline);
+}
+
+.hairline-r {
+  border-right: 1px solid var(--border-hairline);
+}
+
+/* 自定义纤细滚动条 (纯黑白铅印风格) */
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+
+::-webkit-scrollbar-track {
+  background: #ffffff;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #e4e4e7;
+  border-radius: 2px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #a1a1aa;
+}
+
+/* 印尼长词与排印防溢出 */
+.sea-typography {
+  hyphens: auto;
+  word-break: break-word;
 }
