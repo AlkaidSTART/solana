@@ -3,12 +3,25 @@
 - 文档版本：v1.0-draft
 - 修订日期：2026-10-07
 - API 前缀：`/api/v1`
-- 实现状态：**计划契约，当前尚未实现任何业务接口**
+- 实现状态：**阶段 1–4 已有部分源码；API 契约不代表数据库、外部服务或生产验收通过**
 - 产品依据：[PRD](PRD.md)、[WhatsApp 接入指南](whatsapp-integration-guide.md)、[消息渠道可行性审查](channel-feasibility-review.md)
 - 页面依据：[工作台 UI 规范](../ui_design/README.md)
 - 计划与验收：[plan.md](plans/2026-10-07-next-fullstack-api-docs/plan.md)、[result.md](plans/2026-10-07-next-fullstack-api-docs/result.md)
 
-本文定义后续开发应遵循的 HTTP 契约、数据状态和安全边界。示例用于说明 Schema，不代表仓库已有可运行接口、真实商户数据、Meta 授权、消息发送、链上付款或生产部署。开发完成前，界面必须显示真实空状态或 `Demo/Mock` 标记，不能把本文中的目标响应当成已实现能力。
+本文定义 HTTP 契约、数据状态和安全边界。示例用于说明目标 Schema；下表仅记录当前源码落点，不代表数据库迁移已执行、接口已通过集成验收、存在真实商户数据、Meta 授权、消息发送、链上付款或生产部署。界面仍须按真实状态展示空值、阻塞项或 `Demo/Mock`，不能把目标响应当成已验证能力。
+
+## 当前实现与验收状态（2026-10-07）
+
+| 阶段 | 已有源码范围 | 尚未验证 / 不可据此宣称 |
+| --- | --- | --- |
+| 1：基础、认证、租户与系统 | foundation migration、auth/tenant/system services，以及 health、capabilities、OTP、租户和会话 Route Handlers | 数据库迁移未在目标数据库验证；OTP 邮件投递、数据库/队列运行和完整入驻闭环未外部验收 |
+| 2：店铺与 WooCommerce | store service/routes、凭证处理、Webhook 领域代码及 migration | 未用真实 WooCommerce 商户凭证、订单事件和外网 Webhook 完成验收；同步 worker 不代表已运行 |
+| 3：WhatsApp、会话、工作流、订单与知识 | channels/conversations 服务与 routes；workflow/order/knowledge 服务与 routes、规则代码和 migration | Meta 授权、真实消息发送/回执、持久 worker、真实订单同步与知识 provider 均未验收；相关数据库 migration 未验证 |
+| 4：计费与 Solana | billing service 与 11 个 `/api/v1/billing/**` 端点已并入；credit-ledger/payment-orders 支持 cursor；纯 settlement evaluator 与内部单事务 settlement service 已实现 | 0005 尚未在 PostgreSQL 实际运行；无 RPC 查询或持久 worker，支付订单创建因此保持 fail-closed，且没有真实 finalized 入账验收。退款仍为 503；主网未验收，不能视为已启用 |
+
+截至本修订，代码存在不等于可调用 API，更不等于生产能力。数据库迁移、第三方网络行为和持久 worker 必须分别验证并记录；未验证项继续显示阻塞或 unavailable。
+
+除 Webhook 小节为强调外部回调地址而写出的完整 URL 外，端点矩阵中的 `/health`、`/auth/...` 等路径均是 `/api/v1` 下的相对路径。例如 `/health` 的实际地址是 `/api/v1/health`。
 
 ## 1. Next.js 全栈架构边界
 
@@ -151,7 +164,7 @@ types/
 | `X-WC-Webhook-Signature` | WooCommerce 原始字节 HMAC-SHA256 的 base64 |
 | `X-Hub-Signature-256` | WhatsApp 原始字节 HMAC-SHA256 的 `sha256=<hex>` |
 
-幂等记录按 `tenant + actor + operation + key` 保存请求摘要和最终响应。同 key、同 payload 返回原结果；同 key、不同 payload 返回 `409 IDEMPOTENCY_KEY_REUSED`。数据库唯一约束和事务是最终保证，Redis 锁不能替代。
+幂等记录按 `tenant + actor + operation + key` 保存请求摘要和最终响应。同 key、同 payload 返回原结果；同 key、不同 payload 返回 `409 IDEMPOTENCY_KEY_REUSED`。数据库唯一约束和事务是最终保证，Redis 锁不能替代。幂等事务回调只能写本地业务状态、operation/outbox 和审计；邮件、消息、RPC 等不可回滚的外部调用由持久 worker 消费 outbox 后执行，不能放在会随数据库回滚消失的事务中。
 
 ## 3. 认证、租户与角色
 
@@ -159,10 +172,11 @@ types/
 
 登录方式以 UI 规范为准，使用邮箱 6 位 OTP / Magic Link，不设计密码登录 API。
 
-- 会话 Cookie 建议使用 `__Host-solaflow_session`：`HttpOnly`、`Secure`、`SameSite=Lax/Strict`、`Path=/`，不设置 `Domain`。
-- 写操作校验可信 `Origin` 与 CSRF token。CORS 只控制浏览器读取，不替代 CSRF。
+- 生产会话 Cookie 使用 `__Host-solaflow_session`：`HttpOnly`、`Secure`、`SameSite=Lax`、`Path=/`，不设置 `Domain`。本地非 HTTPS 开发可使用不带 `__Host-` 的同名开发 Cookie，但不能带入生产。
+- 写操作校验可信 `Origin` 与 CSRF token。CSRF token 使用独立、可读、`SameSite=Lax` 的 `__Host-solaflow_csrf` Cookie；请求头 `X-CSRF-Token`、Cookie 值和会话中保存的摘要必须同时匹配。CORS 只控制浏览器读取，不替代 CSRF。
 - OTP 请求需防账号枚举：无论邮箱是否存在都返回相同外观；按 IP、邮箱 hash 和 challenge 限流。
-- 会话服务端解析当前用户、租户和 membership。除“切换租户”外，业务请求不接受 `tenantId` / `tenant_id` 决定访问范围。
+- OTP 请求的 Idempotency-Key 同 key、同邮箱摘要与 locale 时返回原 challenge，不能再次发送；同 key 不同请求返回 `409`。OTP 消费、用户恢复/创建和会话签发在同一数据库事务完成，避免验证码已消费但登录会话未建立。
+- OTP 验证后可以先建立尚未选择租户的用户会话；该会话只能创建租户、读取/切换本人 membership 或登出。业务接口要求活动租户 membership。会话服务端解析当前用户、租户和 membership。除“切换租户”外，业务请求不接受 `tenantId` / `tenant_id` 决定访问范围。
 - 切换租户后重新签发会话并清理客户端旧租户缓存。
 
 ### 3.2 角色权限
@@ -192,6 +206,8 @@ types/
 - `succeeded`：目标操作完成且证据已保存。
 - `failed`：已知未完成，返回稳定错误码与可重试性。
 - `cancelled`：在外部副作用前取消。已经交给第三方的操作不能伪装为已召回。
+
+隐私删除、退款复核等资源可以有各自的领域状态机；它们不能塞入本通用 operation 枚举。operation 只描述异步执行生命周期，领域资源另行返回其业务状态。
 
 ### 4.2 消息
 
@@ -223,7 +239,7 @@ types/
 | --- | --- | --- | --- | --- |
 | GET | `/health` | 公开 | 无 | `200`；仅返回服务、数据库、队列、RPC 的 `ok/degraded/down/unconfigured`，不返回密钥或虚构延迟 |
 | GET | `/capabilities` | 登录用户 | 无 | 当前环境已启用能力、阻塞条件和 `implemented/verified/unavailable` 证据状态 |
-| POST | `/auth/otp/request` | 公开 | `email`、`locale`、Idempotency-Key | `202`；`challengeId`、过期时间、重试时间；防枚举与限流 |
+| POST | `/auth/otp/request` | 公开 | `email`、`locale`、Idempotency-Key | provider 明确受理后才返回 `202` 与 `deliveryStatus:"sent"`；结果不确定时返回可重试的 `503 OTP_DELIVERY_UNKNOWN` 及 challenge 证据，等待 `Retry-After` 后用新幂等 key 重试；防枚举与限流 |
 | POST | `/auth/otp/verify` | 公开 | `challengeId`、6 位 `code` | 一次性消费 OTP；建立会话；返回用户和 memberships，不在 JSON 返回 session token |
 | GET | `/auth/session` | 登录用户 | 无 | 当前用户、当前租户、角色、授权店铺和 onboarding 摘要 |
 | POST | `/auth/switch-tenant` | 登录用户 | `membershipId` | 验证 membership 后切换会话；返回新的租户/权限摘要 |
@@ -237,7 +253,7 @@ types/
 | POST | `/onboarding/activate` | Owner | `storeId`、`acceptedTermsVersion`、Idempotency-Key | 只有全部真实门槛通过才激活并发放一次试用；重复店铺/号码不得重复领取 |
 | GET | `/operations/{operationId}` | 发起者或有权角色 | 无 | 通用异步状态、进度、错误、开始/结束时间和结果资源链接 |
 
-OTP 邮件供应商、数据库和队列尚未选型或实现。以上是计划契约，不代表当前可发送验证码或激活试用。
+认证服务、OTP challenge/session 处理与 HTTP delivery adapter 已有源码，但真实邮件供应商配置和投递、目标数据库迁移及试用激活闭环未验收。以上路由仍是接口契约；不能据此宣称验证码邮件已真实送达或试用已激活。
 
 ## 6. 店铺、WhatsApp 与工作流接口
 
@@ -278,7 +294,7 @@ Embedded Signup、Coexistence 和 BSP 是三条不同接入路径。当前只定
 | 方法 | 路径 | 角色 | 请求 / 查询 | 核心响应与副作用 |
 | --- | --- | --- | --- | --- |
 | GET | `/workflows` | Owner/Admin | `storeId`、`status` | 工作流、当前版本、启用状态、阻塞项 |
-| POST | `/stores/{storeId}/workflows` | Owner/Admin | 类型、延迟、模板、静默时段、频次、Idempotency-Key | 创建 `draft` v1；首版类型为 `payment_reminder` / `cod_confirmation` |
+| POST | `/stores/{storeId}/workflows` | Owner/Admin | 类型、延迟、模板、静默时段、频次、Idempotency-Key | 创建 `draft` v1；Phase 1 只启用 `payment_reminder`，`cod_confirmation` 属 Phase 2 |
 | GET | `/workflows/{workflowId}` | Owner/Admin | 无 | 当前配置、readiness、最近运行证据 |
 | PATCH | `/workflows/{workflowId}` | Owner/Admin | 完整可变规则、`If-Match` | 每次保存创建不可变新版本；版本竞争返回 `409` |
 | GET | `/workflows/{workflowId}/versions` | Owner/Admin | cursor | 版本、创建者、差异和启用历史 |
@@ -294,6 +310,8 @@ Embedded Signup、Coexistence 和 BSP 是三条不同接入路径。当前只定
 ## 7. 订单、会话与知识库接口
 
 ### 7.1 订单与 COD
+
+订单读取、事件和催付资格属于 Phase 1。以下 COD 商家动作保留为 Phase 2 契约；Phase 1 运行环境必须返回明确 `CAPABILITY_UNAVAILABLE`，不能返回模拟成功。
 
 | 方法 | 路径 | 角色 | 请求 / 查询 | 核心响应与副作用 |
 | --- | --- | --- | --- | --- |
@@ -348,6 +366,8 @@ UI 规范中“同意改址并同步回 WooCommerce”的自动写回与 PRD 冲
 
 ## 8. 财务与 Solana Pay 接口
 
+实现状态：billing service 与 11 个 `/api/v1/billing/**` 端点已并入；credit-ledger 与 payment-orders 列表支持 cursor。支付订单创建、Signature 候选持久化/outbox 入队、recheck 入队及账本/订单查询已有代码。Solana settlement evaluator 是纯函数；内部 settlement service 已实现单数据库事务中的候选/订单锁定、转账去重、额度批次、追加账本、订单状态、outbox 与审计写入。但 `0005_billing_solana.sql` 尚未在 PostgreSQL 实际运行，当前也没有 RPC 查询或持久 worker；因此服务端即使收到启用环境变量也会让支付订单创建保持 `503 CAPABILITY_UNAVAILABLE`，且没有真实 finalized 支付的端到端入账验收。退款仍明确返回 `503 CAPABILITY_UNAVAILABLE`；主网未验收，不能视为已启用。以下矩阵描述目标契约，不代表所有字段和能力均已实现。
+
 ### 8.1 账本与套餐
 
 | 方法 | 路径 | 角色 | 请求 / 查询 | 核心响应与副作用 |
@@ -373,11 +393,12 @@ UI 规范中“同意改址并同步回 WooCommerce”的自动写回与 PRD 冲
 
 创建请求示例：
 
+当前 POST 实现的 strict schema 仅接受 `purpose:"credits_topup"` 与正整数 `credits`；尚不支持目标契约中的 `planId` 套餐下单，也不接受客户端 `quoteCurrency`。以下是当前可接受的请求示例。
+
 ```json
 {
   "purpose": "credits_topup",
-  "credits": 2500,
-  "quoteCurrency": "USDC"
+  "credits": 2500
 }
 ```
 
@@ -410,7 +431,7 @@ UI 规范中“同意改址并同步回 WooCommerce”的自动写回与 PRD 冲
 }
 ```
 
-服务器只接受套餐 ID 或整数 Credits，金额、mint、cluster、recipient、权益和价格版本均由服务端目录决定。客户端传入这些权威字段时拒绝，不覆盖服务端值。
+响应可包含 `amountDisplay` 以及 `token.decimals` 等展示字段。按目标契约，金额、mint、cluster、recipient、权益和价格版本由服务端目录决定；当前创建实现只开放上述整数 Credits 请求，套餐 ID 尚未实现，客户端也不能指定报价货币或其他权威字段。
 
 ### 8.3 最终入账规则
 
@@ -434,15 +455,15 @@ reference 只用于寻找候选，不是付款证明。自动入账前必须同�
 | 方法 | 路径 | 角色 | 请求 / 查询 | 核心响应与副作用 |
 | --- | --- | --- | --- | --- |
 | GET | `/dashboard/summary` | 租户成员 | `storeId?` | 角色可见的接入状态、待处理数、额度摘要和真实 KPI；无证据时为 `null/unknown/observing` |
-| GET | `/reports/attribution` | Owner/Admin/Finance | `storeId`、`from`、`to`、`metric` | 提醒/对照样本、观察窗口、分母、差异、数据质量和更新时间 |
+| GET | `/reports/attribution` | Owner/Admin/Finance | `storeId`、`from`、`to`、`metric` | **Phase 2**；提醒/对照样本、观察窗口、分母、差异、数据质量和更新时间 |
 | GET | `/settings/preferences` | Owner/Admin | 无 | 店铺时区、工作台语言、货币和支持时间 |
 | PATCH | `/settings/preferences` | Owner/Admin | 可变偏好、`If-Match` | 校验 IANA 时区和语言，保存新版本 |
 | GET | `/team/members` | Owner/Admin | cursor | 成员、角色、授权店铺与状态 |
 | POST | `/team/invitations` | Owner/Admin | 邮箱、角色、授权店铺、Idempotency-Key | Admin 只能邀请 Agent；Owner 才能授予 Finance |
 | PATCH | `/team/members/{memberId}` | Owner；Admin 仅 Agent | 角色/店铺、`If-Match` | 服务端校验不能移除最后一个 Owner |
 | DELETE | `/team/members/{memberId}` | Owner | `reason`、Idempotency-Key | 撤销会话和权限；不能通过本接口删除自己作为最后 Owner |
-| POST | `/report-exports` | Owner/Admin/Finance | 类型、过滤、`format:"csv"`、Idempotency-Key | `202`；按角色生成脱敏导出，成功后给短期下载 URL |
-| GET | `/report-exports/{operationId}` | 发起者/有权角色 | 无 | 导出状态、范围、过期时间和一次性下载地址 |
+| POST | `/report-exports` | Owner/Admin/Finance | 类型、过滤、`format:"csv"`、Idempotency-Key | **Phase 2**；`202`；按角色生成脱敏导出，成功后给短期下载 URL |
+| GET | `/report-exports/{operationId}` | 发起者/有权角色 | 无 | **Phase 2**；导出状态、范围、过期时间和一次性下载地址 |
 | POST | `/privacy/deletion-requests` | Owner/Admin | `storeId`、`buyerRef`、`reason`、Idempotency-Key | 立即停止相关自动化，进入 `queued/stopping/deleting/completed/retained_with_reason` |
 | GET | `/privacy/deletion-requests/{id}` | Owner/Admin | 无 | 清除范围、保留原因、负责人和 30 天截止时间 |
 | GET | `/audit-events` | Owner/Admin；Finance 仅财务事件 | 类型、资源、时间、cursor | 脱敏审计；不返回 token、消息全文或无需暴露的 PII |
@@ -537,19 +558,16 @@ Webhook 不套用浏览器会话响应格式。只有事件已可靠保存/入�
 9. 浏览器或模型持有退款签名密钥、主网私钥、数据库凭证或通道 token。
 10. “模拟 400ms 确认”、固定 RPC 手续费、默认 100 Credits、虚构质量评级或演示 KPI 被当作生产事实。
 
-## 13. 后续实现顺序与并行边界
+## 13. 后续验收与补全顺序
 
-文档确认后，可按同一仓库内的清晰领域并行开发：
+阶段 1–4 的代码已有并线版本，接下来按真实依赖完成验收，而不是将代码存在视作功能验收：
 
-1. 基础：数据库迁移、统一响应、OTP 会话、租户/RBAC、幂等和审计。
-2. 店铺与 Webhook：WooCommerce 凭证、验签、订单同步、乱序与停发。
-3. 通道与会话：WhatsApp 资产、模板、回调、人工接管和手工消息。
-4. 工作流：规则版本、预览、durable queue、发送资格与任务状态。
-5. 知识库：同步、版本、冲突和翻译建议。
-6. 计费与 Solana：支付订单、RPC 候选、finalized 入账、账本与补偿。
-7. 报表、导出、隐私删除与入驻自检。
+1. 在隔离数据库中顺序验证 0001–0005 migration、约束、事务与 ledger 写入；记录未执行或失败项。
+2. 在 PostgreSQL 验证 0005，并补齐 RPC 候选核验与持久 worker；再验收 finalized 支付的同事务转账占位、订单完成、权益批次和账本流水。当前已有内部单事务 settlement service 代码，但尚无真实链上端到端验收。
+3. 分别验证 WooCommerce 回调/订单同步、WhatsApp Meta 授权/模板/发送/回执，以及工作流停发与重放；未完成时保持 unavailable/blocked。
+4. 再推进报表、导出、隐私删除和入驻自检；每项单独记录外部、数据库及浏览器验收证据。
 
-各领域可以由 Luna 子智能体并行开发，但共享契约（身份、错误、Schema、数据库迁移、幂等、审计）必须先由一个基础任务锁定。所有智能体共用工作区时，分配互不重叠文件；根 manifest、锁文件和迁移序号由主智能体串行合并。
+共享契约（身份、错误、Schema、数据库迁移、幂等、审计）变更仍需串行协调；迁移序号由主任务统一管理。
 
 ## 14. 文档验收清单
 

@@ -2,7 +2,7 @@
 
 - **页面路径**：`/`
 - **页面定位**：面向东南亚跨境电商卖家的品牌认知、自动化能力体验、实时沙盒演练与 Solana Pay 充值转化阵地
-- **设计基调**：Modern Enterprise B2B SaaS（现代企业级商业规范、清晰稳健、高数据密度与专业工作台交互）
+- **设计基调**：Swiss Architectural Minimalist & Monochrome Editorial（纯白底色、深黑铅印、1px 发丝线、严禁蓝紫色系）
 - **适用语言**：支持全局三语即时切换（`EN 英语`、`ID 印尼语`、`中文`）
 
 ---

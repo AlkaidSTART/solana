@@ -2,7 +2,7 @@
 
 - **页面路径**：`/console/stores`
 - **页面定位**：管理出海电商店铺（WooCommerce / Shopify）授权绑定与 WhatsApp Business 商业号码通信质量、模板审核矩阵与通道自测
-- **设计基调**：Modern Enterprise B2B SaaS（现代企业级商业规范、清晰稳健、高数据密度与专业工作台交互）
+- **设计基调**：纯白底色、深黑铅印、1px 发丝几何线、严禁蓝紫色系
 - **当前工作语言**：中文 (`zh_CN`)，支持切换为英文 (`en_US`)
 
 ---
