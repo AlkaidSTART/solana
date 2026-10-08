@@ -99,7 +99,6 @@ export default function LandingPage() {
               </span>
             </Link>
             <div className="hidden sm:flex items-center gap-2 text-xs font-mono text-zinc-500 border-l border-zinc-200 pl-4">
-              <span className="inline-block w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
               <span>Devnet v1.1 · Meta BAA</span>
             </div>
           </div>
@@ -175,7 +174,6 @@ export default function LandingPage() {
           <div className="max-w-7xl mx-auto px-4 sm:px-8 relative z-10 text-center">
             {/* 顶部微胶囊标签 */}
             <div className="inline-flex items-center gap-2 text-xs font-mono text-zinc-600 border border-zinc-200/80 px-3.5 py-1.5 bg-zinc-50/80 rounded-full mb-6 shadow-2xs">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
               <span>{t.badge}</span>
             </div>
 

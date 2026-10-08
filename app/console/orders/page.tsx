@@ -47,13 +47,13 @@ export default function ConsoleOrdersPage() {
   const getStatusBadge = (status: OrderItem["status"]) => {
     switch (status) {
       case "RECOVERED":
-        return <Badge variant="success" dot>{getI18nText(locale, "orders_status_recovered")}</Badge>;
+        return <Badge variant="success">{getI18nText(locale, "orders_status_recovered")}</Badge>;
       case "COD_VERIFIED":
-        return <Badge variant="success" dot>{getI18nText(locale, "orders_status_cod_verified")}</Badge>;
+        return <Badge variant="success">{getI18nText(locale, "orders_status_cod_verified")}</Badge>;
       case "PENDING":
-        return <Badge variant="warning" dot>{getI18nText(locale, "orders_status_pending")}</Badge>;
+        return <Badge variant="warning">{getI18nText(locale, "orders_status_pending")}</Badge>;
       case "COD_REJECTED":
-        return <Badge variant="danger" dot>{getI18nText(locale, "orders_status_rejected")}</Badge>;
+        return <Badge variant="danger">{getI18nText(locale, "orders_status_rejected")}</Badge>;
       case "CANCELLED":
         return <Badge variant="neutral">{getI18nText(locale, "orders_status_cancelled")}</Badge>;
     }

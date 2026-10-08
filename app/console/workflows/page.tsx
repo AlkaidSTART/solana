@@ -111,12 +111,6 @@ export default function ConsoleWorkflowsPage() {
                         : "bg-zinc-50 text-zinc-400 border-zinc-200 hover:text-zinc-700"
                     )}
                   >
-                    <span
-                      className={clsx(
-                        "w-2 h-2 rounded-full",
-                        wf.enabled ? "bg-emerald-400" : "bg-zinc-400"
-                      )}
-                    />
                     <span>{wf.enabled ? `ACTIVE (${getI18nText(locale, "status_active")})` : `DISABLED (${getI18nText(locale, "status_paused")})`}</span>
                   </button>
 
