@@ -445,9 +445,11 @@ export const SeaTopologyGlobe: React.FC<{ className?: string }> = ({ className =
         renderer.dispose();
       };
     } catch {
-      setUseFallback(true);
+      queueMicrotask(() => {
+        setUseFallback(true);
+      });
     }
-  }, [activeCityId]);
+  }, [activeCityId, useFallback]);
 
   if (useFallback) {
     return (

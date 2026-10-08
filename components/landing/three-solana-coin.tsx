@@ -332,9 +332,11 @@ export const SolanaSettlementCoin3D: React.FC<SolanaCoinProps> = ({ className = 
         renderer.dispose();
       };
     } catch {
-      setUseFallback(true);
+      queueMicrotask(() => {
+        setUseFallback(true);
+      });
     }
-  }, []);
+  }, [useFallback]);
 
   if (useFallback) {
     return (

@@ -25,7 +25,7 @@ export default function ConsoleOverviewPage() {
 
   if (viewState === "loading") {
     return (
-      <div className="space-y-6">
+      <GsapEntrance direction="fade" duration={0.25} className="space-y-6">
         <div className="flex justify-between items-center">
           <div className="h-6 w-48 bg-[#F4F4F5] animate-pulse" />
           <Button size="sm" variant="outline" onClick={() => setViewState("normal")}>
@@ -38,13 +38,13 @@ export default function ConsoleOverviewPage() {
           ))}
         </div>
         <div className="h-64 bg-[#F4F4F5] border border-[#E4E4E7] animate-pulse" />
-      </div>
+      </GsapEntrance>
     );
   }
 
   if (viewState === "empty") {
     return (
-      <div className="space-y-6">
+      <GsapEntrance direction="fade" duration={0.25} className="space-y-6">
         <div className="flex justify-between items-center">
           <h1 className="text-lg font-mono uppercase tracking-wider font-bold text-[#09090B]">
             {getI18nText(locale, "overview_title")}
@@ -69,13 +69,13 @@ export default function ConsoleOverviewPage() {
             <Button size="md">{getI18nText(locale, "overview_bind_store")}</Button>
           </Link>
         </div>
-      </div>
+      </GsapEntrance>
     );
   }
 
   if (viewState === "error") {
     return (
-      <div className="space-y-6">
+      <GsapEntrance direction="fade" duration={0.25} className="space-y-6">
         <div className="flex justify-between items-center">
           <h1 className="text-lg font-mono uppercase tracking-wider font-bold text-[#09090B]">
             {getI18nText(locale, "overview_title")}
@@ -101,12 +101,12 @@ export default function ConsoleOverviewPage() {
             </Button>
           </div>
         </div>
-      </div>
+      </GsapEntrance>
     );
   }
 
   return (
-    <div className="space-y-8">
+    <GsapEntrance triggerKey={viewState} direction="fade" duration={0.25} className="space-y-8">
       {/* 顶部标题栏与状态机测试切换器 */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-[#E4E4E7] gap-3">
         <div>
@@ -138,39 +138,54 @@ export default function ConsoleOverviewPage() {
         </div>
       </div>
 
-      {/* ROW 1: 四大核心高密指标卡片 */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <StatCard
-          label={`${getI18nText(locale, "orders_tab_pending")} (${pendingOrders.length})`}
-          value="18"
-          subValue="COD / Pre-dispatch"
-          trend={{ text: "+4 today", warning: true }}
-          indicator={<Badge variant="warning">{getI18nText(locale, "status_pending")}</Badge>}
-        />
-        <StatCard
-          label={getI18nText(locale, "overview_stat_human_queue")}
-          value={pendingTakeovers.length}
-          subValue="Critical SLA: 14m"
-          trend={{ text: "Meta 24h Window", positive: true }}
-          indicator={<Badge variant="danger">{getI18nText(locale, "status_warning")}</Badge>}
-        />
-        <StatCard
-          label={getI18nText(locale, "overview_stat_credits")}
-          value={credits.available.toLocaleString()}
-          subValue="Reserved: 120"
-          trend={{ text: "~8,400 messages", positive: true }}
-          indicator={<Badge variant="success">{getI18nText(locale, "status_normal")}</Badge>}
-        />
-        <StatCard
-          label={getI18nText(locale, "overview_stat_recovered")}
-          value="$ 1,420.00"
-          subValue={getI18nText(locale, "overview_stat_cod_rate") + ": 90.6%"}
-          trend={{ text: "Lift: +47.1%", positive: true }}
-          indicator={<TrendingUp className="w-3.5 h-3.5 text-[#059669]" />}
-        />
-      </div>
+      {/* ROW 1: 四大核心高密指标卡片 (GSAP 级联交错出现) */}
+      <GsapStagger
+        selector=".stat-card-cell"
+        stagger={0.06}
+        distance={14}
+        duration={0.35}
+        className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4"
+      >
+        <div className="stat-card-cell h-full">
+          <StatCard
+            label={`${getI18nText(locale, "orders_tab_pending")} (${pendingOrders.length})`}
+            value="18"
+            subValue="COD / Pre-dispatch"
+            trend={{ text: "+4 today", warning: true }}
+            indicator={<Badge variant="warning">{getI18nText(locale, "status_pending")}</Badge>}
+          />
+        </div>
+        <div className="stat-card-cell h-full">
+          <StatCard
+            label={getI18nText(locale, "overview_stat_human_queue")}
+            value={pendingTakeovers.length}
+            subValue="Critical SLA: 14m"
+            trend={{ text: "Meta 24h Window", positive: true }}
+            indicator={<Badge variant="danger">{getI18nText(locale, "status_warning")}</Badge>}
+          />
+        </div>
+        <div className="stat-card-cell h-full">
+          <StatCard
+            label={getI18nText(locale, "overview_stat_credits")}
+            value={credits.available.toLocaleString()}
+            subValue="Reserved: 120"
+            trend={{ text: "~8,400 messages", positive: true }}
+            indicator={<Badge variant="success">{getI18nText(locale, "status_normal")}</Badge>}
+          />
+        </div>
+        <div className="stat-card-cell h-full">
+          <StatCard
+            label={getI18nText(locale, "overview_stat_recovered")}
+            value="$ 1,420.00"
+            subValue={getI18nText(locale, "overview_stat_cod_rate") + ": 90.6%"}
+            trend={{ text: "Lift: +47.1%", positive: true }}
+            indicator={<TrendingUp className="w-3.5 h-3.5 text-[#059669]" />}
+          />
+        </div>
+      </GsapStagger>
 
-      {/* ROW 2: 真实催付增量效果分析 — 20% 对照组差异模型 (严格对齐 PRD 2.3) */}
+      {/* ROW 2: 真实催付增量效果分析 — 20% 对照组差异模型 (GSAP 平滑进场) */}
+      <GsapEntrance direction="up" distance={16} delay={0.12} duration={0.36}>
       <Card>
         <CardHeader>
           <div className="flex flex-col sm:flex-row sm:items-center justify-between w-full gap-2">
@@ -271,96 +286,107 @@ export default function ConsoleOverviewPage() {
           </div>
         </CardContent>
       </Card>
+      </GsapEntrance>
 
-      {/* ROW 3: 紧急待办与高危事件队列 (分屏双卡片) */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      {/* ROW 3: 紧急待办与高危事件队列 (GSAP 级联交错出现) */}
+      <GsapStagger
+        selector=".queue-card-cell"
+        stagger={0.08}
+        delay={0.18}
+        distance={16}
+        className="grid grid-cols-1 lg:grid-cols-2 gap-6"
+      >
         {/* 卡片 A: 待人工接管会话 */}
-        <Card>
-          <CardHeader>
-            <div className="flex items-center justify-between w-full">
-              <CardTitle>
-                {getI18nText(locale, "inbox_queue_human")} ({pendingTakeovers.length})
-              </CardTitle>
-              <Link href="/console/inbox">
-                <Button variant="ghost" size="sm">
-                  {getI18nText(locale, "nav_inbox")} →
-                </Button>
-              </Link>
-            </div>
-          </CardHeader>
-          <CardContent className="divide-y divide-[#EEEEEE] p-0">
-            {conversations.slice(0, 3).map((chat) => (
-              <div key={chat.id} className="p-4 hover:bg-[#FAFAFA] transition-colors flex items-center justify-between">
-                <div className="space-y-1">
-                  <div className="flex items-center gap-2">
-                    <span className="text-xs font-mono font-bold text-[#09090B]">
-                      {chat.customerName}
-                    </span>
-                    <span className="text-[10px] font-mono text-[#71717A]">
-                      ({chat.customerPhone})
-                    </span>
-                    {chat.isHumanTakeover ? (
-                      <Badge variant="warning">{getI18nText(locale, "inbox_btn_takeover")}</Badge>
-                    ) : (
-                      <Badge variant="neutral">{getI18nText(locale, "inbox_queue_ai")}</Badge>
-                    )}
-                  </div>
-                  <p className="text-xs font-mono text-[#71717A] truncate max-w-xs">
-                    {chat.lastMessage}
-                  </p>
-                </div>
+        <div className="queue-card-cell h-full">
+          <Card className="h-full">
+            <CardHeader>
+              <div className="flex items-center justify-between w-full">
+                <CardTitle>
+                  {getI18nText(locale, "inbox_queue_human")} ({pendingTakeovers.length})
+                </CardTitle>
                 <Link href="/console/inbox">
-                  <Button size="sm" variant="outline">
-                    {getI18nText(locale, "action_search")}
+                  <Button variant="ghost" size="sm">
+                    {getI18nText(locale, "nav_inbox")} →
                   </Button>
                 </Link>
               </div>
-            ))}
-          </CardContent>
-        </Card>
+            </CardHeader>
+            <CardContent className="divide-y divide-[#EEEEEE] p-0">
+              {conversations.slice(0, 3).map((chat) => (
+                <div key={chat.id} className="p-4 hover:bg-[#FAFAFA] transition-colors flex items-center justify-between">
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs font-mono font-bold text-[#09090B]">
+                        {chat.customerName}
+                      </span>
+                      <span className="text-[10px] font-mono text-[#71717A]">
+                        ({chat.customerPhone})
+                      </span>
+                      {chat.isHumanTakeover ? (
+                        <Badge variant="warning">{getI18nText(locale, "inbox_btn_takeover")}</Badge>
+                      ) : (
+                        <Badge variant="neutral">{getI18nText(locale, "inbox_queue_ai")}</Badge>
+                      )}
+                    </div>
+                    <p className="text-xs font-mono text-[#71717A] truncate max-w-xs">
+                      {chat.lastMessage}
+                    </p>
+                  </div>
+                  <Link href="/console/inbox">
+                    <Button size="sm" variant="outline">
+                      {getI18nText(locale, "action_search")}
+                    </Button>
+                  </Link>
+                </div>
+              ))}
+            </CardContent>
+          </Card>
+        </div>
 
         {/* 卡片 B: 待处理订单列表 */}
-        <Card>
-          <CardHeader>
-            <div className="flex items-center justify-between w-full">
-              <CardTitle>
-                {getI18nText(locale, "orders_tab_pending")} ({pendingOrders.length})
-              </CardTitle>
-              <Link href="/console/orders">
-                <Button variant="ghost" size="sm">
-                  {getI18nText(locale, "nav_orders")} →
-                </Button>
-              </Link>
-            </div>
-          </CardHeader>
-          <CardContent className="divide-y divide-[#EEEEEE] p-0">
-            {pendingOrders.slice(0, 3).map((ord) => (
-              <div key={ord.id} className="p-4 hover:bg-[#FAFAFA] transition-colors flex items-center justify-between">
-                <div className="space-y-1">
-                  <div className="flex items-center gap-2">
-                    <span className="text-xs font-mono font-bold text-[#09090B]">
-                      #{ord.orderNumber}
-                    </span>
-                    <Badge variant={ord.type === "COD" ? "outline" : "neutral"}>
-                      {ord.type === "COD" ? getI18nText(locale, "orders_type_cod") : getI18nText(locale, "orders_type_prepaid")}
-                    </Badge>
-                  </div>
-                  <div className="text-[11px] font-mono text-[#71717A] flex gap-2">
-                    <span>{ord.customerName}</span>
-                    <span>·</span>
-                    <span className="font-bold text-[#09090B]">{ord.amountLocal}</span>
-                  </div>
-                </div>
+        <div className="queue-card-cell h-full">
+          <Card className="h-full">
+            <CardHeader>
+              <div className="flex items-center justify-between w-full">
+                <CardTitle>
+                  {getI18nText(locale, "orders_tab_pending")} ({pendingOrders.length})
+                </CardTitle>
                 <Link href="/console/orders">
-                  <Button size="sm" variant="outline">
-                    {getI18nText(locale, "orders_col_action")}
+                  <Button variant="ghost" size="sm">
+                    {getI18nText(locale, "nav_orders")} →
                   </Button>
                 </Link>
               </div>
-            ))}
-          </CardContent>
-        </Card>
-      </div>
-    </div>
+            </CardHeader>
+            <CardContent className="divide-y divide-[#EEEEEE] p-0">
+              {pendingOrders.slice(0, 3).map((ord) => (
+                <div key={ord.id} className="p-4 hover:bg-[#FAFAFA] transition-colors flex items-center justify-between">
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs font-mono font-bold text-[#09090B]">
+                        #{ord.orderNumber}
+                      </span>
+                      <Badge variant={ord.type === "COD" ? "outline" : "neutral"}>
+                        {ord.type === "COD" ? getI18nText(locale, "orders_type_cod") : getI18nText(locale, "orders_type_prepaid")}
+                      </Badge>
+                    </div>
+                    <div className="text-[11px] font-mono text-[#71717A] flex gap-2">
+                      <span>{ord.customerName}</span>
+                      <span>·</span>
+                      <span className="font-bold text-[#09090B]">{ord.amountLocal}</span>
+                    </div>
+                  </div>
+                  <Link href="/console/orders">
+                    <Button size="sm" variant="outline">
+                      {getI18nText(locale, "orders_col_action")}
+                    </Button>
+                  </Link>
+                </div>
+              ))}
+            </CardContent>
+          </Card>
+        </div>
+      </GsapStagger>
+    </GsapEntrance>
   );
 }

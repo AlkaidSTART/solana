@@ -181,9 +181,11 @@ export const TopoMesh: React.FC<TopoMeshProps> = ({
         renderer.dispose();
       };
     } catch {
-      setUseFallback(true);
+      queueMicrotask(() => {
+        setUseFallback(true);
+      });
     }
-  }, []);
+  }, [useFallback]);
 
   if (useFallback) {
     // 静态高精度单色 SVG 发丝线轮廓平滑降级
