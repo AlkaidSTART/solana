@@ -90,9 +90,6 @@ export default function ConsoleWorkflowsPage() {
                       <h3 className="text-xs font-mono font-bold text-zinc-900">
                         {wf.name}
                       </h3>
-                      <span className="px-1.5 py-0.2 rounded bg-zinc-100 text-zinc-600 font-mono text-[10px] border border-zinc-200">
-                        {wf.version}
-                      </span>
                     </div>
                     <span className="text-[10px] font-mono text-zinc-400">
                       代码: {wf.code}
@@ -233,7 +230,7 @@ export default function ConsoleWorkflowsPage() {
         open={!!selectedWorkflow}
         onClose={() => setSelectedWorkflow(null)}
         title={`规则参数配置 - ${selectedWorkflow?.name}`}
-        subtitle={`代码: ${selectedWorkflow?.code} • 当前版本: ${selectedWorkflow?.version}`}
+        subtitle={`代码: ${selectedWorkflow?.code}`}
         width="md"
       >
         {selectedWorkflow && (
@@ -241,7 +238,7 @@ export default function ConsoleWorkflowsPage() {
             {rollbackSuccess && (
               <div className="p-3 bg-emerald-50 text-emerald-800 border border-emerald-200 rounded-lg flex items-center gap-2">
                 <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-                <span>已成功回退至稳定旧版本并重新载入引擎！</span>
+                <span>已成功回退至稳定旧配置并重新载入引擎！</span>
               </div>
             )}
 
@@ -281,11 +278,11 @@ export default function ConsoleWorkflowsPage() {
               </div>
             </div>
 
-            {/* 版本历史与安全回退 */}
+            {/* 规则历史与安全回退 */}
             <div className="space-y-3 pt-4 border-t border-zinc-200">
               <div className="flex items-center justify-between">
                 <h4 className="text-[11px] uppercase tracking-wider text-zinc-500 font-bold">
-                  版本历史与安全回退 (Version History)
+                  规则历史与安全回退 (Rule History)
                 </h4>
                 <RotateCcw className="w-3.5 h-3.5 text-zinc-400" />
               </div>
@@ -294,7 +291,7 @@ export default function ConsoleWorkflowsPage() {
                 <div className="p-3.5 border border-zinc-900 rounded-lg bg-zinc-50 flex items-center justify-between">
                   <div>
                     <div className="font-bold text-zinc-900 flex items-center gap-2">
-                      <span>{selectedWorkflow.version} (当前活跃版本)</span>
+                      <span>当前生效配置 (Active)</span>
                       <Badge variant="success">ACTIVE</Badge>
                     </div>
                     <span className="text-[10px] text-zinc-500">
@@ -305,7 +302,7 @@ export default function ConsoleWorkflowsPage() {
 
                 <div className="p-3.5 border border-zinc-200 rounded-lg bg-white flex items-center justify-between hover:bg-zinc-50 transition-colors">
                   <div>
-                    <div className="font-bold text-zinc-700">v1.1 (稳定旧版)</div>
+                    <div className="font-bold text-zinc-700">稳定历史配置 (Stable Snapshot)</div>
                     <span className="text-[10px] text-zinc-500">
                       包含基准 15 分钟触发与常规参数
                     </span>
@@ -315,7 +312,7 @@ export default function ConsoleWorkflowsPage() {
                     variant="outline"
                     onClick={() => handleRollback(selectedWorkflow.id, "v1.1")}
                   >
-                    回退至此版本
+                    回退至此配置
                   </Button>
                 </div>
               </div>

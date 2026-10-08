@@ -89,7 +89,7 @@ export default function ConsoleInboxPage() {
         </div>
 
         <div className="flex items-center gap-2 text-xs font-mono">
-          <Badge variant="success" dot>
+          <Badge variant="success">
             Agent Online
           </Badge>
         </div>

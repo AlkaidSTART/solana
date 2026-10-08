@@ -648,7 +648,7 @@ export const TelemetrySandbox: React.FC = () => {
             <div className="p-4.5 rounded-xl border border-zinc-200/80 bg-white mb-6">
               <div className="text-[10px] font-mono uppercase tracking-wider text-zinc-500 mb-3 flex items-center justify-between">
                 <span>东南亚俚语与本土虚词解析 (Slang Lexicon)</span>
-                <span className="text-[10px] text-indigo-600 font-medium">NLP Parser v2.4</span>
+                <span className="text-[10px] text-indigo-600 font-medium">NLP Parser</span>
               </div>
               <div className="space-y-2.5">
                 {scenario.slangTokens.map((st, i) => (
@@ -677,7 +677,7 @@ export const TelemetrySandbox: React.FC = () => {
           <div className="pt-5 border-t border-zinc-200/80 flex items-center justify-between text-[11px] font-mono text-zinc-500 mt-4">
             <div className="flex items-center gap-2">
               <ShieldCheck className="w-4 h-4 text-emerald-600" />
-              <span>确定性规则引擎 · v1.2</span>
+              <span>确定性规则引擎</span>
             </div>
             <span className="text-emerald-700 font-medium">Status: 200 OK · 遥测就绪</span>
           </div>

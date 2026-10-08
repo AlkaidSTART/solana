@@ -175,7 +175,7 @@ export default function ConsoleOverviewPage() {
           <div className="flex flex-col sm:flex-row sm:items-center justify-between w-full gap-2">
             <div className="flex items-center gap-2">
               <CardTitle>{getI18nText(locale, "settings_control_group_title")}</CardTitle>
-              <Badge variant="success" dot>
+              <Badge variant="success">
                 95% Confidence Verified
               </Badge>
             </div>

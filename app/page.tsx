@@ -6,6 +6,9 @@ import { HeroProductDashboard } from "@/components/landing/hero-product-dashboar
 import { TelemetrySandbox } from "@/components/landing/telemetry-sandbox";
 import { RoiCalculator } from "@/components/landing/roi-calculator";
 import { SolanaPayModal } from "@/components/billing/solana-pay-modal";
+import { HeroTopoCanvas } from "@/components/landing/topo-mesh";
+import { SeaTopologyGlobe } from "@/components/landing/three-sea-globe";
+import { SolanaSettlementCoin3D } from "@/components/landing/three-solana-coin";
 import { Button } from "@/components/ui/button";
 import {
   ArrowRight,
@@ -99,7 +102,7 @@ export default function LandingPage() {
               </span>
             </Link>
             <div className="hidden sm:flex items-center gap-2 text-xs font-mono text-zinc-500 border-l border-zinc-200 pl-4">
-              <span>Devnet v1.1 · Meta BAA</span>
+              <span>Devnet · Meta BAA</span>
             </div>
           </div>
 
@@ -170,6 +173,11 @@ export default function LandingPage() {
         <section className="relative w-full overflow-hidden pt-16 pb-20 sm:pt-24 sm:pb-28">
           {/* 背景极其细腻的径向微光 */}
           <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(ellipse_70%_50%_at_50%_0%,rgba(16,185,129,0.04),rgba(255,255,255,0))]" />
+
+          {/* 3D WebGL 极简单色拓扑地貌雕塑微动效背景 */}
+          <div className="absolute inset-0 pointer-events-none opacity-85 flex items-center justify-center overflow-hidden">
+            <HeroTopoCanvas className="w-full h-full max-w-6xl mx-auto" />
+          </div>
 
           <div className="max-w-7xl mx-auto px-4 sm:px-8 relative z-10 text-center">
             {/* 顶部微胶囊标签 */}
@@ -302,9 +310,14 @@ export default function LandingPage() {
                   <h3 className="text-xl sm:text-2xl font-sans font-bold text-zinc-950 tracking-tight mb-3">
                     东南亚多语言与印尼俚语深度解析
                   </h3>
-                  <p className="text-sm sm:text-base text-zinc-600 leading-relaxed font-sans">
+                  <p className="text-sm sm:text-base text-zinc-600 leading-relaxed font-sans mb-6">
                     不仅掌握标准印尼语（Bahasa Indonesia），更精准识别雅加达本土口语缩写（Bahasa Gaul，如 <em>min, ongkir, ga nyasar</em>）与泰语礼貌语气助词（<em>krub/ka</em>）。
                   </p>
+
+                  {/* 3D 东南亚跨境拓扑航线与多语言数据球体微组件 */}
+                  <div className="mt-2 p-3 sm:p-4 bg-zinc-50/60 rounded-xl border border-zinc-200/70">
+                    <SeaTopologyGlobe />
+                  </div>
                 </div>
                 <div className="mt-8 pt-5 border-t border-zinc-100 flex items-center justify-between text-xs font-mono text-zinc-500">
                   <span className="text-emerald-700 font-medium">印尼语 • 泰语 • 英语 • 越南语</span>
@@ -321,9 +334,14 @@ export default function LandingPage() {
                   <h3 className="text-xl sm:text-2xl font-sans font-bold text-zinc-950 tracking-tight mb-3">
                     Solana Pay 毫秒级原生结算
                   </h3>
-                  <p className="text-sm sm:text-base text-zinc-600 leading-relaxed font-sans">
+                  <p className="text-sm sm:text-base text-zinc-600 leading-relaxed font-sans mb-6">
                     0 传统跨国信用卡 3% 货币兑换与通道手续费损耗。原生 USDC 充值即时到账，单笔手续费低至 $0.00025。
                   </p>
+
+                  {/* 3D 毫秒级原生结算硬币/棱镜微组件 */}
+                  <div className="mt-2 p-3 sm:p-4 bg-zinc-50/60 rounded-xl border border-zinc-200/70">
+                    <SolanaSettlementCoin3D />
+                  </div>
                 </div>
                 <div className="mt-8 pt-5 border-t border-zinc-100 flex items-center justify-between text-xs font-mono text-indigo-700 font-semibold">
                   <span>418ms Finality</span>
