@@ -13,92 +13,9 @@ import {
   CheckCircle2,
   Send,
 } from "lucide-react";
-import { useAppStore, type OrderLanguage } from "@/stores/use-app-store";
+import { useAppStore } from "@/stores/use-app-store";
 import { getI18nText } from "@/lib/i18n";
-
-interface TemplateItem {
-  id: string;
-  name: string;
-  category: "MARKETING" | "UTILITY";
-  language: OrderLanguage;
-  status: "APPROVED" | "PENDING";
-  content: string;
-}
-
-const TEMPLATES: TemplateItem[] = [
-  {
-    id: "tmpl_01",
-    name: "abandoned_cart_recovery_id",
-    category: "MARKETING",
-    language: "id_ID",
-    status: "APPROVED",
-    content:
-      "Halo {{1}}! Keranjang belanja Anda di {{2}} masih tersimpan nih. Selesaikan pesanan {{3}} Anda sebelum kehabisan ya: {{4}}",
-  },
-  {
-    id: "tmpl_02",
-    name: "cod_address_verify_id",
-    category: "UTILITY",
-    language: "id_ID",
-    status: "APPROVED",
-    content:
-      "Halo Kak {{1}}! Pesanan COD #{{2}} senilai {{3}} siap dikirim ke {{4}}. Mohon pastikan patokan alamat sudah benar ya kak.",
-  },
-  {
-    id: "tmpl_03",
-    name: "abandoned_cart_recovery_th",
-    category: "MARKETING",
-    language: "th_TH",
-    status: "APPROVED",
-    content:
-      "สวัสดีครับคุณ {{1}}! สินค้าในตะกร้า {{2}} ของคุณยังอยู่นะครับ คลิกชำระเงินก่อนสินค้าหมดได้ที่นี่: {{3}}",
-  },
-  {
-    id: "tmpl_04",
-    name: "cod_address_verify_en",
-    category: "UTILITY",
-    language: "en_US",
-    status: "APPROVED",
-    content:
-      "Hi {{1}}! Your COD order #{{2}} is ready for dispatch to {{3}}. Please confirm if your delivery address is accurate.",
-  },
-  {
-    id: "tmpl_05",
-    name: "abandoned_cart_recovery_sg",
-    category: "MARKETING",
-    language: "en_SG",
-    status: "APPROVED",
-    content:
-      "Hi {{1}}! Notice your cart at {{2}} is waiting. Free courier discount applied lah, complete order {{3}} before stock runs out: {{4}}",
-  },
-  {
-    id: "tmpl_06",
-    name: "cod_address_verify_ms",
-    category: "UTILITY",
-    language: "ms_MY",
-    status: "APPROVED",
-    content:
-      "Hai Sis {{1}}! Pesanan COD #{{2}} bernilai {{3}} sedia untuk dipos ke {{4}}. Sila pastikan alamat betul sebelum kami hantar ya.",
-  },
-  {
-    id: "tmpl_07",
-    name: "abandoned_cart_recovery_vi",
-    category: "MARKETING",
-    language: "vi_VN",
-    status: "APPROVED",
-    content:
-      "Chào bạn {{1}}! Giỏ hàng tại {{2}} của bạn vẫn đang được giữ. Hoàn tất đơn hàng {{3}} để nhận ưu đãi freeship nha: {{4}}",
-  },
-  {
-    id: "tmpl_08",
-    name: "cod_address_verify_ph",
-    category: "UTILITY",
-    language: "fil_PH",
-    status: "APPROVED",
-    content:
-      "Hi {{1}}! Ang inyong COD order #{{2}} na nagkakahalaga ng {{3}} ay handa nang i-ship sa {{4}}. Pakikumpirma po ang landmark ng inyong delivery address.",
-  },
-];
+import { MOCK_TEMPLATES, type TemplateItem } from "@/mock";
 
 export default function ConsoleStoresPage() {
   const { locale } = useAppStore();
@@ -364,7 +281,7 @@ export default function ConsoleStoresPage() {
 
         <Card className="rounded-xl overflow-hidden shadow-2xs">
           <div className="divide-y divide-zinc-200">
-            {TEMPLATES.map((tmpl) => (
+            {MOCK_TEMPLATES.map((tmpl) => (
               <div
                 key={tmpl.id}
                 className="p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs font-mono hover:bg-zinc-50/60 transition-colors"

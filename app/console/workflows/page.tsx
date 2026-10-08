@@ -127,11 +127,11 @@ export default function ConsoleWorkflowsPage() {
 
               <div className="grid grid-cols-1 sm:grid-cols-4 gap-3 p-3.5 bg-zinc-50 rounded-xl border border-zinc-200 text-[11px]">
                 <div>
-                  <span className="text-zinc-400 block text-[10px] uppercase">触发延时</span>
+                  <span className="text-zinc-400 block text-[10px] uppercase">{getI18nText(locale, "wf_trigger_delay")}</span>
                   <span className="text-zinc-900 font-semibold">{wf.triggerDelay}</span>
                 </div>
                 <div>
-                  <span className="text-zinc-400 block text-[10px] uppercase">分流语言</span>
+                  <span className="text-zinc-400 block text-[10px] uppercase">{getI18nText(locale, "wf_languages")}</span>
                   <span className="text-indigo-700 font-medium">{wf.languages.join(", ")}</span>
                 </div>
                 <div>
@@ -139,7 +139,7 @@ export default function ConsoleWorkflowsPage() {
                   <span className="text-zinc-900">{wf.quietHours}</span>
                 </div>
                 <div>
-                  <span className="text-zinc-400 block text-[10px] uppercase">频次上限限制</span>
+                  <span className="text-zinc-400 block text-[10px] uppercase">{getI18nText(locale, "wf_max_freq")}</span>
                   <span className="text-zinc-900">{wf.maxFrequency}</span>
                 </div>
               </div>
@@ -156,10 +156,10 @@ export default function ConsoleWorkflowsPage() {
         <Card className="rounded-xl overflow-hidden shadow-2xs">
           <div className="divide-y divide-zinc-200 text-xs font-mono">
             <div className="p-4 grid grid-cols-1 sm:grid-cols-4 gap-2 bg-zinc-50 text-zinc-500 font-bold">
-              <span>国家 / 国际区号</span>
-              <span>主推语言分流</span>
-              <span>时区锚定</span>
-              <span>俚语 / 语气词预置</span>
+              <span>{getI18nText(locale, "wf_matrix_col_country")}</span>
+              <span>{getI18nText(locale, "wf_matrix_col_lang")}</span>
+              <span>{getI18nText(locale, "wf_matrix_col_timezone")}</span>
+              <span>{getI18nText(locale, "wf_matrix_col_slang")}</span>
             </div>
 
             <div className="p-4 grid grid-cols-1 sm:grid-cols-4 gap-2 items-center">
@@ -229,8 +229,8 @@ export default function ConsoleWorkflowsPage() {
       <Drawer
         open={!!selectedWorkflow}
         onClose={() => setSelectedWorkflow(null)}
-        title={`规则参数配置 - ${selectedWorkflow?.name}`}
-        subtitle={`代码: ${selectedWorkflow?.code}`}
+        title={`${getI18nText(locale, "wf_drawer_title")} - ${selectedWorkflow?.name}`}
+        subtitle={`${getI18nText(locale, "wf_drawer_code")}: ${selectedWorkflow?.code}`}
         width="md"
       >
         {selectedWorkflow && (
@@ -238,7 +238,7 @@ export default function ConsoleWorkflowsPage() {
             {rollbackSuccess && (
               <div className="p-3 bg-emerald-50 text-emerald-800 border border-emerald-200 rounded-lg flex items-center gap-2">
                 <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-                <span>已成功回退至稳定旧配置并重新载入引擎！</span>
+                <span>{getI18nText(locale, "wf_rollback_success")}</span>
               </div>
             )}
 
@@ -246,7 +246,7 @@ export default function ConsoleWorkflowsPage() {
             <div className="space-y-4">
               <div>
                 <label className="text-zinc-500 text-[10px] uppercase block mb-1 font-bold">
-                  规则触发延时 (Trigger Delay)
+                  {getI18nText(locale, "wf_trigger_delay")}
                 </label>
                 <input
                   type="text"
@@ -257,7 +257,7 @@ export default function ConsoleWorkflowsPage() {
 
               <div>
                 <label className="text-zinc-500 text-[10px] uppercase block mb-1 font-bold">
-                  夜间免打扰静默时段 (Quiet Hours)
+                  {getI18nText(locale, "workflows_quiet_hours")}
                 </label>
                 <input
                   type="text"
@@ -268,7 +268,7 @@ export default function ConsoleWorkflowsPage() {
 
               <div>
                 <label className="text-zinc-500 text-[10px] uppercase block mb-1 font-bold">
-                  单订单触达频次安全上限
+                  {getI18nText(locale, "wf_max_freq")}
                 </label>
                 <input
                   type="text"
@@ -282,7 +282,7 @@ export default function ConsoleWorkflowsPage() {
             <div className="space-y-3 pt-4 border-t border-zinc-200">
               <div className="flex items-center justify-between">
                 <h4 className="text-[11px] uppercase tracking-wider text-zinc-500 font-bold">
-                  规则历史与安全回退 (Rule History)
+                  {getI18nText(locale, "wf_rule_history")}
                 </h4>
                 <RotateCcw className="w-3.5 h-3.5 text-zinc-400" />
               </div>
@@ -291,7 +291,7 @@ export default function ConsoleWorkflowsPage() {
                 <div className="p-3.5 border border-zinc-900 rounded-lg bg-zinc-50 flex items-center justify-between">
                   <div>
                     <div className="font-bold text-zinc-900 flex items-center gap-2">
-                      <span>当前生效配置 (Active)</span>
+                      <span>{getI18nText(locale, "wf_active_config")}</span>
                       <Badge variant="success">ACTIVE</Badge>
                     </div>
                     <span className="text-[10px] text-zinc-500">
@@ -302,7 +302,7 @@ export default function ConsoleWorkflowsPage() {
 
                 <div className="p-3.5 border border-zinc-200 rounded-lg bg-white flex items-center justify-between hover:bg-zinc-50 transition-colors">
                   <div>
-                    <div className="font-bold text-zinc-700">稳定历史配置 (Stable Snapshot)</div>
+                    <div className="font-bold text-zinc-700">{getI18nText(locale, "wf_stable_snapshot")}</div>
                     <span className="text-[10px] text-zinc-500">
                       包含基准 15 分钟触发与常规参数
                     </span>
@@ -312,7 +312,7 @@ export default function ConsoleWorkflowsPage() {
                     variant="outline"
                     onClick={() => handleRollback(selectedWorkflow.id, "v1.1")}
                   >
-                    回退至此配置
+                    {getI18nText(locale, "wf_rollback_btn")}
                   </Button>
                 </div>
               </div>
@@ -320,10 +320,10 @@ export default function ConsoleWorkflowsPage() {
 
             <div className="pt-4 border-t border-zinc-200 flex gap-3">
               <Button onClick={() => setSelectedWorkflow(null)} className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white">
-                保存参数并生效
+                {getI18nText(locale, "wf_btn_save_apply")}
               </Button>
               <Button variant="outline" onClick={() => setSelectedWorkflow(null)}>
-                取消
+                {getI18nText(locale, "action_cancel")}
               </Button>
             </div>
           </div>
@@ -334,18 +334,18 @@ export default function ConsoleWorkflowsPage() {
       <Modal
         open={createModalOpen}
         onClose={() => setCreateModalOpen(false)}
-        title="新建自定义自动化触发规则"
-        subtitle="基于出海电商 Webhook 事件与条件过滤配置新工作流"
+        title={getI18nText(locale, "wf_modal_create_title")}
+        subtitle={getI18nText(locale, "wf_modal_create_sub")}
         width="md"
       >
         <form onSubmit={handleCreateRuleSubmit} className="space-y-4 text-xs font-mono">
           <div>
             <label className="text-zinc-500 uppercase text-[10px] block mb-1 font-bold">
-              规则显示名称
+              {getI18nText(locale, "wf_field_name")}
             </label>
             <input
               type="text"
-              placeholder="例如：COD 签收后关怀与好评引导"
+              placeholder="e.g. COD Follow-up"
               value={newRuleName}
               onChange={(e) => setNewRuleName(e.target.value)}
               className="w-full p-2.5 border border-zinc-200 rounded-lg text-xs font-mono focus:outline-none focus:border-zinc-900"
@@ -355,7 +355,7 @@ export default function ConsoleWorkflowsPage() {
 
           <div>
             <label className="text-zinc-500 uppercase text-[10px] block mb-1 font-bold">
-              规则唯一代码 (Rule Code)
+              {getI18nText(locale, "wf_field_code")}
             </label>
             <input
               type="text"
@@ -368,7 +368,7 @@ export default function ConsoleWorkflowsPage() {
 
           <div>
             <label className="text-zinc-500 uppercase text-[10px] block mb-1 font-bold">
-              触发延时
+              {getI18nText(locale, "wf_field_delay")}
             </label>
             <input
               type="text"
@@ -381,11 +381,10 @@ export default function ConsoleWorkflowsPage() {
 
           <div>
             <label className="text-zinc-500 uppercase text-[10px] block mb-1 font-bold">
-              业务规则描述
+              {getI18nText(locale, "wf_field_desc")}
             </label>
             <textarea
               rows={3}
-              placeholder="描述该规则的业务场景与预期下发的 WhatsApp 模板..."
               value={newRuleDesc}
               onChange={(e) => setNewRuleDesc(e.target.value)}
               className="w-full p-2.5 border border-zinc-200 rounded-lg text-xs font-mono focus:outline-none focus:border-zinc-900"
@@ -395,7 +394,7 @@ export default function ConsoleWorkflowsPage() {
           {createSuccess && (
             <div className="p-3 bg-emerald-50 rounded-lg border border-emerald-200 text-[11px] text-emerald-900 flex items-center gap-2">
               <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
-              <span>新工作流规则已成功部署至热重载队列！</span>
+              <span>{getI18nText(locale, "wf_create_success")}</span>
             </div>
           )}
 
@@ -404,14 +403,14 @@ export default function ConsoleWorkflowsPage() {
               type="submit"
               className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white"
             >
-              创建并立即激活
+              {getI18nText(locale, "action_confirm")}
             </Button>
             <Button
               type="button"
               variant="outline"
               onClick={() => setCreateModalOpen(false)}
             >
-              取消
+              {getI18nText(locale, "action_cancel")}
             </Button>
           </div>
         </form>

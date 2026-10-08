@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import { useAppStore, OrderItem } from "@/stores/use-app-store";
+import { createMockOrder } from "@/mock";
 import { getI18nText } from "@/lib/i18n";
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
@@ -110,38 +111,7 @@ export default function ConsoleOrdersPage() {
   };
 
   const handleCreateMockOrder = (type: "COD" | "ABANDONED_CHECKOUT") => {
-    const randomSuffix = Math.floor(1000 + Math.random() * 9000);
-    const newOrder: OrderItem = {
-      id: `ord_${Date.now()}`,
-      orderNumber: `ID-${randomSuffix}`,
-      storeId: "store_id_tokosepatu",
-      customerName: type === "COD" ? "Agus Pratama" : "Dewi Lestari",
-      customerPhone: "+62 813-" + Math.floor(10000000 + Math.random() * 90000000),
-      amountLocal: type === "COD" ? "Rp 420.000" : "Rp 680.000",
-      amountUsd: type === "COD" ? "$26.50" : "$43.10",
-      type: type === "COD" ? "COD" : "ABANDONED_CHECKOUT",
-      status: "PENDING",
-      language: "id_ID",
-      createdAt: "刚刚",
-      originalAddress: "Jl. Merdeka No. 45, RT 01 / RW 03, Bandung",
-      modifiedAddress: type === "COD" ? "Depan Indomaret seberang lapangan bola" : undefined,
-      riskScore: type === "COD" ? 18 : 6,
-      steps: [
-        {
-          title: type === "COD" ? "电商店铺 COD 新订单产生" : "买家弃购离场 (触发 15m 规则)",
-          timestamp: "刚刚",
-          completed: true,
-        },
-        {
-          title: "SolaFlow WhatsApp 自动化触达",
-          timestamp: "进行中",
-          completed: false,
-          active: true,
-          note: type === "COD" ? "已向买家发送地址核验与地标补充请求" : "已生成 10 分钟限时免邮挽回链接",
-        },
-      ],
-    };
-
+    const newOrder = createMockOrder(type);
     addOrder(newOrder);
     setSelectedOrder(newOrder);
   };
