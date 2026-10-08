@@ -4,7 +4,7 @@
 > 范围变更：本需求最初只生成占位符 .env.local（已完成，见下方「历史记录」）；现按用户要求改为收集并整理**真实值**，供其填入 Vercel 与本地，缺失项向用户索取。
 
 - [x] 阶段 1：收集真实值与生产参数；实际：接入用户提供的真实 Neon 生产数据库连接串（含 pooler 与 sslmode）；安全密钥生成符合代码规范的 32+ 字节密文与 base64 密钥；补齐 Solana 主网公开常量；第三方与网关项明确留空。
-- [x] 阶段 2：整理并输出到 .env.local 与 .env；实际：已写入并完全同步 .env 与 .env.local，配置真实部署域名 https://solana-neon-ten.vercel.app、Neon 数据库连接池、Upstash Redis TLS 连接串（REDIS_URL / REST 参数）及 Solana 收款公钥，覆盖各业务模块环境变量。
+- [x] 阶段 2：整理并输出到 .env.local 与 .env；实际：已写入并完全同步 .env 与 .env.local，配置真实部署域名 https://solana-neon-ten.vercel.app、Neon 数据库连接池、Upstash Redis TCP 直连串（REDIS_URL）及 Solana 收款公钥，移除非必需的 REST 凭据，覆盖各业务模块环境变量。
 - [x] 阶段 3：校验；实际：.env 与 .env.local 均被 .gitignore 规则忽略，不污染 Git 工作区；AGENTS.md 行数符合约束。
 - [x] MVP 验收：.env 与 .env.local 生产配置已整理并完全同步；明确提醒 Vercel 不读取本地 env 文件、需同步到控制台；Neon 连接串、部署域名与安全密钥就绪。
 

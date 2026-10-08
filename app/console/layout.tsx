@@ -25,8 +25,11 @@ import {
   getI18nText,
   type SupportedLocale,
 } from "@/lib/i18n";
+import { AppQueryProvider } from "@/components/providers/query-provider";
+import { useQuery } from "@tanstack/react-query";
+import { tenantApi, authApi } from "@/lib/api";
 
-export default function ConsoleLayout({
+function ConsoleLayoutContent({
   children,
 }: {
   children: React.ReactNode;
@@ -35,6 +38,19 @@ export default function ConsoleLayout({
   const { stores, currentStoreId, setStoreId, credits, locale, setLocale } =
     useAppStore();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  // 尝试连接后端租户与用户会话
+  const { data: tenantData } = useQuery({
+    queryKey: ["tenant"],
+    queryFn: () => tenantApi.getTenant(),
+    retry: false,
+  });
+
+  const { data: sessionData } = useQuery({
+    queryKey: ["auth-session"],
+    queryFn: () => authApi.getSession(),
+    retry: false,
+  });
 
   const navItems = [
     { href: "/console", label: getI18nText(locale, "nav_overview"), icon: LayoutDashboard },
@@ -188,16 +204,26 @@ export default function ConsoleLayout({
           <div className="p-3.5 border-t border-zinc-200 bg-zinc-50/70 text-[10px] font-mono text-zinc-500 space-y-1.5">
             <div className="flex justify-between">
               <span>{getI18nText(locale, "meta_tenant")}:</span>
-              <span className="text-zinc-900 font-medium">SEA_8892 ({getI18nText(locale, "demo_badge")})</span>
+              <span className="text-zinc-900 font-medium">
+                {tenantData?.name ? `${tenantData.name}` : `SEA_8892 (${getI18nText(locale, "demo_badge")})`}
+              </span>
             </div>
             <div className="flex justify-between">
               <span>{getI18nText(locale, "meta_timezone")}:</span>
-              <span className="text-zinc-900 truncate max-w-[100px]">WIB (UTC+7)</span>
+              <span className="text-zinc-900 truncate max-w-[100px]">
+                {tenantData?.timezone ? tenantData.timezone.split("/")[1] || tenantData.timezone : "WIB (UTC+7)"}
+              </span>
             </div>
             <div className="flex justify-between">
               <span>{getI18nText(locale, "meta_network")}:</span>
               <span className="text-emerald-700 font-bold">Solana Devnet</span>
             </div>
+            {sessionData?.user && (
+              <div className="flex justify-between pt-1 border-t border-zinc-200/60 text-[9px] text-zinc-400">
+                <span>登录身份:</span>
+                <span className="text-zinc-700 truncate max-w-[110px]">{sessionData.user.email}</span>
+              </div>
+            )}
           </div>
         </aside>
 
@@ -209,3 +235,16 @@ export default function ConsoleLayout({
     </div>
   );
 }
+
+export default function ConsoleLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return (
+    <AppQueryProvider>
+      <ConsoleLayoutContent>{children}</ConsoleLayoutContent>
+    </AppQueryProvider>
+  );
+}
+

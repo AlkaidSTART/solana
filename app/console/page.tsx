@@ -21,12 +21,32 @@ import {
   MOCK_CONTROL_GROUP_METRICS,
   MOCK_OVERVIEW_SUMMARY_STATS,
 } from "@/mock";
-import { useOnboardingStore } from "@/stores/use-onboarding-store";
+import { useQuery } from "@tanstack/react-query";
+import { billingApi, ordersApi, tenantApi } from "@/lib/api";
 
 export default function ConsoleOverviewPage() {
-  const { credits, orders, conversations, locale } = useAppStore();
+  const { credits, orders, conversations, locale, currentStoreId } = useAppStore();
   const { currentStep, isCompleted, hasStarted } = useOnboardingStore();
   const [viewState, setViewState] = useState<"normal" | "loading" | "empty" | "error">("normal");
+
+  // 连接后端 /api/v1/billing/summary 与 /api/v1/orders
+  const { data: billingSummary } = useQuery({
+    queryKey: ["billing-summary"],
+    queryFn: () => billingApi.getSummary(),
+    retry: false,
+  });
+
+  const { data: apiOrders } = useQuery({
+    queryKey: ["orders", currentStoreId],
+    queryFn: () => ordersApi.listOrders({ storeId: currentStoreId }),
+    retry: false,
+  });
+
+  const { data: tenant } = useQuery({
+    queryKey: ["tenant"],
+    queryFn: () => tenantApi.getTenant(),
+    retry: false,
+  });
 
   const emptySubscribe = React.useCallback(() => () => {}, []);
   const isMounted = React.useSyncExternalStore(
@@ -38,7 +58,14 @@ export default function ConsoleOverviewPage() {
   const showOnboardingResume = isMounted && (hasStarted || currentStep > 2) && !isCompleted;
 
   const pendingTakeovers = conversations.filter((c) => c.isHumanTakeover || c.unread);
-  const pendingOrders = orders.filter((o) => o.status === "PENDING");
+  const pendingOrders = apiOrders?.items
+    ? apiOrders.items.filter((o) => o.orderStatus === "pending")
+    : orders.filter((o) => o.status === "PENDING");
+
+  const effectiveAvailableCredits =
+    billingSummary?.availableCredits !== undefined
+      ? billingSummary.availableCredits
+      : credits.available;
 
   if (viewState === "loading") {
     return (
@@ -207,7 +234,7 @@ export default function ConsoleOverviewPage() {
         <div className="stat-card-cell h-full">
           <StatCard
             label={getI18nText(locale, "overview_stat_credits")}
-            value={credits.available.toLocaleString()}
+            value={effectiveAvailableCredits.toLocaleString()}
             subValue={getI18nText(locale, "overview_stat_reserved")}
             trend={{ text: getI18nText(locale, "overview_stat_messages_est"), positive: true }}
             indicator={<Badge variant="success">{getI18nText(locale, "status_normal")}</Badge>}
