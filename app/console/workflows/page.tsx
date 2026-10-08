@@ -71,7 +71,7 @@ export default function ConsoleWorkflowsPage() {
           className="bg-emerald-600 hover:bg-emerald-700 text-white"
         >
           <Plus className="w-3.5 h-3.5 mr-1" />
-          + {getI18nText(locale, "action_save")}
+          + {getI18nText(locale, "wf_btn_create")}
         </Button>
       </div>
 
@@ -92,7 +92,7 @@ export default function ConsoleWorkflowsPage() {
                       </h3>
                     </div>
                     <span className="text-[10px] font-mono text-zinc-400">
-                      代码: {wf.code}
+                      {getI18nText(locale, "wf_drawer_code")}: {wf.code}
                     </span>
                   </div>
                 </div>
