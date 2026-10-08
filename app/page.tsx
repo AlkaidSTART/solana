@@ -9,11 +9,15 @@ import { SolanaPayModal } from "@/components/billing/solana-pay-modal";
 import { HeroTopoCanvas } from "@/components/landing/topo-mesh";
 import { SeaTopologyGlobe } from "@/components/landing/three-sea-globe";
 import { SolanaSettlementCoin3D } from "@/components/landing/three-solana-coin";
+import { ThreeOnboardingGateway } from "@/components/landing/three-onboarding-gateway";
 import { Button } from "@/components/ui/button";
 import { GsapEntrance, GsapStagger } from "@/components/ui/gsap-transition";
 import {
   ArrowRight,
   Sparkles,
+  ShieldCheck,
+  Zap,
+  Coins,
 } from "lucide-react";
 import { clsx } from "clsx";
 
@@ -445,21 +449,51 @@ export default function LandingPage() {
           {/* 细腻环境背景光 */}
           <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(ellipse_60%_50%_at_50%_0%,rgba(16,185,129,0.12),rgba(9,9,11,0))]" />
 
-          <div className="max-w-3xl mx-auto text-center space-y-6 relative z-10">
-            <div className="inline-flex items-center gap-2 text-xs font-mono text-zinc-400 border border-zinc-800 px-3 py-1 rounded-full bg-zinc-900/60">
-              <Sparkles className="w-3.5 h-3.5 text-emerald-400" />
-              <span>CLAIM YOUR ONBOARDING CREDITS</span>
+          <div className="max-w-5xl mx-auto text-center space-y-10 sm:space-y-12 relative z-10">
+            {/* 标头区域 */}
+            <div className="max-w-3xl mx-auto space-y-4">
+              <div className="inline-flex items-center gap-2 text-xs font-mono text-zinc-400 border border-zinc-800 px-3.5 py-1.5 rounded-full bg-zinc-900/60 shadow-2xs">
+                <Sparkles className="w-3.5 h-3.5 text-emerald-400" />
+                <span>CLAIM YOUR ONBOARDING CREDITS · 6 STEPS WIZARD</span>
+              </div>
+
+              <h2 className="text-3xl sm:text-5xl lg:text-6xl font-sans font-bold tracking-tight text-white leading-tight">
+                立即接入您的首个出海店铺
+              </h2>
+
+              <p className="text-sm sm:text-base text-zinc-400 font-sans max-w-xl mx-auto leading-relaxed">
+                完成 6 步商户初始化向导，即刻获得 100 免费 Credits 体验额度，无需绑定信用卡，零门槛开启东南亚跨境智能订单自动化。
+              </p>
             </div>
 
-            <h2 className="text-3xl sm:text-5xl font-sans font-bold tracking-tight text-white leading-tight">
-              立即接入您的首个出海店铺
-            </h2>
+            {/* 3D 接入传送门视窗与极速流线 */}
+            <div className="max-w-3xl mx-auto p-4 sm:p-6 bg-zinc-900/40 border border-zinc-800/80 rounded-2xl backdrop-blur-xs space-y-5">
+              <ThreeOnboardingGateway />
 
-            <p className="text-sm sm:text-base text-zinc-400 font-sans max-w-xl mx-auto leading-relaxed">
-              完成 6 步商户初始化向导，即刻获得 100 免费 Credits 体验额度，无需绑定信用卡。
-            </p>
+              {/* 3 步极速开通向导流线 */}
+              <div className="pt-2 border-t border-zinc-800/60 grid grid-cols-1 sm:grid-cols-3 gap-3 text-left">
+                <div className="p-3 bg-zinc-950/60 border border-zinc-800/70 rounded-xl">
+                  <div className="text-[10px] font-mono text-emerald-400 font-bold mb-1">STEP 01</div>
+                  <div className="text-xs font-bold text-white">店铺免密授权</div>
+                  <div className="text-[11px] text-zinc-400 font-sans mt-0.5">Shopify / WooCommerce Webhook 秒级直连</div>
+                </div>
 
-            <div className="flex flex-wrap items-center justify-center gap-4 pt-6">
+                <div className="p-3 bg-zinc-950/60 border border-zinc-800/70 rounded-xl">
+                  <div className="text-[10px] font-mono text-emerald-400 font-bold mb-1">STEP 02</div>
+                  <div className="text-xs font-bold text-white">绑定 WhatsApp</div>
+                  <div className="text-[11px] text-zinc-400 font-sans mt-0.5">官方 WABA 号码接入，下发获批本地化模板</div>
+                </div>
+
+                <div className="p-3 bg-zinc-950/60 border border-zinc-800/70 rounded-xl">
+                  <div className="text-[10px] font-mono text-emerald-400 font-bold mb-1">STEP 03</div>
+                  <div className="text-xs font-bold text-white">激活 100 额度</div>
+                  <div className="text-[11px] text-zinc-400 font-sans mt-0.5">首批 100 笔订单免密测试，实时自动挽回与核验</div>
+                </div>
+              </div>
+            </div>
+
+            {/* 行动号召按钮组 */}
+            <div className="flex flex-wrap items-center justify-center gap-4 pt-2">
               <Link href="/onboarding">
                 <Button size="lg" className="h-12 px-8 text-xs bg-white text-zinc-950 hover:bg-zinc-200 font-medium rounded-xl shadow-sm">
                   立即免费接入 (Claim 100 Credits)
@@ -474,6 +508,49 @@ export default function LandingPage() {
               >
                 Solana Pay Devnet 充值体验
               </Button>
+            </div>
+
+            {/* 4 维企业级入驻信任保障卡片 */}
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 pt-6 text-left border-t border-zinc-900">
+              <div className="p-4 rounded-xl border border-zinc-800/80 bg-zinc-900/30 space-y-2">
+                <div className="w-7 h-7 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center">
+                  <Sparkles className="w-3.5 h-3.5 text-emerald-400" />
+                </div>
+                <div className="text-xs font-bold text-white">100 Credits 赠送</div>
+                <div className="text-[11px] text-zinc-400 font-sans leading-relaxed">
+                  无需预充值或绑定信用卡，即可完整跑通东南亚多语言唤回真实流程。
+                </div>
+              </div>
+
+              <div className="p-4 rounded-xl border border-zinc-800/80 bg-zinc-900/30 space-y-2">
+                <div className="w-7 h-7 rounded-lg bg-zinc-800 flex items-center justify-center">
+                  <Zap className="w-3.5 h-3.5 text-zinc-200" />
+                </div>
+                <div className="text-xs font-bold text-white">3 分钟零代码接入</div>
+                <div className="text-[11px] text-zinc-400 font-sans leading-relaxed">
+                  标准化 Webhook 接入，订单状态与物流信息 150ms 内极速双向同步。
+                </div>
+              </div>
+
+              <div className="p-4 rounded-xl border border-zinc-800/80 bg-zinc-900/30 space-y-2">
+                <div className="w-7 h-7 rounded-lg bg-zinc-800 flex items-center justify-center">
+                  <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
+                </div>
+                <div className="text-xs font-bold text-white">Meta 官方 BAA 合规</div>
+                <div className="text-[11px] text-zinc-400 font-sans leading-relaxed">
+                  通过 Meta Cloud API 官方合规链路传输，数据脱敏，杜绝第三方外挂封号风险。
+                </div>
+              </div>
+
+              <div className="p-4 rounded-xl border border-zinc-800/80 bg-zinc-900/30 space-y-2">
+                <div className="w-7 h-7 rounded-lg bg-zinc-800 flex items-center justify-center">
+                  <Coins className="w-3.5 h-3.5 text-zinc-200" />
+                </div>
+                <div className="text-xs font-bold text-white">USDC 毫秒原生结算</div>
+                <div className="text-[11px] text-zinc-400 font-sans leading-relaxed">
+                  后续充值支持 Solana Pay，0 传统信用卡 3% 汇兑损耗，单笔手续费仅 $0.00025。
+                </div>
+              </div>
             </div>
           </div>
         </section>

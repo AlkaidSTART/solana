@@ -16,6 +16,7 @@ import {
 import { clsx } from "clsx";
 import { gsap } from "gsap";
 import { getI18nText } from "@/lib/i18n";
+import { MOCK_SLANG_LEXICON } from "@/mock";
 
 export default function ConsoleInboxPage() {
   const {
@@ -325,13 +326,7 @@ export default function ConsoleInboxPage() {
             </div>
 
             <div className="p-3.5 bg-white border border-zinc-200 rounded-xl space-y-2.5 text-[11px] shadow-2xs">
-              {[
-                { token: "min", desc: "Admin 缩写，代指客服/掌柜" },
-                { token: "ongkir", desc: "Ongkos Kirim 缩写，代指快递运费" },
-                { token: "ga nyasar", desc: "免得跑偏/迷路，指示地标准确" },
-                { token: "kemahalan", desc: "价格太贵了，可触发优惠挽留" },
-                { token: "bisa COD ga", desc: "能否货到付款，高意向询盘" },
-              ].map((s, idx) => (
+              {MOCK_SLANG_LEXICON.map((s, idx) => (
                 <div key={idx} className="flex items-start gap-1.5">
                   <span className="font-bold text-zinc-900 bg-zinc-100 px-1.5 py-0.5 rounded border border-zinc-200 text-[10px]">
                     {s.token}

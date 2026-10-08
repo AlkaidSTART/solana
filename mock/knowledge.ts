@@ -44,3 +44,36 @@ export const MOCK_KNOWLEDGE_ITEMS: KnowledgeItem[] = [
     lastUpdated: "2026-10-07",
   },
 ];
+
+export interface AiTranslationPreset {
+  idText: string;
+  enText: string;
+  thText: string;
+  enSgText: string;
+  msText: string;
+  viText: string;
+  filText: string;
+}
+
+export const MOCK_AI_TRANSLATION_SAMPLE: AiTranslationPreset = {
+  idText: "Bisa kak, pengiriman ke seluruh kota Jabodetabek & Jawa Barat 1-2 hari sampai!",
+  enText: "Yes, delivery across Jabodetabek and West Java takes 1-2 business days.",
+  thText: "ได้ครับคุณลูกค้า จัดส่งทั่วกรุงเทพและปริมณฑลใช้เวลา 1-2 วันครับ",
+  enSgText: "Can lah! Islandwide doorstep courier across Singapore takes 1-2 days only.",
+  msText: "Boleh sis, penghantaran Semenanjung guna Pos Laju 1-2 hari bekerja sampai!",
+  viText: "Dạ được nha shop, giao hàng hoả tốc nội thành 1-2 ngày là nhận được ạ!",
+  filText: "Opo, 1-2 araw lang po ang delivery sa inyo via J&T Express!",
+};
+
+export function generateMockAiTranslation(snippet: string): AiTranslationPreset {
+  return {
+    idText: `Siap kak, untuk ${snippet}... kami bantu cek garansi ya.`,
+    enText: `Yes dear, regarding ${snippet}... our team will verify for you.`,
+    thText: `ครับผม สำหรับ ${snippet}... ทีมงานดูแลให้ครับ`,
+    enSgText: `Can help you check ${snippet} right away lah, don't worry!`,
+    msText: `Boleh sangat sis, untuk ${snippet}... kami semak untuk anda ya.`,
+    viText: `Dạ vâng, về ${snippet}... shop sẽ kiểm tra hỗ trợ bạn ngay ạ.`,
+    filText: `Opo, tungkol po sa ${snippet}... iche-check po namin agad para sa inyo.`,
+  };
+}
+

@@ -171,3 +171,17 @@ export const MOCK_CONVERSATIONS: Conversation[] = [
     ],
   },
 ];
+
+export interface SlangLexiconItem {
+  token: string;
+  desc: string;
+}
+
+export const MOCK_SLANG_LEXICON: SlangLexiconItem[] = [
+  { token: "min", desc: "Admin 缩写，代指客服/掌柜" },
+  { token: "ongkir", desc: "Ongkos Kirim 缩写，代指快递运费" },
+  { token: "ga nyasar", desc: "免得跑偏/迷路，指示地标准确" },
+  { token: "kemahalan", desc: "价格太贵了，可触发优惠挽留" },
+  { token: "bisa COD ga", desc: "能否货到付款，高意向询盘" },
+];
+

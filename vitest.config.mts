@@ -13,7 +13,7 @@ export default defineConfig({
   },
   test: {
     environment: "node",
-    include: ["lib/**/*.test.ts"],
+    include: ["{lib,stores,components}/**/*.test.{ts,tsx}"],
     testTimeout: 30000,
   },
 });
