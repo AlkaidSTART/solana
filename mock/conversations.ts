@@ -185,3 +185,15 @@ export const MOCK_SLANG_LEXICON: SlangLexiconItem[] = [
   { token: "bisa COD ga", desc: "能否货到付款，高意向询盘" },
 ];
 
+export const MOCK_QUICK_REPLIES: string[] = [
+  "Siap kak, paket akan segera kami kirim!",
+  "Bisa COD kok kak, mohon siapkan uang pas ya.",
+  "Ada diskon ongkir Rp 10.000 khusus hari ini kak!",
+];
+
+export const MOCK_DEMO_BUYER_ORDER = {
+  orderId: "ord_id_9821",
+  displayLabel: "#ID-9821 (COD Rp 389.000)",
+};
+
+

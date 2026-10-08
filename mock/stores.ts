@@ -120,3 +120,73 @@ export const MOCK_TEMPLATES: TemplateItem[] = [
       "Hi {{1}}! Ang inyong COD order #{{2}} na nagkakahalaga ng {{3}} ay handa nang i-ship sa {{4}}. Pakikumpirma po ang landmark ng inyong delivery address.",
   },
 ];
+
+export interface StoreRuntimeInfo {
+  id: string;
+  shortCode: string;
+  name: string;
+  platform: "WooCommerce" | "Shopify";
+  storeUrl: string;
+  webhookSecretMasked: string;
+  monthlyOrders: string;
+  currency: string;
+  timezone: string;
+  lastHeartbeat: string;
+  status: "connected" | "pending";
+}
+
+export const MOCK_STORE_RUNTIMES: StoreRuntimeInfo[] = [
+  {
+    id: "store_id_tokosepatu",
+    shortCode: "WC",
+    name: "TokoSepatu_ID (WooCommerce)",
+    platform: "WooCommerce",
+    storeUrl: "https://tokosepatu.co.id",
+    webhookSecretMasked: "whsec_88...19x (有效)",
+    monthlyOrders: "2,840 笔/月",
+    currency: "IDR (印尼盾)",
+    timezone: "Asia/Jakarta (WIB)",
+    lastHeartbeat: "1m ago",
+    status: "connected",
+  },
+  {
+    id: "store_th_bkkfashion",
+    shortCode: "SH",
+    name: "BKK_Fashion_TH (Shopify)",
+    platform: "Shopify",
+    storeUrl: "bkk-fashion-thai.myshopify.com",
+    webhookSecretMasked: "sh_sec_99...42k (有效)",
+    monthlyOrders: "1,420 笔/月",
+    currency: "THB (泰铢)",
+    timezone: "Asia/Bangkok (ICT)",
+    lastHeartbeat: "3m ago",
+    status: "connected",
+  },
+];
+
+export interface WabaAccountInfo {
+  officialNumber: string;
+  businessName: string;
+  quality: "HIGH" | "MEDIUM" | "LOW";
+  tier: string;
+  wabaId: string;
+  phoneId: string;
+  tokenDaysLeft: number;
+}
+
+export const MOCK_WABA_ACCOUNT_INFO: WabaAccountInfo = {
+  officialNumber: "+62 812-3456-7890",
+  businessName: "TokoSepatu Official",
+  quality: "HIGH",
+  tier: "Tier 2 (10,000 / 24h)",
+  wabaId: "902819280192",
+  phoneId: "102938192039",
+  tokenDaysLeft: 58,
+};
+
+export const MOCK_STORE_FORM_PRESETS = {
+  testPhone: "+62 812-9812-4412",
+  defaultBindPlatform: "WooCommerce" as const,
+  defaultBindStoreName: "Batik_Indo_Store",
+  defaultBindStoreUrl: "https://batikindo.co.id",
+};

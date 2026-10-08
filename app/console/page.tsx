@@ -17,7 +17,10 @@ import {
 } from "lucide-react";
 import { Tabs } from "@/components/ui/tabs";
 import { GsapEntrance, GsapStagger } from "@/components/ui/gsap-transition";
-import { MOCK_CONTROL_GROUP_METRICS } from "@/mock";
+import {
+  MOCK_CONTROL_GROUP_METRICS,
+  MOCK_OVERVIEW_SUMMARY_STATS,
+} from "@/mock";
 import { useOnboardingStore } from "@/stores/use-onboarding-store";
 
 export default function ConsoleOverviewPage() {
@@ -186,7 +189,7 @@ export default function ConsoleOverviewPage() {
         <div className="stat-card-cell h-full">
           <StatCard
             label={`${getI18nText(locale, "orders_tab_pending")} (${pendingOrders.length})`}
-            value="18"
+            value={MOCK_OVERVIEW_SUMMARY_STATS.pendingOrdersDefaultCount}
             subValue={getI18nText(locale, "overview_stat_pre_dispatch")}
             trend={{ text: getI18nText(locale, "overview_stat_today"), warning: true }}
             indicator={<Badge variant="warning">{getI18nText(locale, "status_pending")}</Badge>}
@@ -213,8 +216,8 @@ export default function ConsoleOverviewPage() {
         <div className="stat-card-cell h-full">
           <StatCard
             label={getI18nText(locale, "overview_stat_recovered")}
-            value="$ 1,420.00"
-            subValue={getI18nText(locale, "overview_stat_cod_rate") + ": 90.6%"}
+            value={MOCK_OVERVIEW_SUMMARY_STATS.recoveredGmvDefaultAmount}
+            subValue={`${getI18nText(locale, "overview_stat_cod_rate")}: ${MOCK_OVERVIEW_SUMMARY_STATS.landmarkVerifiedRate}`}
             trend={{ text: getI18nText(locale, "overview_stat_lift"), positive: true }}
             indicator={<TrendingUp className="w-3.5 h-3.5 text-[#059669]" />}
           />
@@ -245,7 +248,7 @@ export default function ConsoleOverviewPage() {
                 【1】{getI18nText(locale, "workflows_rule_cart_recovery")}
               </span>
               <span className="text-[#059669] font-bold">
-                Net Lift: +5.7% (Abs) / +47.1% (Rel)
+                {MOCK_OVERVIEW_SUMMARY_STATS.abandonedNetLiftLabel}
               </span>
             </div>
 

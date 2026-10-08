@@ -16,7 +16,11 @@ import {
 import { clsx } from "clsx";
 import { gsap } from "gsap";
 import { getI18nText } from "@/lib/i18n";
-import { MOCK_SLANG_LEXICON } from "@/mock";
+import {
+  MOCK_SLANG_LEXICON,
+  MOCK_QUICK_REPLIES,
+  MOCK_DEMO_BUYER_ORDER,
+} from "@/mock";
 
 export default function ConsoleInboxPage() {
   const {
@@ -312,7 +316,7 @@ export default function ConsoleInboxPage() {
               <div>
                 <span className="text-zinc-400 text-[10px] block">{getI18nText(locale, "inbox_profile_order")}</span>
                 <span className="text-emerald-700 font-bold">
-                  {activeChat?.orderId ? `#ID-9821 (COD Rp 389.000)` : getI18nText(locale, "inbox_profile_no_order")}
+                  {activeChat?.orderId ? MOCK_DEMO_BUYER_ORDER.displayLabel : getI18nText(locale, "inbox_profile_no_order")}
                 </span>
               </div>
             </div>
@@ -343,11 +347,7 @@ export default function ConsoleInboxPage() {
               {getI18nText(locale, "inbox_quick_replies")}
             </h3>
             <div className="space-y-1.5">
-              {[
-                "Siap kak, paket akan segera kami kirim!",
-                "Bisa COD kok kak, mohon siapkan uang pas ya.",
-                "Ada diskon ongkir Rp 10.000 khusus hari ini kak!",
-              ].map((phrase, i) => (
+              {MOCK_QUICK_REPLIES.map((phrase, i) => (
                 <button
                   key={i}
                   disabled={!activeChat?.isHumanTakeover}

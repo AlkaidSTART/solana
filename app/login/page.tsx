@@ -5,11 +5,12 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Mail } from "lucide-react";
+import { MOCK_DEMO_LOGIN_CREDENTIALS } from "@/mock";
 
 export default function LoginPage() {
   const router = useRouter();
-  const [email, setEmail] = useState("merchant@crossborder-shop.com");
-  const code = ["8", "9", "2", "1", "0", "4"];
+  const [email, setEmail] = useState(MOCK_DEMO_LOGIN_CREDENTIALS.email);
+  const code = MOCK_DEMO_LOGIN_CREDENTIALS.code;
   const sentCode = true;
   const [loading, setLoading] = useState(false);
 

@@ -15,22 +15,28 @@ import {
 } from "lucide-react";
 import { useAppStore } from "@/stores/use-app-store";
 import { getI18nText } from "@/lib/i18n";
-import { MOCK_TEMPLATES, type TemplateItem } from "@/mock";
+import {
+  MOCK_TEMPLATES,
+  MOCK_STORE_RUNTIMES,
+  MOCK_WABA_ACCOUNT_INFO,
+  MOCK_STORE_FORM_PRESETS,
+  type TemplateItem,
+} from "@/mock";
 
 export default function ConsoleStoresPage() {
   const { locale } = useAppStore();
   const [pingStatus, setPingStatus] = useState<"idle" | "testing" | "success">("idle");
   const [selectedTemplate, setSelectedTemplate] = useState<TemplateItem | null>(null);
   const [testDrawerOpen, setTestDrawerOpen] = useState(false);
-  const [testPhone, setTestPhone] = useState("+62 812-9812-4412");
+  const [testPhone, setTestPhone] = useState(MOCK_STORE_FORM_PRESETS.testPhone);
   const [testSending, setTestSending] = useState(false);
   const [testResult, setTestResult] = useState<string | null>(null);
 
   // 绑定新店铺模态框
   const [bindStoreModalOpen, setBindStoreModalOpen] = useState(false);
-  const [platform, setPlatform] = useState<"WooCommerce" | "Shopify">("WooCommerce");
-  const [storeName, setStoreName] = useState("Batik_Indo_Store");
-  const [storeUrl, setStoreUrl] = useState("https://batikindo.co.id");
+  const [platform, setPlatform] = useState<"WooCommerce" | "Shopify">(MOCK_STORE_FORM_PRESETS.defaultBindPlatform);
+  const [storeName, setStoreName] = useState(MOCK_STORE_FORM_PRESETS.defaultBindStoreName);
+  const [storeUrl, setStoreUrl] = useState(MOCK_STORE_FORM_PRESETS.defaultBindStoreUrl);
   const [isBinding, setIsBinding] = useState(false);
   const [bindSuccess, setBindSuccess] = useState(false);
 
@@ -100,105 +106,61 @@ export default function ConsoleStoresPage() {
           {getI18nText(locale, "stores_mod_ecommerce")}
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-          {/* 已连接: WooCommerce */}
-          <Card className="hover:border-zinc-900 transition-colors rounded-xl shadow-2xs">
-            <CardHeader>
-              <div className="flex items-center justify-between w-full">
-                <div className="flex items-center gap-2.5">
-                  <div className="w-8 h-8 rounded-lg bg-zinc-900 text-white flex items-center justify-center font-mono text-xs font-bold">
-                    WC
+          {MOCK_STORE_RUNTIMES.map((st) => (
+            <Card key={st.id} className="hover:border-zinc-900 transition-colors rounded-xl shadow-2xs">
+              <CardHeader>
+                <div className="flex items-center justify-between w-full">
+                  <div className="flex items-center gap-2.5">
+                    <div
+                      className={clsx(
+                        "w-8 h-8 rounded-lg text-white flex items-center justify-center font-mono text-xs font-bold",
+                        st.shortCode === "WC" ? "bg-zinc-900" : "bg-emerald-600"
+                      )}
+                    >
+                      {st.shortCode}
+                    </div>
+                    <div>
+                      <h3 className="text-xs font-mono font-bold text-zinc-900">
+                        {st.name}
+                      </h3>
+                      <span className="text-[10px] font-mono text-zinc-500">
+                        {st.storeUrl}
+                      </span>
+                    </div>
+                  </div>
+                  <Badge variant="success">
+                    {getI18nText(locale, "stores_connected_badge")}
+                  </Badge>
+                </div>
+              </CardHeader>
+              <CardContent className="space-y-3 text-xs font-mono">
+                <div className="grid grid-cols-2 gap-2 p-3 bg-zinc-50 rounded-lg border border-zinc-200">
+                  <div>
+                    <span className="text-zinc-500 text-[10px] block">{getI18nText(locale, "stores_col_webhook_sec")}</span>
+                    <span className="text-zinc-900 font-semibold">{st.webhookSecretMasked}</span>
                   </div>
                   <div>
-                    <h3 className="text-xs font-mono font-bold text-zinc-900">
-                      TokoSepatu_ID (WooCommerce)
-                    </h3>
-                    <span className="text-[10px] font-mono text-zinc-500">
-                      https://tokosepatu.co.id
-                    </span>
-                  </div>
-                </div>
-                <Badge variant="success">
-                  {getI18nText(locale, "stores_connected_badge")}
-                </Badge>
-              </div>
-            </CardHeader>
-            <CardContent className="space-y-3 text-xs font-mono">
-              <div className="grid grid-cols-2 gap-2 p-3 bg-zinc-50 rounded-lg border border-zinc-200">
-                <div>
-                  <span className="text-zinc-500 text-[10px] block">{getI18nText(locale, "stores_col_webhook_sec")}</span>
-                  <span className="text-zinc-900 font-semibold">whsec_88...19x (有效)</span>
-                </div>
-                <div>
-                  <span className="text-zinc-500 text-[10px] block">{getI18nText(locale, "stores_col_monthly_orders")}</span>
-                  <span className="text-zinc-900 font-semibold">2,840 笔/月</span>
-                </div>
-                <div>
-                  <span className="text-zinc-500 text-[10px] block">{getI18nText(locale, "stores_col_currency")}</span>
-                  <span className="text-zinc-900 font-semibold">IDR (印尼盾)</span>
-                </div>
-                <div>
-                  <span className="text-zinc-500 text-[10px] block">{getI18nText(locale, "stores_col_timezone")}</span>
-                  <span className="text-zinc-900 font-semibold">Asia/Jakarta (WIB)</span>
-                </div>
-              </div>
-              <div className="flex justify-between items-center pt-2">
-                <span className="text-[11px] text-zinc-500">{getI18nText(locale, "stores_last_heartbeat")}: 1m ago</span>
-                <Button size="sm" variant="outline">
-                  {getI18nText(locale, "stores_btn_manage_webhook")}
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* 已连接: Shopify */}
-          <Card className="hover:border-zinc-900 transition-colors rounded-xl shadow-2xs">
-            <CardHeader>
-              <div className="flex items-center justify-between w-full">
-                <div className="flex items-center gap-2.5">
-                  <div className="w-8 h-8 rounded-lg bg-emerald-600 text-white flex items-center justify-center font-mono text-xs font-bold">
-                    SH
+                    <span className="text-zinc-500 text-[10px] block">{getI18nText(locale, "stores_col_monthly_orders")}</span>
+                    <span className="text-zinc-900 font-semibold">{st.monthlyOrders}</span>
                   </div>
                   <div>
-                    <h3 className="text-xs font-mono font-bold text-zinc-900">
-                      BKK_Fashion_TH (Shopify)
-                    </h3>
-                    <span className="text-[10px] font-mono text-zinc-500">
-                      bkk-fashion-thai.myshopify.com
-                    </span>
+                    <span className="text-zinc-500 text-[10px] block">{getI18nText(locale, "stores_col_currency")}</span>
+                    <span className="text-zinc-900 font-semibold">{st.currency}</span>
+                  </div>
+                  <div>
+                    <span className="text-zinc-500 text-[10px] block">{getI18nText(locale, "stores_col_timezone")}</span>
+                    <span className="text-zinc-900 font-semibold">{st.timezone}</span>
                   </div>
                 </div>
-                <Badge variant="success">
-                  {getI18nText(locale, "stores_connected_badge")}
-                </Badge>
-              </div>
-            </CardHeader>
-            <CardContent className="space-y-3 text-xs font-mono">
-              <div className="grid grid-cols-2 gap-2 p-3 bg-zinc-50 rounded-lg border border-zinc-200">
-                <div>
-                  <span className="text-zinc-500 text-[10px] block">{getI18nText(locale, "stores_col_webhook_sec")}</span>
-                  <span className="text-zinc-900 font-semibold">sh_sec_99...42k (有效)</span>
+                <div className="flex justify-between items-center pt-2">
+                  <span className="text-[11px] text-zinc-500">{getI18nText(locale, "stores_last_heartbeat")}: {st.lastHeartbeat}</span>
+                  <Button size="sm" variant="outline">
+                    {getI18nText(locale, "stores_btn_manage_webhook")}
+                  </Button>
                 </div>
-                <div>
-                  <span className="text-zinc-500 text-[10px] block">{getI18nText(locale, "stores_col_monthly_orders")}</span>
-                  <span className="text-zinc-900 font-semibold">1,420 笔/月</span>
-                </div>
-                <div>
-                  <span className="text-zinc-500 text-[10px] block">{getI18nText(locale, "stores_col_currency")}</span>
-                  <span className="text-zinc-900 font-semibold">THB (泰铢)</span>
-                </div>
-                <div>
-                  <span className="text-zinc-500 text-[10px] block">{getI18nText(locale, "stores_col_timezone")}</span>
-                  <span className="text-zinc-900 font-semibold">Asia/Bangkok (ICT)</span>
-                </div>
-              </div>
-              <div className="flex justify-between items-center pt-2">
-                <span className="text-[11px] text-zinc-500">{getI18nText(locale, "stores_last_heartbeat")}: 3m ago</span>
-                <Button size="sm" variant="outline">
-                  {getI18nText(locale, "stores_btn_manage_webhook")}
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
+          ))}
         </div>
       </div>
 
@@ -212,7 +174,7 @@ export default function ConsoleStoresPage() {
             <div className="flex flex-col sm:flex-row sm:items-center justify-between w-full gap-2">
               <div className="flex items-center gap-2">
                 <h3 className="text-xs font-mono font-bold text-zinc-900">
-                  官方认证商业号码: +62 812-3456-7890 (TokoSepatu Official)
+                  官方认证商业号码: {MOCK_WABA_ACCOUNT_INFO.officialNumber} ({MOCK_WABA_ACCOUNT_INFO.businessName})
                 </h3>
               </div>
               <Badge variant="success">{getI18nText(locale, "stores_waba_verified")}</Badge>
@@ -222,19 +184,19 @@ export default function ConsoleStoresPage() {
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 p-4 bg-zinc-50 rounded-xl border border-zinc-200 text-xs font-mono">
               <div>
                 <span className="text-zinc-500 text-[10px] block">{getI18nText(locale, "stores_waba_quality")}</span>
-                <span className="text-emerald-700 font-bold">HIGH</span>
+                <span className="text-emerald-700 font-bold">{MOCK_WABA_ACCOUNT_INFO.quality}</span>
               </div>
               <div>
                 <span className="text-zinc-500 text-[10px] block">{getI18nText(locale, "stores_waba_tier")}</span>
-                <span className="text-zinc-900 font-bold">Tier 2 (10,000 / 24h)</span>
+                <span className="text-zinc-900 font-bold">{MOCK_WABA_ACCOUNT_INFO.tier}</span>
               </div>
               <div>
                 <span className="text-zinc-500 text-[10px] block">Meta WABA ID</span>
-                <span className="text-zinc-900 font-semibold">902819280192</span>
+                <span className="text-zinc-900 font-semibold">{MOCK_WABA_ACCOUNT_INFO.wabaId}</span>
               </div>
               <div>
                 <span className="text-zinc-500 text-[10px] block">Phone Number ID</span>
-                <span className="text-zinc-900 font-semibold">102938192039</span>
+                <span className="text-zinc-900 font-semibold">{MOCK_WABA_ACCOUNT_INFO.phoneId}</span>
               </div>
             </div>
 
@@ -245,7 +207,7 @@ export default function ConsoleStoresPage() {
                 <span>
                   {pingStatus === "success"
                     ? "Webhook 探测成功: HTTP 200 OK • 响应延迟 148ms"
-                    : "Webhook 订阅正常监听中 (Token 有效期剩余 58 天)"}
+                    : `Webhook 订阅正常监听中 (Token 有效期剩余 ${MOCK_WABA_ACCOUNT_INFO.tokenDaysLeft} 天)`}
                 </span>
               </div>
               <Button

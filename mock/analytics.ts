@@ -55,3 +55,18 @@ export const MOCK_CONTROL_GROUP_METRICS: ControlGroupMetric = {
     excessNote: "RTS Rate exceeds baseline by +6.8%",
   },
 };
+
+export interface OverviewSummaryStats {
+  pendingOrdersDefaultCount: string;
+  recoveredGmvDefaultAmount: string;
+  landmarkVerifiedRate: string;
+  abandonedNetLiftLabel: string;
+}
+
+export const MOCK_OVERVIEW_SUMMARY_STATS: OverviewSummaryStats = {
+  pendingOrdersDefaultCount: "18",
+  recoveredGmvDefaultAmount: "$ 1,420.00",
+  landmarkVerifiedRate: "90.6%",
+  abandonedNetLiftLabel: "Net Lift: +5.7% (Abs) / +47.1% (Rel)",
+};
+
