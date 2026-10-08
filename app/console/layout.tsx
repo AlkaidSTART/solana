@@ -187,15 +187,15 @@ export default function ConsoleLayout({
           {/* 侧栏底部环境元信息 */}
           <div className="p-3.5 border-t border-zinc-200 bg-zinc-50/70 text-[10px] font-mono text-zinc-500 space-y-1.5">
             <div className="flex justify-between">
-              <span>TENANT:</span>
-              <span className="text-zinc-900 font-medium">SEA_8892 (Demo)</span>
+              <span>{getI18nText(locale, "meta_tenant")}:</span>
+              <span className="text-zinc-900 font-medium">SEA_8892 ({getI18nText(locale, "demo_badge")})</span>
             </div>
             <div className="flex justify-between">
-              <span>TIMEZONE:</span>
+              <span>{getI18nText(locale, "meta_timezone")}:</span>
               <span className="text-zinc-900 truncate max-w-[100px]">WIB (UTC+7)</span>
             </div>
             <div className="flex justify-between">
-              <span>NETWORK:</span>
+              <span>{getI18nText(locale, "meta_network")}:</span>
               <span className="text-emerald-700 font-bold">Solana Devnet</span>
             </div>
           </div>

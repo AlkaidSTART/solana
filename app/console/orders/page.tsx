@@ -8,7 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Drawer } from "@/components/ui/drawer";
 import { Tabs } from "@/components/ui/tabs";
-import { GsapEntrance, GsapStagger, useGsapStagger } from "@/components/ui/gsap-transition";
+import { GsapEntrance, useGsapStagger } from "@/components/ui/gsap-transition";
 import {
   Search,
   Download,
