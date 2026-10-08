@@ -19,12 +19,6 @@ import { tenantApi, type TenantInfo } from "@/lib/api";
 
 export default function ConsoleSettingsPage() {
   const { locale } = useAppStore();
-  const [controlGroupEnabled, setControlGroupEnabled] = useState(true);
-  const [windowDays, setWindowDays] = useState(14);
-  const [confidenceRate, setConfidenceRate] = useState(95);
-  const [selectedTimezone, setSelectedTimezone] = useState("Asia/Jakarta");
-  const [selectedCurrency, setSelectedCurrency] = useState("IDR");
-  const [saveSuccess, setSaveSuccess] = useState(false);
 
   // 从后端查询租户配置与系统能力
   const { data: tenant, refetch: refetchTenant } = useQuery({
@@ -39,15 +33,18 @@ export default function ConsoleSettingsPage() {
     retry: false,
   });
 
-  React.useEffect(() => {
-    if (tenant) {
-      if (tenant.timezone) setSelectedTimezone(tenant.timezone);
-      if (tenant.currency) setSelectedCurrency(tenant.currency);
-      if (tenant.controlGroupEnabled !== undefined) setControlGroupEnabled(tenant.controlGroupEnabled);
-      if (tenant.attributionWindowDays !== undefined) setWindowDays(tenant.attributionWindowDays);
-      if (tenant.confidenceRate !== undefined) setConfidenceRate(tenant.confidenceRate);
-    }
-  }, [tenant]);
+  const [customControlGroup, setCustomControlGroup] = useState<boolean | null>(null);
+  const [customWindowDays, setCustomWindowDays] = useState<number | null>(null);
+  const [customConfidenceRate, setCustomConfidenceRate] = useState<number | null>(null);
+  const [customTimezone, setCustomTimezone] = useState<string | null>(null);
+  const [customCurrency, setCustomCurrency] = useState<string | null>(null);
+  const [saveSuccess, setSaveSuccess] = useState(false);
+
+  const controlGroupEnabled = customControlGroup ?? tenant?.controlGroupEnabled ?? true;
+  const windowDays = customWindowDays ?? tenant?.attributionWindowDays ?? 14;
+  const confidenceRate = customConfidenceRate ?? tenant?.confidenceRate ?? 95;
+  const selectedTimezone = customTimezone ?? tenant?.timezone ?? "Asia/Jakarta";
+  const selectedCurrency = customCurrency ?? tenant?.currency ?? "IDR";
 
   const updateTenantMutation = useMutation({
     mutationFn: (patch: Partial<TenantInfo>) => tenantApi.updateTenant(patch),
@@ -127,7 +124,7 @@ export default function ConsoleSettingsPage() {
                 </label>
                 <button
                   type="button"
-                  onClick={() => setControlGroupEnabled(!controlGroupEnabled)}
+                  onClick={() => setCustomControlGroup(!controlGroupEnabled)}
                   className="px-3 py-1.5 bg-white border border-[#E4E4E7] text-[#09090B] font-bold cursor-pointer hover:border-[#09090B]"
                 >
                   {controlGroupEnabled ? getI18nText(locale, "settings_control_enabled") : getI18nText(locale, "settings_control_disabled")}
@@ -140,7 +137,7 @@ export default function ConsoleSettingsPage() {
                 </label>
                 <select
                   value={windowDays}
-                  onChange={(e) => setWindowDays(Number(e.target.value))}
+                  onChange={(e) => setCustomWindowDays(Number(e.target.value))}
                   className="w-full p-1.5 bg-white border border-[#E4E4E7] text-[#09090B] cursor-pointer"
                 >
                   <option value={7}>{getI18nText(locale, "settings_opt_window_7")}</option>
@@ -155,7 +152,7 @@ export default function ConsoleSettingsPage() {
                 </label>
                 <select
                   value={confidenceRate}
-                  onChange={(e) => setConfidenceRate(Number(e.target.value))}
+                  onChange={(e) => setCustomConfidenceRate(Number(e.target.value))}
                   className="w-full p-1.5 bg-white border border-[#E4E4E7] text-[#09090B] cursor-pointer"
                 >
                   <option value={90}>{getI18nText(locale, "settings_opt_conf_90")}</option>
@@ -182,7 +179,7 @@ export default function ConsoleSettingsPage() {
                 </label>
                 <select
                   value={selectedTimezone}
-                  onChange={(e) => setSelectedTimezone(e.target.value)}
+                  onChange={(e) => setCustomTimezone(e.target.value)}
                   className="w-full p-2 bg-white border border-[#E4E4E7] text-[#09090B] cursor-pointer"
                 >
                   <option value="Asia/Singapore">Asia/Singapore (新加坡时间 SGT, UTC+8)</option>
@@ -200,7 +197,7 @@ export default function ConsoleSettingsPage() {
                 </label>
                 <select
                   value={selectedCurrency}
-                  onChange={(e) => setSelectedCurrency(e.target.value)}
+                  onChange={(e) => setCustomCurrency(e.target.value)}
                   className="w-full p-2 bg-white border border-[#E4E4E7] text-[#09090B] cursor-pointer"
                 >
                   <option value="SGD">SGD (S$ 新加坡元)</option>

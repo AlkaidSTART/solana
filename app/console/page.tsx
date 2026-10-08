@@ -21,8 +21,10 @@ import {
   MOCK_CONTROL_GROUP_METRICS,
   MOCK_OVERVIEW_SUMMARY_STATS,
 } from "@/mock";
+import { useOnboardingStore } from "@/stores/use-onboarding-store";
+import type { OrderItem } from "@/stores/use-app-store";
 import { useQuery } from "@tanstack/react-query";
-import { billingApi, ordersApi, tenantApi } from "@/lib/api";
+import { billingApi, ordersApi, tenantApi, type ApiOrderRecord } from "@/lib/api";
 
 export default function ConsoleOverviewPage() {
   const { credits, orders, conversations, locale, currentStoreId } = useAppStore();
@@ -58,8 +60,27 @@ export default function ConsoleOverviewPage() {
   const showOnboardingResume = isMounted && (hasStarted || currentStep > 2) && !isCompleted;
 
   const pendingTakeovers = conversations.filter((c) => c.isHumanTakeover || c.unread);
-  const pendingOrders = apiOrders?.items
-    ? apiOrders.items.filter((o) => o.orderStatus === "pending")
+  const mappedApiOrders: OrderItem[] | null = apiOrders?.items
+    ? apiOrders.items.map((ao: ApiOrderRecord): OrderItem => ({
+        id: ao.id,
+        orderNumber: ao.platformOrderId || ao.id.slice(0, 8),
+        storeId: ao.storeId,
+        customerName: "Buyer " + ao.id.slice(0, 4),
+        customerPhone: "+62 812-****-****",
+        amountLocal: `${ao.currency} ${ao.totalMinor}`,
+        amountUsd: `$${(Number(ao.totalMinor) / 15000).toFixed(2)}`,
+        type: ao.isCod ? "COD" : "ABANDONED_CHECKOUT",
+        status: (ao.orderStatus.toUpperCase() as OrderItem["status"]) || "PENDING",
+        language: (ao.locale as OrderItem["language"]) || "id_ID",
+        createdAt: new Date(ao.createdAt).toLocaleString(),
+        steps: [
+          { title: "订单创建", timestamp: new Date(ao.createdAt).toLocaleTimeString(), completed: true },
+        ],
+      }))
+    : null;
+
+  const pendingOrders = mappedApiOrders
+    ? mappedApiOrders.filter((o) => o.status === "PENDING")
     : orders.filter((o) => o.status === "PENDING");
 
   const effectiveAvailableCredits =
@@ -184,7 +205,7 @@ export default function ConsoleOverviewPage() {
             <Badge variant="outline">{getI18nText(locale, "demo_badge")}</Badge>
           </div>
           <p className="text-xs text-[#71717A] font-mono mt-0.5">
-            {getI18nText(locale, "overview_recent_activity")}
+            {tenant?.name ? `${tenant.name} · ` : ""}{getI18nText(locale, "overview_recent_activity")}
           </p>
         </div>
 

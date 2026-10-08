@@ -20,13 +20,64 @@ import { clsx } from "clsx";
 import { getI18nText } from "@/lib/i18n";
 import { MOCK_AI_TRANSLATION_SAMPLE, generateMockAiTranslation } from "@/mock";
 
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { knowledgeApi } from "@/lib/api";
+
 export default function ConsoleKnowledgePage() {
-  const { knowledgeItems, updateKnowledgeItem, addKnowledgeItem, locale } = useAppStore();
+  const queryClient = useQueryClient();
+  const { knowledgeItems, updateKnowledgeItem, addKnowledgeItem, locale, currentStoreId } = useAppStore();
   const [selectedItem, setSelectedItem] = useState<KnowledgeItem | null>(null);
   const [statusFilter, setStatusFilter] = useState<string>("ALL");
   const [searchQuery, setSearchQuery] = useState("");
   const [editSuccess, setEditSuccess] = useState(false);
   const [isTranslating, setIsTranslating] = useState(false);
+
+  // 从后端 /api/v1/knowledge-items 获取知识库条目
+  const { data: apiKnowledgeData } = useQuery({
+    queryKey: ["knowledge-items", currentStoreId, statusFilter, searchQuery],
+    queryFn: () =>
+      knowledgeApi.listItems({
+        storeId: currentStoreId,
+        status: statusFilter !== "ALL" ? statusFilter : undefined,
+        search: searchQuery || undefined,
+      }),
+    retry: false,
+  });
+
+  // 从后端获取知识冲突
+  const { data: apiConflictsData } = useQuery({
+    queryKey: ["knowledge-conflicts"],
+    queryFn: () => knowledgeApi.listConflicts(),
+    retry: false,
+  });
+
+  // 编辑更新 Mutation
+  const updateMutation = useMutation({
+    mutationFn: async ({ id, patch }: { id: string; patch: Partial<KnowledgeItem> }) => {
+      try {
+        await knowledgeApi.updateItem(id, patch);
+      } catch {
+        // 沙盒降级
+      }
+    },
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ["knowledge-items"] });
+    },
+  });
+
+  // 创建条目 Mutation
+  const createMutation = useMutation({
+    mutationFn: async (item: KnowledgeItem) => {
+      try {
+        await knowledgeApi.createItem(item);
+      } catch {
+        // 沙盒降级
+      }
+    },
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ["knowledge-items"] });
+    },
+  });
 
   // 编辑临时状态（中/印尼/英/泰 + 新加坡/大马/越南/菲律宾）
   const [zhText, setZhText] = useState("");
@@ -106,7 +157,7 @@ export default function ConsoleKnowledgePage() {
 
   const handleSave = () => {
     if (!selectedItem) return;
-    updateKnowledgeItem(selectedItem.id, {
+    const patch = {
       zh: zhText,
       idGaul: idText,
       en: enText,
@@ -115,9 +166,11 @@ export default function ConsoleKnowledgePage() {
       ms: msText,
       vi: viText,
       fil: filText,
-      status: "PUBLISHED",
+      status: "PUBLISHED" as const,
       lastUpdated: "Just now",
-    });
+    };
+    updateMutation.mutate({ id: selectedItem.id, patch });
+    updateKnowledgeItem(selectedItem.id, patch);
     setEditSuccess(true);
     setTimeout(() => {
       setSelectedItem(null);
@@ -144,6 +197,7 @@ export default function ConsoleKnowledgePage() {
       lastUpdated: "Just now",
     };
 
+    createMutation.mutate(newItem);
     addKnowledgeItem(newItem);
     setNewDrawerOpen(false);
     setNewZh("");
@@ -182,6 +236,17 @@ export default function ConsoleKnowledgePage() {
         </Button>
       </div>
 
+      {/* 知识冲突告警条 */}
+      {apiConflictsData?.items && apiConflictsData.items.length > 0 && (
+        <div className="p-3 bg-amber-500/10 border border-amber-500/20 text-amber-800 text-xs font-mono rounded-lg flex items-center justify-between">
+          <span>
+            {locale === "zh_CN"
+              ? `检测到 ${apiConflictsData.items.length} 处多语言版本冲突待审核`
+              : `Detected ${apiConflictsData.items.length} translation conflicts pending review`}
+          </span>
+        </div>
+      )}
+
       {/* 筛选与搜索 */}
       <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 p-4 bg-zinc-50/70 border border-zinc-200 rounded-xl shadow-2xs">
         <div className="relative flex-1 max-w-md">
@@ -207,7 +272,7 @@ export default function ConsoleKnowledgePage() {
             ]}
           />
           <span className="text-xs font-mono text-zinc-500 hidden sm:inline">
-            ({filteredItems.length})
+            ({apiKnowledgeData?.items ? apiKnowledgeData.items.length : filteredItems.length})
           </span>
         </div>
       </div>

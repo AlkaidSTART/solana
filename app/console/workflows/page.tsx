@@ -17,8 +17,12 @@ import {
 import { clsx } from "clsx";
 import { MOCK_ROUTING_MATRIX } from "@/mock";
 
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { workflowsApi, type WorkflowRecord } from "@/lib/api";
+
 export default function ConsoleWorkflowsPage() {
-  const { workflows, toggleWorkflow, rollbackWorkflow, locale } = useAppStore();
+  const queryClient = useQueryClient();
+  const { workflows, toggleWorkflow, rollbackWorkflow, locale, currentStoreId } = useAppStore();
   const [selectedWorkflow, setSelectedWorkflow] = useState<WorkflowRule | null>(null);
   const [rollbackSuccess, setRollbackSuccess] = useState(false);
 
@@ -30,18 +34,81 @@ export default function ConsoleWorkflowsPage() {
   const [newRuleDesc, setNewRuleDesc] = useState("");
   const [createSuccess, setCreateSuccess] = useState(false);
 
+  // 从后端 /api/v1/workflows 获取规则列表
+  const { data: apiWorkflowsData, refetch: refetchWorkflows } = useQuery({
+    queryKey: ["workflows", currentStoreId],
+    queryFn: () => workflowsApi.listWorkflows({ storeId: currentStoreId }),
+    retry: false,
+  });
+
+  const displayWorkflows =
+    apiWorkflowsData?.items && apiWorkflowsData.items.length > 0
+      ? apiWorkflowsData.items.map((aw: WorkflowRecord): WorkflowRule => ({
+          id: aw.id,
+          code: aw.code,
+          name: aw.name,
+          description: aw.description || `Workflow ${aw.name}`,
+          enabled: aw.status === "active",
+          version: aw.version,
+          triggerDelay: aw.triggerDelay || "30 分钟",
+          languages: aw.languages || ["id_ID", "en_US"],
+          quietHours: aw.quietHours || "22:00-08:00",
+          maxFrequency: aw.maxFrequency || "每单 3 次",
+        }))
+      : workflows;
+
+  // 启停工作流规则 Mutation
+  const toggleMutation = useMutation({
+    mutationFn: async ({ wfId, currentlyEnabled }: { wfId: string; currentlyEnabled: boolean }) => {
+      try {
+        if (currentlyEnabled) {
+          await workflowsApi.pauseWorkflow(wfId);
+        } else {
+          await workflowsApi.activateWorkflow(wfId);
+        }
+      } catch {
+        // 沙盒降级
+      }
+    },
+    onSuccess: (_, vars) => {
+      toggleWorkflow(vars.wfId);
+      void queryClient.invalidateQueries({ queryKey: ["workflows"] });
+      void refetchWorkflows();
+    },
+  });
+
+  // 回滚规则版本 Mutation
+  const rollbackMutation = useMutation({
+    mutationFn: async ({ wfId, version }: { wfId: string; version: string }) => {
+      try {
+        await workflowsApi.restoreVersion(wfId, version);
+      } catch {
+        // 沙盒降级
+      }
+    },
+    onSuccess: (_, vars) => {
+      rollbackWorkflow(vars.wfId, vars.version);
+      setRollbackSuccess(true);
+      void queryClient.invalidateQueries({ queryKey: ["workflows"] });
+      setTimeout(() => {
+        setRollbackSuccess(false);
+        setSelectedWorkflow(null);
+      }, 800);
+    },
+  });
+
   const handleRollback = (wfId: string, version: string) => {
-    rollbackWorkflow(wfId, version);
-    setRollbackSuccess(true);
-    setTimeout(() => {
-      setRollbackSuccess(false);
-      setSelectedWorkflow(null);
-    }, 800);
+    rollbackMutation.mutate({ wfId, version });
+  };
+
+  const handleToggle = (wfId: string, enabled: boolean) => {
+    toggleMutation.mutate({ wfId, currentlyEnabled: enabled });
   };
 
   const handleCreateRuleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setCreateSuccess(true);
+    void queryClient.invalidateQueries({ queryKey: ["workflows"] });
     setTimeout(() => {
       setCreateSuccess(false);
       setCreateModalOpen(false);
@@ -78,7 +145,7 @@ export default function ConsoleWorkflowsPage() {
 
       {/* 核心工作流列表 */}
       <div className="space-y-4">
-        {workflows.map((wf) => (
+        {displayWorkflows.map((wf) => (
           <Card key={wf.id} className="hover:border-zinc-900 transition-colors rounded-xl shadow-2xs">
             <CardHeader>
               <div className="flex flex-col sm:flex-row sm:items-center justify-between w-full gap-2">
@@ -101,7 +168,8 @@ export default function ConsoleWorkflowsPage() {
                 <div className="flex items-center gap-3">
                   {/* 启停开关 */}
                   <button
-                    onClick={() => toggleWorkflow(wf.id)}
+                    disabled={toggleMutation.isPending}
+                    onClick={() => handleToggle(wf.id, wf.enabled)}
                     className={clsx(
                       "px-3 py-1.5 text-xs font-mono uppercase rounded-lg border transition-all cursor-pointer flex items-center gap-1.5",
                       wf.enabled

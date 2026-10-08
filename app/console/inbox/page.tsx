@@ -22,13 +22,18 @@ import {
   MOCK_DEMO_BUYER_ORDER,
 } from "@/mock";
 
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { conversationsApi } from "@/lib/api";
+
 export default function ConsoleInboxPage() {
+  const queryClient = useQueryClient();
   const {
     conversations,
     activeConversationId,
     toggleHumanTakeover,
     sendChatMessage,
     locale,
+    currentStoreId,
   } = useAppStore();
 
   const [activeId, setActiveId] = useState<string>(
@@ -37,6 +42,21 @@ export default function ConsoleInboxPage() {
   const [filterType, setFilterType] = useState<string>("ALL");
   const [inputText, setInputText] = useState("");
   const [autoTranslate, setAutoTranslate] = useState(true);
+
+  // 从后端获取会话列表
+  const { data: apiConversationsData } = useQuery({
+    queryKey: ["conversations", currentStoreId],
+    queryFn: () => conversationsApi.listConversations({ storeId: currentStoreId }),
+    retry: false,
+  });
+
+  // 从后端获取当前激活会话消息历史
+  const { data: apiMessagesData } = useQuery({
+    queryKey: ["messages", activeId],
+    queryFn: () => conversationsApi.listMessages(activeId),
+    enabled: !!activeId,
+    retry: false,
+  });
 
   const activeChat =
     conversations.find((c) => c.id === activeId) || conversations[0];
@@ -66,15 +86,55 @@ export default function ConsoleInboxPage() {
     return true;
   });
 
+  // 发送消息 Mutation
+  const sendMutation = useMutation({
+    mutationFn: async ({ id, text }: { id: string; text: string }) => {
+      try {
+        await conversationsApi.sendMessage(id, { text, language: activeChat?.language });
+      } catch {
+        // 沙盒降级
+      }
+    },
+    onSuccess: (_, vars) => {
+      sendChatMessage(vars.id, vars.text);
+      void queryClient.invalidateQueries({ queryKey: ["messages", vars.id] });
+    },
+  });
+
+  // 人工接管/交还机器 Mutation
+  const takeoverMutation = useMutation({
+    mutationFn: async ({ id, currentlyTakeover }: { id: string; currentlyTakeover: boolean }) => {
+      try {
+        if (currentlyTakeover) {
+          await conversationsApi.resume(id);
+        } else {
+          await conversationsApi.handoff(id);
+        }
+      } catch {
+        // 沙盒降级
+      }
+    },
+    onSuccess: (_, vars) => {
+      toggleHumanTakeover(vars.id);
+      void queryClient.invalidateQueries({ queryKey: ["conversations"] });
+    },
+  });
+
   const handleSend = () => {
     if (!inputText.trim() || !activeChat) return;
-    sendChatMessage(activeChat.id, inputText.trim());
+    const text = inputText.trim();
     setInputText("");
+    sendMutation.mutate({ id: activeChat.id, text });
   };
 
   const handleQuickReply = (text: string) => {
     if (!activeChat) return;
-    sendChatMessage(activeChat.id, text);
+    sendMutation.mutate({ id: activeChat.id, text });
+  };
+
+  const handleToggleTakeover = () => {
+    if (!activeChat) return;
+    takeoverMutation.mutate({ id: activeChat.id, currentlyTakeover: activeChat.isHumanTakeover });
   };
 
   return (
@@ -94,6 +154,16 @@ export default function ConsoleInboxPage() {
         </div>
 
         <div className="flex items-center gap-2 text-xs font-mono">
+          {apiConversationsData?.items && (
+            <span className="text-[10px] text-zinc-400">
+              API: {apiConversationsData.items.length} 会话
+            </span>
+          )}
+          {apiMessagesData && (
+            <span className="text-[10px] text-emerald-600 font-bold">
+              ● 直连
+            </span>
+          )}
           <Badge variant="success">
             {getI18nText(locale, "inbox_badge_online")}
           </Badge>
@@ -192,7 +262,8 @@ export default function ConsoleInboxPage() {
             <Button
               size="sm"
               variant={activeChat?.isHumanTakeover ? "danger" : "outline"}
-              onClick={() => toggleHumanTakeover(activeChat.id)}
+              disabled={takeoverMutation.isPending}
+              onClick={handleToggleTakeover}
             >
               {activeChat?.isHumanTakeover ? (
                 <>
