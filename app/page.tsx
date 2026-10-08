@@ -10,6 +10,7 @@ import { HeroTopoCanvas } from "@/components/landing/topo-mesh";
 import { SeaTopologyGlobe } from "@/components/landing/three-sea-globe";
 import { SolanaSettlementCoin3D } from "@/components/landing/three-solana-coin";
 import { Button } from "@/components/ui/button";
+import { GsapEntrance, GsapStagger } from "@/components/ui/gsap-transition";
 import {
   ArrowRight,
   Sparkles,
