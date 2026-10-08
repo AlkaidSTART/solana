@@ -97,7 +97,7 @@ export default function ConsoleStoresPage() {
       {/* 模块 1: 电商店铺直连状态 */}
       <div className="space-y-3">
         <h2 className="text-xs font-mono uppercase tracking-wider font-bold text-zinc-500">
-          01 · ECOMMERCE STORES 直连授权
+          {getI18nText(locale, "stores_mod_ecommerce")}
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
           {/* 已连接: WooCommerce */}
@@ -118,33 +118,33 @@ export default function ConsoleStoresPage() {
                   </div>
                 </div>
                 <Badge variant="success">
-                  已连接
+                  {getI18nText(locale, "stores_connected_badge")}
                 </Badge>
               </div>
             </CardHeader>
             <CardContent className="space-y-3 text-xs font-mono">
               <div className="grid grid-cols-2 gap-2 p-3 bg-zinc-50 rounded-lg border border-zinc-200">
                 <div>
-                  <span className="text-zinc-500 text-[10px] block">Webhook 签名</span>
+                  <span className="text-zinc-500 text-[10px] block">{getI18nText(locale, "stores_col_webhook_sec")}</span>
                   <span className="text-zinc-900 font-semibold">whsec_88...19x (有效)</span>
                 </div>
                 <div>
-                  <span className="text-zinc-500 text-[10px] block">月同步订单</span>
+                  <span className="text-zinc-500 text-[10px] block">{getI18nText(locale, "stores_col_monthly_orders")}</span>
                   <span className="text-zinc-900 font-semibold">2,840 笔/月</span>
                 </div>
                 <div>
-                  <span className="text-zinc-500 text-[10px] block">店铺币种</span>
+                  <span className="text-zinc-500 text-[10px] block">{getI18nText(locale, "stores_col_currency")}</span>
                   <span className="text-zinc-900 font-semibold">IDR (印尼盾)</span>
                 </div>
                 <div>
-                  <span className="text-zinc-500 text-[10px] block">店铺时区</span>
+                  <span className="text-zinc-500 text-[10px] block">{getI18nText(locale, "stores_col_timezone")}</span>
                   <span className="text-zinc-900 font-semibold">Asia/Jakarta (WIB)</span>
                 </div>
               </div>
               <div className="flex justify-between items-center pt-2">
-                <span className="text-[11px] text-zinc-500">最近心跳: 1 分钟前</span>
+                <span className="text-[11px] text-zinc-500">{getI18nText(locale, "stores_last_heartbeat")}: 1m ago</span>
                 <Button size="sm" variant="outline">
-                  管理 Webhook
+                  {getI18nText(locale, "stores_btn_manage_webhook")}
                 </Button>
               </div>
             </CardContent>
@@ -168,33 +168,33 @@ export default function ConsoleStoresPage() {
                   </div>
                 </div>
                 <Badge variant="success">
-                  已连接
+                  {getI18nText(locale, "stores_connected_badge")}
                 </Badge>
               </div>
             </CardHeader>
             <CardContent className="space-y-3 text-xs font-mono">
               <div className="grid grid-cols-2 gap-2 p-3 bg-zinc-50 rounded-lg border border-zinc-200">
                 <div>
-                  <span className="text-zinc-500 text-[10px] block">Webhook 签名</span>
+                  <span className="text-zinc-500 text-[10px] block">{getI18nText(locale, "stores_col_webhook_sec")}</span>
                   <span className="text-zinc-900 font-semibold">sh_sec_99...42k (有效)</span>
                 </div>
                 <div>
-                  <span className="text-zinc-500 text-[10px] block">月同步订单</span>
+                  <span className="text-zinc-500 text-[10px] block">{getI18nText(locale, "stores_col_monthly_orders")}</span>
                   <span className="text-zinc-900 font-semibold">1,420 笔/月</span>
                 </div>
                 <div>
-                  <span className="text-zinc-500 text-[10px] block">店铺币种</span>
+                  <span className="text-zinc-500 text-[10px] block">{getI18nText(locale, "stores_col_currency")}</span>
                   <span className="text-zinc-900 font-semibold">THB (泰铢)</span>
                 </div>
                 <div>
-                  <span className="text-zinc-500 text-[10px] block">店铺时区</span>
+                  <span className="text-zinc-500 text-[10px] block">{getI18nText(locale, "stores_col_timezone")}</span>
                   <span className="text-zinc-900 font-semibold">Asia/Bangkok (ICT)</span>
                 </div>
               </div>
               <div className="flex justify-between items-center pt-2">
-                <span className="text-[11px] text-zinc-500">最近心跳: 3 分钟前</span>
+                <span className="text-[11px] text-zinc-500">{getI18nText(locale, "stores_last_heartbeat")}: 3m ago</span>
                 <Button size="sm" variant="outline">
-                  管理 Webhook
+                  {getI18nText(locale, "stores_btn_manage_webhook")}
                 </Button>
               </div>
             </CardContent>
@@ -205,7 +205,7 @@ export default function ConsoleStoresPage() {
       {/* 模块 2: WhatsApp 商业账号 (WABA) 状态卡片 */}
       <div className="space-y-3">
         <h2 className="text-xs font-mono uppercase tracking-wider font-bold text-zinc-500">
-          02 · WHATSAPP BUSINESS ACCOUNT (WABA 自有商业号)
+          {getI18nText(locale, "stores_mod_waba")}
         </h2>
         <Card className="rounded-xl shadow-2xs">
           <CardHeader>
@@ -215,17 +215,17 @@ export default function ConsoleStoresPage() {
                   官方认证商业号码: +62 812-3456-7890 (TokoSepatu Official)
                 </h3>
               </div>
-              <Badge variant="success">Meta 官方绿标认证</Badge>
+              <Badge variant="success">{getI18nText(locale, "stores_waba_verified")}</Badge>
             </div>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 p-4 bg-zinc-50 rounded-xl border border-zinc-200 text-xs font-mono">
               <div>
-                <span className="text-zinc-500 text-[10px] block">质量评级 (Quality)</span>
-                <span className="text-emerald-700 font-bold">HIGH (最高等级)</span>
+                <span className="text-zinc-500 text-[10px] block">{getI18nText(locale, "stores_waba_quality")}</span>
+                <span className="text-emerald-700 font-bold">HIGH</span>
               </div>
               <div>
-                <span className="text-zinc-500 text-[10px] block">发送配额 (Messaging Tier)</span>
+                <span className="text-zinc-500 text-[10px] block">{getI18nText(locale, "stores_waba_tier")}</span>
                 <span className="text-zinc-900 font-bold">Tier 2 (10,000 / 24h)</span>
               </div>
               <div>
@@ -257,10 +257,10 @@ export default function ConsoleStoresPage() {
                 {pingStatus === "testing" ? (
                   <>
                     <RefreshCw className="w-3 h-3 mr-1.5 animate-spin" />
-                    正在 Ping Meta API...
+                    {getI18nText(locale, "stores_waba_ping_running")}
                   </>
                 ) : (
-                  "执行 Webhook 连通性自测 (Ping)"
+                  getI18nText(locale, "stores_waba_ping_btn")
                 )}
               </Button>
             </div>
@@ -275,7 +275,7 @@ export default function ConsoleStoresPage() {
             {getI18nText(locale, "stores_waba_templates")}
           </h2>
           <span className="text-[11px] font-mono text-zinc-500">
-            共 4 套获批模板 (印尼语 / 泰语 / 英语)
+            4 Templates (ID / TH / EN / SG)
           </span>
         </div>
 
@@ -303,14 +303,14 @@ export default function ConsoleStoresPage() {
 
                 <div className="flex items-center gap-2 self-end sm:self-auto shrink-0">
                   <Badge variant="success">
-                    获批生效 (Approved)
+                    {getI18nText(locale, "stores_template_approved")}
                   </Badge>
                   <Button
                     size="sm"
                     variant="outline"
                     onClick={() => setSelectedTemplate(tmpl)}
                   >
-                    预览与变量
+                    {getI18nText(locale, "stores_template_preview_btn")}
                   </Button>
                 </div>
               </div>
@@ -323,15 +323,15 @@ export default function ConsoleStoresPage() {
       <Drawer
         open={!!selectedTemplate}
         onClose={() => setSelectedTemplate(null)}
-        title={selectedTemplate?.name || "模板详情"}
-        subtitle={`语言: ${selectedTemplate?.language} • 状态: APPROVED`}
+        title={selectedTemplate?.name || getI18nText(locale, "stores_template_preview_btn")}
+        subtitle={`Language: ${selectedTemplate?.language} • Status: APPROVED`}
         width="md"
       >
         {selectedTemplate && (
           <div className="space-y-5 text-xs font-mono">
             <div>
               <span className="text-zinc-500 uppercase text-[10px] block mb-1">
-                Meta 官方原始模板正文
+                Meta Official Raw Template
               </span>
               <div className="p-3.5 bg-zinc-50 rounded-lg border border-zinc-200 text-zinc-900 leading-relaxed font-sans">
                 {selectedTemplate.content}
@@ -340,31 +340,31 @@ export default function ConsoleStoresPage() {
 
             <div>
               <span className="text-zinc-500 uppercase text-[10px] block mb-2 font-bold">
-                动态插槽变量映射 (Slots)
+                Dynamic Slot Variables Mapping (Slots)
               </span>
               <div className="space-y-2 border border-zinc-200 rounded-lg p-3.5 bg-white">
                 <div className="flex justify-between">
                   <span className="text-zinc-500">&#123;&#123;1&#125;&#125;</span>
-                  <span className="text-zinc-900 font-medium">买家称呼 (Customer Name)</span>
+                  <span className="text-zinc-900 font-medium">Customer Name</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-zinc-500">&#123;&#123;2&#125;&#125;</span>
-                  <span className="text-zinc-900 font-medium">店铺名称 / 订单号 (Store / Order ID)</span>
+                  <span className="text-zinc-900 font-medium">Store / Order ID</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-zinc-500">&#123;&#123;3&#125;&#125;</span>
-                  <span className="text-zinc-900 font-medium">商品缩写 / 配送地址 (Items / Address)</span>
+                  <span className="text-zinc-900 font-medium">Items / Delivery Address</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-zinc-500">&#123;&#123;4&#125;&#125;</span>
-                  <span className="text-zinc-900 font-medium">直接支付链接 / 确认动作胶囊 (Action Link)</span>
+                  <span className="text-zinc-900 font-medium">Payment Link / Action Capsule</span>
                 </div>
               </div>
             </div>
 
             <div className="pt-4 border-t border-zinc-200">
               <Button onClick={() => setSelectedTemplate(null)} className="w-full">
-                关闭预览
+                {getI18nText(locale, "action_close")}
               </Button>
             </div>
           </div>
@@ -375,14 +375,14 @@ export default function ConsoleStoresPage() {
       <Drawer
         open={testDrawerOpen}
         onClose={() => setTestDrawerOpen(false)}
-        title="通道连通性与自测工具"
-        subtitle="向指定测试手机号发送真实/模拟 WhatsApp 消息"
+        title={getI18nText(locale, "stores_drawer_ping_title")}
+        subtitle={getI18nText(locale, "stores_drawer_ping_sub")}
         width="md"
       >
         <div className="space-y-4 text-xs font-mono">
           <div>
             <label className="text-zinc-500 uppercase text-[10px] block mb-1 font-bold">
-              测试目标号码 (带国际区号，如 +62 812xxxx)
+              {getI18nText(locale, "stores_drawer_ping_phone")}
             </label>
             <input
               type="text"
@@ -394,17 +394,17 @@ export default function ConsoleStoresPage() {
 
           <div>
             <label className="text-zinc-500 uppercase text-[10px] block mb-1 font-bold">
-              选择下发测试模板
+              {getI18nText(locale, "stores_drawer_ping_template")}
             </label>
             <select className="w-full p-2.5 border border-zinc-200 rounded-lg text-xs font-mono bg-white focus:outline-none cursor-pointer">
-              <option>abandoned_cart_recovery_id (印尼语弃购挽回)</option>
-              <option>cod_address_verify_id (印尼语COD核验)</option>
-              <option>abandoned_cart_recovery_th (泰语弃购挽回)</option>
+              <option>abandoned_cart_recovery_id</option>
+              <option>cod_address_verify_id</option>
+              <option>abandoned_cart_recovery_th</option>
             </select>
           </div>
 
           <div className="p-3 bg-zinc-50 rounded-lg border border-zinc-200 text-[11px] text-zinc-500 leading-relaxed">
-            * 自测将消耗 1 个测试配额，验证 WhatsApp Cloud API 与本地服务器的连通性。
+            {getI18nText(locale, "stores_drawer_ping_notice")}
           </div>
 
           {testResult && (
@@ -423,17 +423,17 @@ export default function ConsoleStoresPage() {
               {testSending ? (
                 <>
                   <RefreshCw className="w-3.5 h-3.5 mr-1.5 animate-spin" />
-                  正在发送...
+                  Sending...
                 </>
               ) : (
                 <>
                   <Send className="w-3.5 h-3.5 mr-1.5" />
-                  发送测试消息
+                  Send Test
                 </>
               )}
             </Button>
             <Button variant="outline" onClick={() => setTestDrawerOpen(false)}>
-              关闭
+              {getI18nText(locale, "action_close")}
             </Button>
           </div>
         </div>
@@ -443,14 +443,14 @@ export default function ConsoleStoresPage() {
       <Modal
         open={bindStoreModalOpen}
         onClose={() => setBindStoreModalOpen(false)}
-        title="绑定新的出海电商店铺"
-        subtitle="授权 SolaFlow 监听订单产生与改址 Webhook"
+        title={getI18nText(locale, "stores_modal_bind_title")}
+        subtitle={getI18nText(locale, "stores_modal_bind_sub")}
         width="md"
       >
         <form onSubmit={handleBindStoreSubmit} className="space-y-4 text-xs font-mono">
           <div>
             <label className="text-zinc-500 uppercase text-[10px] block mb-1 font-bold">
-              电商平台类型
+              {getI18nText(locale, "stores_modal_bind_platform")}
             </label>
             <div className="grid grid-cols-2 gap-3">
               <button
@@ -480,7 +480,7 @@ export default function ConsoleStoresPage() {
 
           <div>
             <label className="text-zinc-500 uppercase text-[10px] block mb-1 font-bold">
-              店铺名称
+              {getI18nText(locale, "stores_modal_bind_name")}
             </label>
             <input
               type="text"
@@ -493,7 +493,7 @@ export default function ConsoleStoresPage() {
 
           <div>
             <label className="text-zinc-500 uppercase text-[10px] block mb-1 font-bold">
-              店铺独立域名 URL
+              {getI18nText(locale, "stores_modal_bind_url")}
             </label>
             <input
               type="url"
@@ -531,7 +531,7 @@ export default function ConsoleStoresPage() {
           {bindSuccess && (
             <div className="p-3 bg-emerald-50 rounded-lg border border-emerald-200 text-[11px] text-emerald-900 flex items-center gap-2">
               <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
-              <span>店铺连接测试成功！已自动注册 Webhook 监听端点。</span>
+              <span>{getI18nText(locale, "stores_modal_bind_success")}</span>
             </div>
           )}
 
@@ -544,10 +544,10 @@ export default function ConsoleStoresPage() {
               {isBinding ? (
                 <>
                   <RefreshCw className="w-3.5 h-3.5 mr-1.5 animate-spin" />
-                  正在验证 API 权限...
+                  Verifying...
                 </>
               ) : (
-                "连接并授权店铺"
+                getI18nText(locale, "stores_modal_bind_submit")
               )}
             </Button>
             <Button
@@ -555,7 +555,7 @@ export default function ConsoleStoresPage() {
               variant="outline"
               onClick={() => setBindStoreModalOpen(false)}
             >
-              取消
+              {getI18nText(locale, "action_cancel")}
             </Button>
           </div>
         </form>

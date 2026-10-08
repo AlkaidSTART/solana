@@ -12,13 +12,26 @@ import {
   TrendingUp,
   AlertTriangle,
   Info,
+  ArrowRight,
+  Sparkles,
 } from "lucide-react";
 import { Tabs } from "@/components/ui/tabs";
 import { GsapEntrance, GsapStagger } from "@/components/ui/gsap-transition";
+import { useOnboardingStore } from "@/stores/use-onboarding-store";
 
 export default function ConsoleOverviewPage() {
   const { credits, orders, conversations, locale } = useAppStore();
+  const { currentStep, isCompleted, hasStarted } = useOnboardingStore();
   const [viewState, setViewState] = useState<"normal" | "loading" | "empty" | "error">("normal");
+
+  const emptySubscribe = React.useCallback(() => () => {}, []);
+  const isMounted = React.useSyncExternalStore(
+    emptySubscribe,
+    () => true,
+    () => false
+  );
+
+  const showOnboardingResume = isMounted && (hasStarted || currentStep > 2) && !isCompleted;
 
   const pendingTakeovers = conversations.filter((c) => c.isHumanTakeover || c.unread);
   const pendingOrders = orders.filter((o) => o.status === "PENDING");
@@ -107,6 +120,27 @@ export default function ConsoleOverviewPage() {
 
   return (
     <GsapEntrance triggerKey={viewState} direction="fade" duration={0.25} className="space-y-8">
+      {/* 未完成向导恢复提示条 */}
+      {showOnboardingResume && (
+        <div className="p-3.5 bg-zinc-900 text-white rounded-xl flex items-center justify-between text-xs font-mono shadow-sm">
+          <div className="flex items-center gap-2.5">
+            <Sparkles className="w-4 h-4 text-emerald-400 shrink-0" />
+            <span>
+              您有一个进行中的店铺初始化向导 (当前处于步骤 {currentStep}/6)，继续完成即可免费激活并领取 100 Credits。
+            </span>
+          </div>
+          <Link href="/onboarding">
+            <Button
+              size="sm"
+              className="bg-white text-zinc-900 hover:bg-zinc-100 text-xs font-mono h-7 px-3 shrink-0"
+            >
+              继续完成向导
+              <ArrowRight className="w-3.5 h-3.5 ml-1" />
+            </Button>
+          </Link>
+        </div>
+      )}
+
       {/* 顶部标题栏与状态机测试切换器 */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-[#E4E4E7] gap-3">
         <div>
@@ -216,30 +250,30 @@ export default function ConsoleOverviewPage() {
               {/* 提醒组 */}
               <div className="p-3.5 border border-[#E4E4E7] bg-[#FAFAFA] space-y-1">
                 <div className="flex justify-between text-xs font-mono">
-                  <span className="text-[#71717A]">WhatsApp Active (80%, 1,240 orders)</span>
-                  <span className="font-bold text-[#09090B]">17.8% Conversion</span>
+                  <span className="text-[#71717A]">{MOCK_CONTROL_GROUP_METRICS.whatsappActive.label}</span>
+                  <span className="font-bold text-[#09090B]">{MOCK_CONTROL_GROUP_METRICS.whatsappActive.conversionRate}</span>
                 </div>
                 <div className="w-full bg-[#E4E4E7] h-2">
-                  <div className="bg-[#09090B] h-2" style={{ width: "17.8%" }} />
+                  <div className="bg-[#09090B] h-2" style={{ width: MOCK_CONTROL_GROUP_METRICS.whatsappActive.percentWidth }} />
                 </div>
                 <div className="text-[11px] font-mono text-[#71717A] flex justify-between pt-1">
-                  <span>{getI18nText(locale, "orders_status_recovered")}: 221</span>
-                  <span>GMV: $ 6,851.00</span>
+                  <span>{getI18nText(locale, "orders_status_recovered")}: {MOCK_CONTROL_GROUP_METRICS.whatsappActive.recoveredCount}</span>
+                  <span>GMV: {MOCK_CONTROL_GROUP_METRICS.whatsappActive.gmv}</span>
                 </div>
               </div>
 
               {/* 对照组 */}
               <div className="p-3.5 border border-[#E4E4E7] bg-white space-y-1">
                 <div className="flex justify-between text-xs font-mono">
-                  <span className="text-[#71717A]">Silent Control (20%, 310 orders)</span>
-                  <span className="font-bold text-[#71717A]">12.1% Organic</span>
+                  <span className="text-[#71717A]">{MOCK_CONTROL_GROUP_METRICS.silentControl.label}</span>
+                  <span className="font-bold text-[#71717A]">{MOCK_CONTROL_GROUP_METRICS.silentControl.conversionRate}</span>
                 </div>
                 <div className="w-full bg-[#E4E4E7] h-2">
-                  <div className="bg-[#A1A1AA] h-2" style={{ width: "12.1%" }} />
+                  <div className="bg-[#A1A1AA] h-2" style={{ width: MOCK_CONTROL_GROUP_METRICS.silentControl.percentWidth }} />
                 </div>
                 <div className="text-[11px] font-mono text-[#71717A] flex justify-between pt-1">
-                  <span>Organic: 38</span>
-                  <span>GMV: $ 1,178.00</span>
+                  <span>Organic: {MOCK_CONTROL_GROUP_METRICS.silentControl.organicCount}</span>
+                  <span>GMV: {MOCK_CONTROL_GROUP_METRICS.silentControl.gmv}</span>
                 </div>
               </div>
             </div>
@@ -259,27 +293,27 @@ export default function ConsoleOverviewPage() {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-1">
               <div className="p-3.5 border border-[#E4E4E7] bg-[#FAFAFA] space-y-1">
                 <div className="flex justify-between text-xs font-mono">
-                  <span className="text-[#71717A]">Landmark Verified (COD)</span>
-                  <span className="font-bold text-[#059669]">90.6% Delivered (9.4% RTS)</span>
+                  <span className="text-[#71717A]">{MOCK_CONTROL_GROUP_METRICS.landmarkVerifiedCod.label}</span>
+                  <span className="font-bold text-[#059669]">{MOCK_CONTROL_GROUP_METRICS.landmarkVerifiedCod.deliveryRate}</span>
                 </div>
                 <div className="w-full bg-[#E4E4E7] h-2">
-                  <div className="bg-[#059669] h-2" style={{ width: "90.6%" }} />
+                  <div className="bg-[#059669] h-2" style={{ width: MOCK_CONTROL_GROUP_METRICS.landmarkVerifiedCod.percentWidth }} />
                 </div>
                 <div className="text-[11px] font-mono text-[#71717A] pt-1">
-                  Intercepted fake addresses: 38 (Prevented round-trip freight loss)
+                  Intercepted fake addresses: {MOCK_CONTROL_GROUP_METRICS.landmarkVerifiedCod.interceptedFakeAddresses} (Prevented round-trip freight loss)
                 </div>
               </div>
 
               <div className="p-3.5 border border-[#E4E4E7] bg-white space-y-1">
                 <div className="flex justify-between text-xs font-mono">
-                  <span className="text-[#71717A]">Unverified Baseline</span>
-                  <span className="font-bold text-[#E11D48]">83.8% Delivered (16.2% RTS)</span>
+                  <span className="text-[#71717A]">{MOCK_CONTROL_GROUP_METRICS.unverifiedBaselineCod.label}</span>
+                  <span className="font-bold text-[#E11D48]">{MOCK_CONTROL_GROUP_METRICS.unverifiedBaselineCod.deliveryRate}</span>
                 </div>
                 <div className="w-full bg-[#E4E4E7] h-2">
-                  <div className="bg-[#E11D48] h-2" style={{ width: "83.8%" }} />
+                  <div className="bg-[#E11D48] h-2" style={{ width: MOCK_CONTROL_GROUP_METRICS.unverifiedBaselineCod.percentWidth }} />
                 </div>
                 <div className="text-[11px] font-mono text-[#71717A] pt-1">
-                  RTS Rate exceeds baseline by +6.8%
+                  {MOCK_CONTROL_GROUP_METRICS.unverifiedBaselineCod.excessNote}
                 </div>
               </div>
             </div>

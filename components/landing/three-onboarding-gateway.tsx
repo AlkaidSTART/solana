@@ -308,7 +308,6 @@ export const ThreeOnboardingGateway: React.FC<GatewayProps> = ({ className = "" 
 
         {/* 顶部微发光胶囊 */}
         <div className="absolute top-2 left-1/2 -translate-x-1/2 flex items-center gap-1.5 text-[10px] font-mono text-zinc-300 bg-zinc-900/80 backdrop-blur-xs px-3 py-0.5 rounded-full border border-zinc-800/80 pointer-events-none shadow-xs">
-          <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
           <span>ONBOARDING GATEWAY · 100 CREDITS</span>
         </div>
 

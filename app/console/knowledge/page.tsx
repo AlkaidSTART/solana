@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import { clsx } from "clsx";
 import { getI18nText } from "@/lib/i18n";
+import { MOCK_AI_TRANSLATION_SAMPLE, generateMockAiTranslation } from "@/mock";
 
 export default function ConsoleKnowledgePage() {
   const { knowledgeItems, updateKnowledgeItem, addKnowledgeItem, locale } = useAppStore();
@@ -77,13 +78,13 @@ export default function ConsoleKnowledgePage() {
     setIsTranslating(true);
     setTimeout(() => {
       setIsTranslating(false);
-      setIdText("Bisa kak, pengiriman ke seluruh kota Jabodetabek & Jawa Barat 1-2 hari sampai!");
-      setEnText("Yes, delivery across Jabodetabek and West Java takes 1-2 business days.");
-      setThText("ได้ครับคุณลูกค้า จัดส่งทั่วกรุงเทพและปริมณฑลใช้เวลา 1-2 วันครับ");
-      setEnSgText("Can lah! Islandwide doorstep courier across Singapore takes 1-2 days only.");
-      setMsText("Boleh sis, penghantaran Semenanjung guna Pos Laju 1-2 hari bekerja sampai!");
-      setViText("Dạ được nha shop, giao hàng hoả tốc nội thành 1-2 ngày là nhận được ạ!");
-      setFilText("Opo, 1-2 araw lang po ang delivery sa inyo via J&T Express!");
+      setIdText(MOCK_AI_TRANSLATION_SAMPLE.idText);
+      setEnText(MOCK_AI_TRANSLATION_SAMPLE.enText);
+      setThText(MOCK_AI_TRANSLATION_SAMPLE.thText);
+      setEnSgText(MOCK_AI_TRANSLATION_SAMPLE.enSgText);
+      setMsText(MOCK_AI_TRANSLATION_SAMPLE.msText);
+      setViText(MOCK_AI_TRANSLATION_SAMPLE.viText);
+      setFilText(MOCK_AI_TRANSLATION_SAMPLE.filText);
     }, 600);
   };
 
@@ -92,14 +93,14 @@ export default function ConsoleKnowledgePage() {
     setIsTranslating(true);
     setTimeout(() => {
       setIsTranslating(false);
-      const snippet = newZh.slice(0, 10);
-      setNewId(`Siap kak, untuk ${snippet}... kami bantu cek garansi ya.`);
-      setNewEn(`Yes dear, regarding ${snippet}... our team will verify for you.`);
-      setNewTh(`ครับผม สำหรับ ${snippet}... ทีมงานดูแลให้ครับ`);
-      setNewEnSg(`Can help you check ${snippet} right away lah, don't worry!`);
-      setNewMs(`Boleh sangat sis, untuk ${snippet}... kami semak untuk anda ya.`);
-      setNewVi(`Dạ vâng, về ${snippet}... shop sẽ kiểm tra hỗ trợ bạn ngay ạ.`);
-      setNewFil(`Opo, tungkol po sa ${snippet}... iche-check po namin agad para sa inyo.`);
+      const translated = generateMockAiTranslation(newZh.slice(0, 10));
+      setNewId(translated.idText);
+      setNewEn(translated.enText);
+      setNewTh(translated.thText);
+      setNewEnSg(translated.enSgText);
+      setNewMs(translated.msText);
+      setNewVi(translated.viText);
+      setNewFil(translated.filText);
     }, 600);
   };
 

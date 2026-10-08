@@ -491,7 +491,6 @@ export const SeaTopologyGlobe: React.FC<{ className?: string }> = ({ className =
 
         {/* 顶部指示徽章 */}
         <div className="absolute top-2 left-2 flex items-center gap-2 pointer-events-none select-none text-[10px] font-mono text-zinc-500 bg-white/80 backdrop-blur-xs px-2.5 py-1 rounded-md border border-zinc-200/60 shadow-2xs">
-          <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 inline-block" />
           <span>3D GEO-ROUTING · SE ASIA</span>
         </div>
 

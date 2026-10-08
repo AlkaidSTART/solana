@@ -362,7 +362,6 @@ export const SolanaSettlementCoin3D: React.FC<SolanaCoinProps> = ({ className = 
 
         {/* 顶部极简状态标签 */}
         <div className="absolute top-1 left-2 flex items-center gap-1.5 pointer-events-none text-[10px] font-mono text-zinc-500 bg-white/80 backdrop-blur-xs px-2 py-0.5 rounded border border-zinc-200/60">
-          <span className="w-1.5 h-1.5 rounded-full bg-emerald-600" />
           <span>SOLANA PAY ENGINE</span>
         </div>
 

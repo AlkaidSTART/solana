@@ -453,7 +453,6 @@ export default function LandingPage() {
             {/* 标头区域 */}
             <div className="max-w-3xl mx-auto space-y-4">
               <div className="inline-flex items-center gap-2 text-xs font-mono text-zinc-400 border border-zinc-800 px-3.5 py-1.5 rounded-full bg-zinc-900/60 shadow-2xs">
-                <Sparkles className="w-3.5 h-3.5 text-emerald-400" />
                 <span>CLAIM YOUR ONBOARDING CREDITS · 6 STEPS WIZARD</span>
               </div>
 

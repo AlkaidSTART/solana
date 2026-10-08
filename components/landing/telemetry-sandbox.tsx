@@ -577,7 +577,6 @@ export const TelemetrySandbox: React.FC = () => {
                 </span>
               </div>
               <div className="flex items-center gap-1.5">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 inline-block" />
                 <span className="text-[11px] font-mono font-medium text-zinc-600">LIVE TELEMETRY</span>
               </div>
             </div>

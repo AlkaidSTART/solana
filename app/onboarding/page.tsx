@@ -4,13 +4,19 @@ import React, { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAppStore } from "@/stores/use-app-store";
+import { useOnboardingStore } from "@/stores/use-onboarding-store";
 import { Button } from "@/components/ui/button";
+import { Modal } from "@/components/ui/modal";
 import {
   CheckCircle2,
   Check,
   ArrowRight,
   ArrowLeft,
   Gift,
+  Sparkles,
+  LogOut,
+  Home,
+  RotateCcw,
 } from "lucide-react";
 import { clsx } from "clsx";
 
@@ -26,53 +32,91 @@ const STEPS = [
 export default function OnboardingPage() {
   const router = useRouter();
   const { topupCredits } = useAppStore();
-  const [currentStep, setCurrentStep] = useState(2); // Step 1 is already completed upon login
 
-  // Step 2 state
-  const [selectedPlatform, setSelectedPlatform] = useState<"woocommerce" | "shopify">("woocommerce");
-  const [storeUrl, setStoreUrl] = useState("https://tokosepatu.co.id");
+  const {
+    currentStep,
+    selectedPlatform,
+    storeUrl,
+    wabaId,
+    phoneId,
+    enableAbandoned,
+    enableCod,
+    testPhone,
+    testSent,
+    isCompleted,
+    hasStarted,
+    lastSavedAt,
+    hasHydrated,
+    setStep,
+    updateDraft,
+    resetDraft,
+    markCompleted,
+  } = useOnboardingStore();
 
-  // Step 3 state
-  const [wabaId, setWabaId] = useState("902819280192");
-  const [phoneId, setPhoneId] = useState("102938192039");
-
-  // Step 4 state
-  const [enableAbandoned, setEnableAbandoned] = useState(true);
-  const [enableCod, setEnableCod] = useState(true);
-
-  // Step 5 state
-  const [testPhone, setTestPhone] = useState("+62 812-9812-4412");
-  const [testSent, setTestSent] = useState(false);
-
-  // Step 6 state
+  const [exitModalOpen, setExitModalOpen] = useState(false);
+  const [resetModalOpen, setResetModalOpen] = useState(false);
   const [activated, setActivated] = useState(false);
+  const emptySubscribe = React.useCallback(() => () => {}, []);
+  const isMounted = React.useSyncExternalStore(
+    emptySubscribe,
+    () => true,
+    () => false
+  );
 
   const handleNext = () => {
     if (currentStep < 6) {
-      setCurrentStep(currentStep + 1);
+      setStep(currentStep + 1);
     }
   };
 
   const handleBack = () => {
     if (currentStep > 1) {
-      setCurrentStep(currentStep - 1);
+      setStep(currentStep - 1);
     }
   };
 
   const handleClaimTrialAndFinish = () => {
     topupCredits(0, 100, "TRIAL_WELCOME_GRANT_INITIAL_ONBOARDING");
+    markCompleted();
     setActivated(true);
     setTimeout(() => {
       router.push("/console");
     }, 800);
   };
 
+  const handleExitToHome = () => {
+    setExitModalOpen(false);
+    router.push("/");
+  };
+
+  const handleExitToConsole = () => {
+    setExitModalOpen(false);
+    router.push("/console");
+  };
+
+  // 格式化上次保存时间
+  const formattedSavedTime = React.useMemo(() => {
+    if (!lastSavedAt) return null;
+    try {
+      const date = new Date(lastSavedAt);
+      return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+    } catch {
+      return null;
+    }
+  }, [lastSavedAt]);
+
+  const showRecoveryBanner =
+    isMounted && hasHydrated && (hasStarted || currentStep > 2) && !isCompleted;
+
   return (
     <div className="min-h-screen bg-white text-[#09090B] font-sans flex flex-col justify-between selection:bg-[#09090B] selection:text-white">
       {/* 顶部状态栏 */}
       <header className="h-16 border-b border-[#E4E4E7] px-6 flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <Link href="/" className="font-mono text-base font-bold tracking-tight text-[#09090B]">
+          <Link
+            href="/"
+            className="font-mono text-base font-bold tracking-tight text-[#09090B] hover:opacity-80 transition-opacity"
+          >
             SolaFlow AI
           </Link>
           <span className="text-xs font-mono text-[#71717A] hidden sm:inline">
@@ -80,40 +124,72 @@ export default function OnboardingPage() {
           </span>
         </div>
 
-        <Link href="/console">
-          <Button variant="ghost" size="sm">
-            暂存并稍后继续 →
+        <div className="flex items-center gap-3">
+          {/* 自动保存状态指示 */}
+          {isMounted && (
+            <span className="text-[11px] font-mono text-emerald-600 hidden md:inline-flex items-center gap-1.5 bg-emerald-50 px-2.5 py-1 rounded border border-emerald-100">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+              进度已自动保存
+            </span>
+          )}
+
+          {/* 任意阶段安全退出按钮 */}
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setExitModalOpen(true)}
+            className="text-xs font-mono text-[#71717A] hover:text-[#09090B] flex items-center gap-1.5"
+          >
+            <LogOut className="w-3.5 h-3.5" />
+            <span>退出向导</span>
           </Button>
-        </Link>
+
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleExitToConsole}
+            className="text-xs font-mono hidden sm:inline-flex"
+          >
+            控制台 →
+          </Button>
+        </div>
       </header>
 
       {/* 企业级入驻步骤条指示器 */}
       <div className="border-b border-[#E4E4E7] bg-[#FAFAFA] py-4 px-6 overflow-x-auto">
         <div className="max-w-4xl mx-auto flex items-center justify-between min-w-[560px]">
           {STEPS.map((s, idx) => {
-            const isCompleted = s.id < currentStep;
+            const isCompletedStep = s.id < currentStep;
             const isCurrent = s.id === currentStep;
+            const canJump = s.id <= currentStep;
 
             return (
               <React.Fragment key={s.id}>
-                <div className="flex items-center gap-2 text-xs font-mono select-none">
+                <div
+                  onClick={() => canJump && setStep(s.id)}
+                  className={clsx(
+                    "flex items-center gap-2 text-xs font-mono select-none transition-opacity",
+                    canJump ? "cursor-pointer hover:opacity-80" : "cursor-default"
+                  )}
+                  title={canJump ? `切换到步骤 ${s.id}` : undefined}
+                >
                   <div
                     className={clsx(
-                      "w-6 h-6 rounded-full flex items-center justify-center font-bold text-[11px] border",
-                      isCompleted
+                      "w-6 h-6 rounded-full flex items-center justify-center font-bold text-[11px] border transition-colors",
+                      isCompletedStep
                         ? "bg-[#09090B] text-white border-[#09090B]"
                         : isCurrent
                         ? "bg-white text-[#09090B] border-[#09090B] ring-2 ring-[#09090B]/10"
                         : "bg-white text-[#A1A1AA] border-[#E4E4E7]"
                     )}
                   >
-                    {isCompleted ? <Check className="w-3.5 h-3.5 text-white" /> : s.id}
+                    {isCompletedStep ? <Check className="w-3.5 h-3.5 text-white" /> : s.id}
                   </div>
                   <span
                     className={clsx(
                       isCurrent
                         ? "text-[#09090B] font-bold"
-                        : isCompleted
+                        : isCompletedStep
                         ? "text-[#27272A]"
                         : "text-[#A1A1AA]"
                     )}
@@ -131,7 +207,32 @@ export default function OnboardingPage() {
       </div>
 
       {/* 主向导视窗 */}
-      <main className="flex-1 max-w-3xl w-full mx-auto p-6 sm:p-12 flex flex-col justify-center">
+      <main className="flex-1 max-w-3xl w-full mx-auto p-6 sm:p-12 flex flex-col justify-center space-y-4">
+        {/* 进度自动恢复提醒横幅 */}
+        {showRecoveryBanner && (
+          <div className="border border-emerald-200 bg-emerald-50/70 p-3.5 rounded-lg flex items-center justify-between text-xs font-mono text-emerald-950">
+            <div className="flex items-center gap-2">
+              <Sparkles className="w-4 h-4 text-emerald-600 shrink-0" />
+              <span>
+                已恢复上次填写的接入进度：<strong>步骤 {currentStep} · {STEPS[currentStep - 1]?.label}</strong>
+                {formattedSavedTime && (
+                  <span className="text-emerald-700/80 ml-1.5 text-[11px]">
+                    (自动暂存于 {formattedSavedTime})
+                  </span>
+                )}
+              </span>
+            </div>
+            <button
+              type="button"
+              onClick={() => setResetModalOpen(true)}
+              className="text-[11px] underline text-emerald-800 hover:text-emerald-950 font-medium ml-3 cursor-pointer shrink-0 flex items-center gap-1"
+            >
+              <RotateCcw className="w-3 h-3" />
+              从头开始
+            </button>
+          </div>
+        )}
+
         <div className="border border-[#E4E4E7] bg-white p-6 sm:p-8 space-y-6">
           {/* 步骤 1: 账号注册 */}
           {currentStep === 1 && (
@@ -163,7 +264,7 @@ export default function OnboardingPage() {
 
               <div className="grid grid-cols-2 gap-4">
                 <div
-                  onClick={() => setSelectedPlatform("woocommerce")}
+                  onClick={() => updateDraft({ selectedPlatform: "woocommerce" })}
                   className={clsx(
                     "p-4 border cursor-pointer transition-colors space-y-2",
                     selectedPlatform === "woocommerce"
@@ -178,7 +279,7 @@ export default function OnboardingPage() {
                 </div>
 
                 <div
-                  onClick={() => setSelectedPlatform("shopify")}
+                  onClick={() => updateDraft({ selectedPlatform: "shopify" })}
                   className={clsx(
                     "p-4 border cursor-pointer transition-colors space-y-2",
                     selectedPlatform === "shopify"
@@ -200,7 +301,7 @@ export default function OnboardingPage() {
                 <input
                   type="text"
                   value={storeUrl}
-                  onChange={(e) => setStoreUrl(e.target.value)}
+                  onChange={(e) => updateDraft({ storeUrl: e.target.value })}
                   className="w-full p-2 border border-[#E4E4E7] focus:outline-none focus:border-[#09090B]"
                 />
               </div>
@@ -237,7 +338,7 @@ export default function OnboardingPage() {
                     <input
                       type="text"
                       value={wabaId}
-                      onChange={(e) => setWabaId(e.target.value)}
+                      onChange={(e) => updateDraft({ wabaId: e.target.value })}
                       className="w-full p-2 bg-white border border-[#E4E4E7] focus:outline-none focus:border-[#09090B]"
                     />
                   </div>
@@ -248,7 +349,7 @@ export default function OnboardingPage() {
                     <input
                       type="text"
                       value={phoneId}
-                      onChange={(e) => setPhoneId(e.target.value)}
+                      onChange={(e) => updateDraft({ phoneId: e.target.value })}
                       className="w-full p-2 bg-white border border-[#E4E4E7] focus:outline-none focus:border-[#09090B]"
                     />
                   </div>
@@ -275,7 +376,7 @@ export default function OnboardingPage() {
                   <input
                     type="checkbox"
                     checked={enableAbandoned}
-                    onChange={(e) => setEnableAbandoned(e.target.checked)}
+                    onChange={(e) => updateDraft({ enableAbandoned: e.target.checked })}
                     className="mt-0.5 accent-[#09090B]"
                   />
                   <div>
@@ -292,7 +393,7 @@ export default function OnboardingPage() {
                   <input
                     type="checkbox"
                     checked={enableCod}
-                    onChange={(e) => setEnableCod(e.target.checked)}
+                    onChange={(e) => updateDraft({ enableCod: e.target.checked })}
                     className="mt-0.5 accent-[#09090B]"
                   />
                   <div>
@@ -329,11 +430,11 @@ export default function OnboardingPage() {
                   <input
                     type="text"
                     value={testPhone}
-                    onChange={(e) => setTestPhone(e.target.value)}
+                    onChange={(e) => updateDraft({ testPhone: e.target.value })}
                     className="flex-1 p-2 border border-[#E4E4E7] focus:outline-none focus:border-[#09090B]"
                   />
                   <Button
-                    onClick={() => setTestSent(true)}
+                    onClick={() => updateDraft({ testSent: true })}
                     variant={testSent ? "outline" : "primary"}
                   >
                     {testSent ? "重新发送" : "发送测试仿真消息"}
@@ -372,13 +473,22 @@ export default function OnboardingPage() {
                 </p>
               </div>
 
-              <div className="pt-2 max-w-sm mx-auto">
+              <div className="pt-2 max-w-sm mx-auto space-y-2">
                 <Button
                   onClick={handleClaimTrialAndFinish}
                   disabled={activated}
                   className="w-full h-12 text-xs"
                 >
                   {activated ? "正在进入控制台..." : "领取 100 Credits 并开始使用"}
+                </Button>
+
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setExitModalOpen(true)}
+                  className="text-[11px] text-[#71717A] hover:text-[#09090B] w-full"
+                >
+                  稍后激活，暂存并退出
                 </Button>
               </div>
             </div>
@@ -396,6 +506,15 @@ export default function OnboardingPage() {
                 上一步
               </Button>
 
+              {/* 辅助退出入口 */}
+              <button
+                type="button"
+                onClick={() => setExitModalOpen(true)}
+                className="text-xs font-mono text-[#71717A] hover:text-[#09090B] underline cursor-pointer"
+              >
+                暂存进度并退出
+              </button>
+
               <Button onClick={handleNext}>
                 下一步
                 <ArrowRight className="w-3.5 h-3.5 ml-1" />
@@ -410,6 +529,92 @@ export default function OnboardingPage() {
         <span>SolaFlow AI Merchant Onboarding</span>
         <span>Meta BAA Compliant</span>
       </footer>
+
+      {/* 退出向导确认对话框 */}
+      <Modal
+        open={exitModalOpen}
+        onClose={() => setExitModalOpen(false)}
+        title="暂存进度并退出向导"
+        subtitle="随时离开，您的配置已自动安全保存"
+        width="md"
+      >
+        <div className="space-y-4 text-xs font-mono">
+          <div className="p-4 bg-zinc-50 border border-zinc-200 rounded-lg space-y-2.5">
+            <div className="flex items-center justify-between text-zinc-900 font-bold">
+              <span>当前保存节点</span>
+              <span className="text-emerald-600 flex items-center gap-1 text-[11px]">
+                <CheckCircle2 className="w-3.5 h-3.5" /> 进度已自动持久化
+              </span>
+            </div>
+            <div className="text-zinc-700 font-medium">
+              步骤 {currentStep} / 6: {STEPS[currentStep - 1]?.label}
+            </div>
+            <p className="text-[11px] text-zinc-500 leading-relaxed">
+              您当前已配置的平台 ({selectedPlatform})、店铺 URL 以及凭证均已妥善保留。任何时候重新进入「免费接入」，均可从当前步骤无缝继续。
+            </p>
+          </div>
+
+          <div className="space-y-2 pt-2">
+            <Button
+              className="w-full justify-center h-10 text-xs bg-zinc-900 text-white hover:bg-zinc-800"
+              onClick={handleExitToHome}
+            >
+              <Home className="w-3.5 h-3.5 mr-1.5" />
+              返回官网首页
+            </Button>
+
+            <Button
+              variant="outline"
+              className="w-full justify-center h-10 text-xs border-zinc-200 text-zinc-700 hover:bg-zinc-50"
+              onClick={handleExitToConsole}
+            >
+              前往商户控制台 (Console) →
+            </Button>
+
+            <Button
+              variant="ghost"
+              className="w-full justify-center h-9 text-xs text-zinc-500 hover:text-zinc-800"
+              onClick={() => setExitModalOpen(false)}
+            >
+              继续完成向导
+            </Button>
+          </div>
+        </div>
+      </Modal>
+
+      {/* 重置向导进度确认对话框 */}
+      <Modal
+        open={resetModalOpen}
+        onClose={() => setResetModalOpen(false)}
+        title="确认重置接入进度？"
+        width="sm"
+      >
+        <div className="space-y-4 text-xs font-mono">
+          <p className="text-zinc-600 leading-relaxed">
+            重置后将清除当前已暂存的店铺信息与表单填写内容，并返回第 2 步重新开始。此操作不可逆。
+          </p>
+          <div className="flex gap-2 justify-end pt-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setResetModalOpen(false)}
+            >
+              取消
+            </Button>
+            <Button
+              variant="primary"
+              size="sm"
+              className="bg-red-600 hover:bg-red-700 text-white"
+              onClick={() => {
+                resetDraft();
+                setResetModalOpen(false);
+              }}
+            >
+              确认重置并从头开始
+            </Button>
+          </div>
+        </div>
+      </Modal>
     </div>
   );
 }
