@@ -20,6 +20,12 @@ import { clsx } from "clsx";
 import { Button } from "@/components/ui/button";
 import { MOCK_DEMO_LOGIN_CREDENTIALS } from "@/mock";
 import { useAppStore } from "@/stores/use-app-store";
+import {
+  validateEmail,
+  calculatePasswordStrength,
+  sanitizeOtpPaste,
+  isOtpComplete,
+} from "./auth-utils";
 
 export type AuthMode = "login" | "register";
 export type LoginMethod = "otp" | "password";
@@ -129,7 +135,7 @@ export function AuthCard({ initialMode = "login" }: AuthCardProps) {
   // 发送验证码
   const handleSendOtp = () => {
     setErrorMsg(null);
-    if (!email || !email.includes("@")) {
+    if (!validateEmail(email)) {
       setErrorMsg(
         isEn
           ? "Please enter a valid work email address."
@@ -205,16 +211,12 @@ export function AuthCard({ initialMode = "login" }: AuthCardProps) {
   // 处理 OTP 粘贴
   const handleOtpPaste = (e: React.ClipboardEvent<HTMLInputElement>) => {
     e.preventDefault();
-    const pasteData = e.clipboardData.getData("text").replace(/\D/g, "").slice(0, 6);
-    if (!pasteData) return;
+    const pasteData = e.clipboardData.getData("text");
+    const sanitized = sanitizeOtpPaste(pasteData);
+    setOtpCode(sanitized);
 
-    const next = [...otpCode];
-    for (let i = 0; i < pasteData.length; i++) {
-      next[i] = pasteData[i];
-    }
-    setOtpCode(next);
-
-    const focusIdx = Math.min(pasteData.length, 5);
+    const nonBlankCount = sanitized.filter(Boolean).length;
+    const focusIdx = Math.min(Math.max(nonBlankCount, 1) - 1, 5);
     otpInputsRef.current[focusIdx]?.focus();
   };
 
@@ -223,14 +225,13 @@ export function AuthCard({ initialMode = "login" }: AuthCardProps) {
     e.preventDefault();
     setErrorMsg(null);
 
-    if (!email || !email.includes("@")) {
-      setErrorMsg(isEn ? "Please enter a valid email." : "请输入有效的商家邮箱。");
+    if (!validateEmail(email)) {
+      setErrorMsg(isEn ? "Please enter a valid work email." : "请输入有效的商家工作邮箱。");
       return;
     }
 
     if (loginMethod === "otp") {
-      const enteredCode = otpCode.join("");
-      if (enteredCode.length < 6) {
+      if (!isOtpComplete(otpCode)) {
         setErrorMsg(isEn ? "Please enter all 6 digits of the OTP code." : "请输入完整的 6 位动态验证码。");
         return;
       }
@@ -260,7 +261,7 @@ export function AuthCard({ initialMode = "login" }: AuthCardProps) {
     e.preventDefault();
     setErrorMsg(null);
 
-    if (!email || !email.includes("@")) {
+    if (!validateEmail(email)) {
       setErrorMsg(isEn ? "Please provide a valid work email." : "请输入合法的商户工作邮箱。");
       return;
     }
@@ -559,6 +560,21 @@ export function AuthCard({ initialMode = "login" }: AuthCardProps) {
                 {t.quickDemoBtn}
               </Button>
             </div>
+
+            {/* 切换到注册 */}
+            <div className="text-center pt-1 text-[11px] font-mono text-zinc-500">
+              还没有商户账号？{" "}
+              <button
+                type="button"
+                onClick={() => {
+                  setMode("register");
+                  setErrorMsg(null);
+                }}
+                className="text-zinc-950 font-semibold underline hover:text-zinc-700 cursor-pointer"
+              >
+                免费注册（送 100 Credits）
+              </button>
+            </div>
           </form>
         )}
 
@@ -625,9 +641,31 @@ export function AuthCard({ initialMode = "login" }: AuthCardProps) {
 
             {/* 设置密码 */}
             <div>
-              <label className="text-zinc-500 uppercase text-[10px] block mb-1">
-                {t.passwordLabel} (至少 8 位) *
-              </label>
+              <div className="flex items-center justify-between mb-1">
+                <label className="text-zinc-500 uppercase text-[10px] block">
+                  {t.passwordLabel} (至少 8 位) *
+                </label>
+                {password.length > 0 && (() => {
+                  const strength = calculatePasswordStrength(password);
+                  return (
+                    <div className="flex items-center gap-1.5 text-[9px] font-mono">
+                      <span className="text-zinc-400">强度:</span>
+                      <span
+                        className={clsx(
+                          "font-medium",
+                          strength.level === "weak"
+                            ? "text-rose-600"
+                            : strength.level === "medium"
+                            ? "text-amber-600"
+                            : "text-emerald-600"
+                        )}
+                      >
+                        {isEn ? strength.labelEn : strength.labelZh}
+                      </span>
+                    </div>
+                  );
+                })()}
+              </div>
               <div className="relative">
                 <Lock className="w-3.5 h-3.5 absolute left-3 top-3 text-zinc-400" />
                 <input
@@ -705,6 +743,21 @@ export function AuthCard({ initialMode = "login" }: AuthCardProps) {
                 </span>
               )}
             </Button>
+
+            {/* 切换到登录 */}
+            <div className="text-center pt-1 text-[11px] font-mono text-zinc-500">
+              已有商户账号？{" "}
+              <button
+                type="button"
+                onClick={() => {
+                  setMode("login");
+                  setErrorMsg(null);
+                }}
+                className="text-zinc-950 font-semibold underline hover:text-zinc-700 cursor-pointer"
+              >
+                直接登录
+              </button>
+            </div>
           </form>
         )}
 
