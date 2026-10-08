@@ -1,6 +1,9 @@
+"use client";
+
 import * as React from "react";
 import { clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
+import { GsapEntrance } from "@/components/ui/gsap-transition";
 
 export interface StatCardProps {
   label: string;
@@ -13,6 +16,7 @@ export interface StatCardProps {
   };
   indicator?: React.ReactNode;
   className?: string;
+  animateEntrance?: boolean;
 }
 
 export const StatCard: React.FC<StatCardProps> = ({
@@ -22,11 +26,12 @@ export const StatCard: React.FC<StatCardProps> = ({
   trend,
   indicator,
   className,
+  animateEntrance = false,
 }) => {
-  return (
+  const content = (
     <div
       className={twMerge(
-        "p-5 bg-white border border-[#E4E4E7] flex flex-col justify-between hover:border-[#18181B] transition-colors",
+        "p-5 bg-white border border-[#E4E4E7] flex flex-col justify-between hover:border-[#18181B] transition-colors h-full",
         className
       )}
     >
@@ -61,4 +66,14 @@ export const StatCard: React.FC<StatCardProps> = ({
       )}
     </div>
   );
+
+  if (animateEntrance) {
+    return (
+      <GsapEntrance direction="up" distance={12} duration={0.35}>
+        {content}
+      </GsapEntrance>
+    );
+  }
+
+  return content;
 };

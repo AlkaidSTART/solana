@@ -13,17 +13,15 @@ export const TopoMesh: React.FC<TopoMeshProps> = ({
   showCoordinates = true,
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
-  const [useFallback, setUseFallback] = useState(false);
+  const [useFallback, setUseFallback] = useState(() => {
+    if (typeof window !== "undefined") {
+      return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    }
+    return false;
+  });
 
   useEffect(() => {
-    // 监听无障碍偏好
-    if (typeof window !== "undefined") {
-      const motionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
-      if (motionQuery.matches) {
-        setUseFallback(true);
-        return;
-      }
-    }
+    if (useFallback) return;
 
     const container = containerRef.current;
     if (!container) return;

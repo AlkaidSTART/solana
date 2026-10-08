@@ -10,20 +10,19 @@ interface SolanaCoinProps {
 
 export const SolanaSettlementCoin3D: React.FC<SolanaCoinProps> = ({ className = "" }) => {
   const containerRef = useRef<HTMLDivElement>(null);
-  const [useFallback, setUseFallback] = useState(false);
+  const [useFallback, setUseFallback] = useState(() => {
+    if (typeof window !== "undefined") {
+      return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    }
+    return false;
+  });
   const [isSettled, setIsSettled] = useState(false);
   const [txCount, setTxCount] = useState(248);
 
   const triggerSpinRef = useRef<() => void>(() => {});
 
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      const motionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
-      if (motionQuery.matches) {
-        setUseFallback(true);
-        return;
-      }
-    }
+    if (useFallback) return;
 
     const container = containerRef.current;
     if (!container) return;

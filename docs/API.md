@@ -450,6 +450,23 @@ reference 只用于寻找候选，不是付款证明。自动入账前必须同�
 
 首版退款是人工流程：申请时冻结可退款未用权益；实际链上退款确认后以新的冲销流水记账，不能修改或删除原支付记录。退款地址不能只依据聊天内容或原交易发送地址推断；服务端不自动持有和使用退款签名密钥。
 
+### 8.3 Solana Pay Devnet 支付运行时接口
+
+以下端点均归属于 `/api/v1/payments/**`，提供面向控制台账单页及 Devnet 钱包的即时支付与测试闭环：
+
+| 方法 | 路径 | 角色 | 请求 / 查询 | 核心响应与副作用 |
+| --- | --- | --- | --- | --- |
+| GET | `/payments/billing` | 租户成员 | 无 | 读取当前 Devnet 支付租户账单概览与可用 Credits |
+| POST | `/payments/session` | 仅本地/测试 | 无 | 创建本地 Devnet 测试会话（非生产模式） |
+| GET | `/payments/session` | 租户成员 | 无 | 读取本地测试会话租户 ID |
+| POST | `/payments/orders` | 租户成员 | `credits`、`Idempotency-Key` | 创建 20 分钟 Solana Pay 充值报价订单及二维码链接 |
+| GET | `/payments/orders/{id}` | 租户成员 | 无 | 读取订单详情、二维码与结账状态 |
+| POST | `/payments/orders/{id}` | 租户成员 | 无 | 触发链上对账核对（RPC 查询并流转状态） |
+| PATCH | `/payments/orders/{id}` | 租户成员 | `{ status: "cancelled" }` | 仅允许取消 `awaiting_payment` 状态订单 |
+| DELETE | `/payments/orders/{id}` | 租户成员 | 无 | 删除订单；已入账 (`credited`) 与确认中 (`confirmed`) 禁止删除 |
+| POST | `/payments/sol-test/quote` | 仅开发/测试 | 无 | 创建 0.001 SOL Devnet 测试付款报价 |
+| POST | `/payments/sol-test/check` | 仅开发/测试 | `token`、`signature` | 校验 SOL 测试交易签名与链上 finalized 状态 |
+
 ## 9. 总览、报表、设置与隐私接口
 
 | 方法 | 路径 | 角色 | 请求 / 查询 | 核心响应与副作用 |

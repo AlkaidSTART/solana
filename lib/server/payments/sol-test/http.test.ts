@@ -13,7 +13,7 @@ beforeEach(() => {
 });
 afterEach(() => { vi.unstubAllEnvs(); vi.clearAllMocks(); });
 function request(body?: unknown, origin = "http://localhost:3000") {
-  return new Request("http://localhost:3000/api/payments/sol-test/check", { method: "POST", headers: { origin }, body: body === undefined ? undefined : JSON.stringify(body) });
+  return new Request("http://localhost:3000/api/v1/payments/sol-test/check", { method: "POST", headers: { origin }, body: body === undefined ? undefined : JSON.stringify(body) });
 }
 describe("local Devnet SOL API boundary", () => {
   it("blocks production and disabled mode before any RPC", async () => {

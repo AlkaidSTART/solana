@@ -102,7 +102,12 @@ function latLonToVector3(lat: number, lon: number, radius: number): THREE.Vector
 export const SeaTopologyGlobe: React.FC<{ className?: string }> = ({ className = "" }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const [activeCityId, setActiveCityId] = useState<string>("cgk");
-  const [useFallback, setUseFallback] = useState(false);
+  const [useFallback, setUseFallback] = useState(() => {
+    if (typeof window !== "undefined") {
+      return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    }
+    return false;
+  });
 
   // 引用目标旋转角用于程序化平滑聚焦
   const targetRotationRef = useRef<{ y: number; x: number }>({ y: -1.8, x: 0.15 });
@@ -127,13 +132,7 @@ export const SeaTopologyGlobe: React.FC<{ className?: string }> = ({ className =
   };
 
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      const motionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
-      if (motionQuery.matches) {
-        setUseFallback(true);
-        return;
-      }
-    }
+    if (useFallback) return;
 
     const container = containerRef.current;
     if (!container) return;
@@ -371,8 +370,6 @@ export const SeaTopologyGlobe: React.FC<{ className?: string }> = ({ className =
           animationFrameId = requestAnimationFrame(render);
           return;
         }
-
-        const delta = clock.getDelta();
 
         // 自动极缓慢自转巡航 (未拖拽时)
         if (!isDraggingRef.current) {

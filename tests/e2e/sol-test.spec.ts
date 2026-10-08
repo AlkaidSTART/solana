@@ -4,12 +4,12 @@ const signature = "99eUso3aSbE9tqGSTXzo3WTM7Uu4pM7p1cW6Chpn7oNfZ6jUqM7CZzCEkvCqm
 const recipient = "8qbHbw2BbbTHBW1sbeqakYXVKRQM8Ne7pLK7m6CVfeR";
 async function fixture(page: Page) {
   let status = "pending", fail = false, quotes = 0;
-  await page.route("**/api/payments/sol-test/quote", async (route) => {
+  await page.route("**/api/v1/payments/sol-test/quote", async (route) => {
     quotes++;
     await route.fulfill({ json: { token: "mock-token", quote: { network: "devnet", amountAtomic: "1000000", recipient,
       reference: "CktRuQ2mttgRGkXJtyksdKHjUdc2C4TgDzyB98oEzy8", createdAt: Math.floor(Date.now() / 1000), expiresAt: Math.floor(Date.now() / 1000) + 1200 } } });
   });
-  await page.route("**/api/payments/sol-test/check", async (route) => {
+  await page.route("**/api/v1/payments/sol-test/check", async (route) => {
     await route.fulfill({ status: fail ? 502 : 200, json: fail ? { error: "Mock RPC 查询失败，请重试核验" } : { status } });
   });
   return { setStatus: (next: string) => { status = next; }, setFail: (next: boolean) => { fail = next; }, quotes: () => quotes };
@@ -44,18 +44,18 @@ for (const width of [375, 768, 1440]) {
 }
 test("Mock SOL config error is recoverable and invalid evidence is not success", async ({ page }) => {
   const state = await fixture(page);
-  await page.route("**/api/payments/sol-test/quote", async (route) => route.fulfill({ status: 503, json: { error: "SOL 测试未启用或配置不完整" } }));
+  await page.route("**/api/v1/payments/sol-test/quote", async (route) => route.fulfill({ status: 503, json: { error: "SOL 测试未启用或配置不完整" } }));
   await page.goto("/console/billing/sol-test");
   await page.getByRole("button", { name: "创建 0.001 SOL 测试付款" }).click();
   await expect(page.locator('p[role="alert"]')).toContainText("配置不完整");
-  await page.unroute("**/api/payments/sol-test/quote");
+  await page.unroute("**/api/v1/payments/sol-test/quote");
   await fixture(page);
   await page.getByRole("button", { name: "创建 0.001 SOL 测试付款" }).click();
   await page.getByLabel("交易签名（可从钱包历史粘贴，不是私钥）").fill("invalid");
   await page.getByRole("button", { name: "保存签名并核验" }).click();
   await expect(page.locator('p[role="alert"]')).toContainText("有效的 Solana 交易签名");
   state.setStatus("invalid");
-  await page.route("**/api/payments/sol-test/check", (route) => route.fulfill({ json: { status: "invalid" } }));
+  await page.route("**/api/v1/payments/sol-test/check", (route) => route.fulfill({ json: { status: "invalid" } }));
   await page.getByLabel("交易签名（可从钱包历史粘贴，不是私钥）").fill(signature);
   await page.getByRole("button", { name: "保存签名并核验" }).click();
   await expect(page.getByText(/链上证据不符合报价/)).toBeVisible();

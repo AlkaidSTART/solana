@@ -14,6 +14,7 @@ import {
   Info,
 } from "lucide-react";
 import { Tabs } from "@/components/ui/tabs";
+import { GsapEntrance, GsapStagger } from "@/components/ui/gsap-transition";
 
 export default function ConsoleOverviewPage() {
   const { credits, orders, conversations, locale } = useAppStore();
