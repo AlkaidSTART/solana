@@ -161,10 +161,10 @@ export const TopoMesh: React.FC = () => {
       <div ref={containerRef} className="w-full h-full min-h-[360px]" />
       {/* 东南亚出海经纬度微标签 */}
       <div className="absolute top-4 right-4 flex flex-col gap-1 text-[9px] font-mono text-[#71717A] text-right pointer-events-none select-none">
-        <span>CGK // -6.1275, 106.6537</span>
-        <span>BKK // 13.6900, 100.7501</span>
-        <span>SIN // 1.3644, 103.9915</span>
-        <span className="text-[#09090B]">GRID_MESH // 12,000 VERTS</span>
+        <span>CGK · -6.1275, 106.6537</span>
+        <span>BKK · 13.6900, 100.7501</span>
+        <span>SIN · 1.3644, 103.9915</span>
+        <span className="text-emerald-700 font-bold">GRID_MESH · 12,000 VERTS</span>
       </div>
     </div>
   );
