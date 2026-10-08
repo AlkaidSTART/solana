@@ -63,7 +63,7 @@ export default function ConsoleSettingsPage() {
           <CardHeader>
             <div className="flex items-center justify-between w-full">
               <CardTitle>{getI18nText(locale, "settings_control_group_title")}</CardTitle>
-              <Badge variant={controlGroupEnabled ? "success" : "neutral"} dot>
+              <Badge variant={controlGroupEnabled ? "success" : "neutral"}>
                 {controlGroupEnabled ? getI18nText(locale, "status_active") : getI18nText(locale, "status_paused")}
               </Badge>
             </div>

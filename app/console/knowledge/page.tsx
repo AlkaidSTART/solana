@@ -17,9 +17,10 @@ import {
   Search,
 } from "lucide-react";
 import { clsx } from "clsx";
+import { getI18nText } from "@/lib/i18n";
 
 export default function ConsoleKnowledgePage() {
-  const { knowledgeItems, updateKnowledgeItem, addKnowledgeItem } = useAppStore();
+  const { knowledgeItems, updateKnowledgeItem, addKnowledgeItem, locale } = useAppStore();
   const [selectedItem, setSelectedItem] = useState<KnowledgeItem | null>(null);
   const [statusFilter, setStatusFilter] = useState<string>("ALL");
   const [searchQuery, setSearchQuery] = useState("");
@@ -114,7 +115,7 @@ export default function ConsoleKnowledgePage() {
       vi: viText,
       fil: filText,
       status: "PUBLISHED",
-      lastUpdated: "刚刚",
+      lastUpdated: "Just now",
     });
     setEditSuccess(true);
     setTimeout(() => {
@@ -139,7 +140,7 @@ export default function ConsoleKnowledgePage() {
       vi: newVi || "Chào bạn, shop sẵn sàng hỗ trợ bạn ngay ạ!",
       fil: newFil || "Kumusta po, handa po kaming tumulong sa inyo agad!",
       status: "PUBLISHED",
-      lastUpdated: "刚刚",
+      lastUpdated: "Just now",
     };
 
     addKnowledgeItem(newItem);
@@ -161,12 +162,12 @@ export default function ConsoleKnowledgePage() {
         <div>
           <div className="flex items-center gap-2">
             <h1 className="text-lg font-mono uppercase tracking-wider font-bold text-zinc-900">
-              多语言知识库 · Knowledge Base
+              {getI18nText(locale, "kb_title")}
             </h1>
-            <Badge variant="outline">Demo/Mock</Badge>
+            <Badge variant="outline">{getI18nText(locale, "demo_badge")}</Badge>
           </div>
           <p className="text-xs text-zinc-500 font-mono mt-0.5">
-            八列多语言对照编辑器（中/印尼/英/泰/新/马/越/菲）• 跨语言冲突预警 • 东南亚俚语对齐
+            {getI18nText(locale, "kb_subhead")}
           </p>
         </div>
 
@@ -176,7 +177,7 @@ export default function ConsoleKnowledgePage() {
           className="bg-emerald-600 hover:bg-emerald-700 text-white"
         >
           <Plus className="w-3.5 h-3.5 mr-1" />
-          新增知识问答
+          {getI18nText(locale, "kb_btn_add")}
         </Button>
       </div>
 
@@ -186,7 +187,7 @@ export default function ConsoleKnowledgePage() {
           <Search className="w-3.5 h-3.5 absolute left-3 top-2.5 text-zinc-400" />
           <input
             type="text"
-            placeholder="搜索问答关键词 (中文 / 印尼俚语 / 英语 / Singlish)..."
+            placeholder={getI18nText(locale, "kb_search_placeholder")}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="w-full pl-8 pr-3 py-1.5 bg-white border border-zinc-200 rounded-lg text-xs font-mono text-zinc-900 placeholder:text-zinc-400 focus:outline-none focus:border-zinc-900 shadow-2xs"
@@ -199,13 +200,13 @@ export default function ConsoleKnowledgePage() {
             activeId={statusFilter}
             onChange={setStatusFilter}
             items={[
-              { id: "ALL", label: "全部条目" },
-              { id: "PUBLISHED", label: "已发布" },
-              { id: "DRAFT", label: "草稿箱" },
+              { id: "ALL", label: getI18nText(locale, "kb_tab_all") },
+              { id: "PUBLISHED", label: getI18nText(locale, "kb_tab_published") },
+              { id: "DRAFT", label: getI18nText(locale, "kb_tab_draft") },
             ]}
           />
           <span className="text-xs font-mono text-zinc-500 hidden sm:inline">
-            共 {filteredItems.length} 条配置
+            ({filteredItems.length})
           </span>
         </div>
       </div>
@@ -219,7 +220,7 @@ export default function ConsoleKnowledgePage() {
                 <div className="flex items-center gap-2">
                   <Badge variant="neutral">{item.category}</Badge>
                   <span className="text-xs font-mono text-zinc-400">
-                    更新于: {item.lastUpdated}
+                    {item.lastUpdated}
                   </span>
                 </div>
                 <div className="flex items-center gap-2">
@@ -228,7 +229,7 @@ export default function ConsoleKnowledgePage() {
                   </Badge>
                   <Button size="sm" variant="outline" onClick={() => handleOpenDrawer(item)}>
                     <Edit3 className="w-3.5 h-3.5 mr-1" />
-                    多语言对照编辑
+                    {getI18nText(locale, "kb_drawer_title")}
                   </Button>
                 </div>
               </div>
@@ -240,7 +241,7 @@ export default function ConsoleKnowledgePage() {
                 <div className="p-3.5 bg-zinc-50 rounded-lg border border-zinc-200 space-y-1">
                   <div className="text-[10px] text-amber-700 uppercase font-bold flex items-center gap-1.5">
                     <span className="px-1 py-0.2 rounded bg-amber-500/10 border border-amber-500/20 text-[9px]">ZH</span>
-                    <span>中文底稿 (卖家原意)</span>
+                    <span>{getI18nText(locale, "kb_col_zh")}</span>
                   </div>
                   <p className="text-zinc-900 leading-relaxed font-sans">{item.zh}</p>
                 </div>
@@ -249,7 +250,7 @@ export default function ConsoleKnowledgePage() {
                 <div className="p-3.5 bg-emerald-50/30 rounded-lg border border-emerald-200/80 space-y-1">
                   <div className="text-[10px] text-emerald-700 uppercase font-bold flex items-center gap-1.5">
                     <span className="px-1 py-0.2 rounded bg-emerald-500/10 border border-emerald-500/20 text-[9px]">ID</span>
-                    <span>印尼口语 (Bahasa Gaul)</span>
+                    <span>{getI18nText(locale, "kb_col_id")}</span>
                   </div>
                   <p className="text-zinc-900 leading-relaxed font-sans">{item.idGaul}</p>
                 </div>
@@ -258,7 +259,7 @@ export default function ConsoleKnowledgePage() {
                 <div className="p-3.5 bg-zinc-50 rounded-lg border border-zinc-200 space-y-1">
                   <div className="text-[10px] text-blue-700 uppercase font-bold flex items-center gap-1.5">
                     <span className="px-1 py-0.2 rounded bg-blue-500/10 border border-blue-500/20 text-[9px]">EN</span>
-                    <span>国际英语 (English)</span>
+                    <span>{getI18nText(locale, "kb_col_en")}</span>
                   </div>
                   <p className="text-zinc-900 leading-relaxed font-sans">{item.en}</p>
                 </div>
@@ -267,7 +268,7 @@ export default function ConsoleKnowledgePage() {
                 <div className="p-3.5 bg-purple-50/20 rounded-lg border border-purple-200/80 space-y-1">
                   <div className="text-[10px] text-purple-700 uppercase font-bold flex items-center gap-1.5">
                     <span className="px-1 py-0.2 rounded bg-purple-500/10 border border-purple-500/20 text-[9px]">TH</span>
-                    <span>泰语 (Thai)</span>
+                    <span>{getI18nText(locale, "kb_col_th")}</span>
                   </div>
                   <p className="text-zinc-900 leading-relaxed font-sans leading-[1.6]">
                     {item.th}
@@ -282,7 +283,7 @@ export default function ConsoleKnowledgePage() {
                   <div className="p-3 bg-amber-50/20 rounded-lg border border-amber-200/70 space-y-1">
                     <div className="text-[10px] text-amber-800 uppercase font-bold flex items-center gap-1.5">
                       <span className="px-1 py-0.2 rounded bg-amber-500/10 border border-amber-500/20 text-[9px]">SG</span>
-                      <span>新加坡 (Singlish)</span>
+                      <span>{getI18nText(locale, "kb_col_sg")}</span>
                     </div>
                     <p className="text-zinc-900 leading-relaxed font-sans">{item.enSg || "—"}</p>
                   </div>
@@ -291,7 +292,7 @@ export default function ConsoleKnowledgePage() {
                   <div className="p-3 bg-cyan-50/20 rounded-lg border border-cyan-200/70 space-y-1">
                     <div className="text-[10px] text-cyan-800 uppercase font-bold flex items-center gap-1.5">
                       <span className="px-1 py-0.2 rounded bg-cyan-500/10 border border-cyan-500/20 text-[9px]">MY</span>
-                      <span>马来语 (Melayu)</span>
+                      <span>{getI18nText(locale, "kb_col_ms")}</span>
                     </div>
                     <p className="text-zinc-900 leading-relaxed font-sans">{item.ms || "—"}</p>
                   </div>
@@ -300,7 +301,7 @@ export default function ConsoleKnowledgePage() {
                   <div className="p-3 bg-blue-50/20 rounded-lg border border-blue-200/70 space-y-1">
                     <div className="text-[10px] text-blue-800 uppercase font-bold flex items-center gap-1.5">
                       <span className="px-1 py-0.2 rounded bg-blue-500/10 border border-blue-500/20 text-[9px]">VN</span>
-                      <span>越南语 (Tiếng Việt)</span>
+                      <span>{getI18nText(locale, "kb_col_vi")}</span>
                     </div>
                     <p className="text-zinc-900 leading-relaxed font-sans">{item.vi || "—"}</p>
                   </div>
@@ -309,7 +310,7 @@ export default function ConsoleKnowledgePage() {
                   <div className="p-3 bg-rose-50/20 rounded-lg border border-rose-200/70 space-y-1">
                     <div className="text-[10px] text-rose-800 uppercase font-bold flex items-center gap-1.5">
                       <span className="px-1 py-0.2 rounded bg-rose-500/10 border border-rose-500/20 text-[9px]">PH</span>
-                      <span>菲律宾 (Taglish)</span>
+                      <span>{getI18nText(locale, "kb_col_ph")}</span>
                     </div>
                     <p className="text-zinc-900 leading-relaxed font-sans">{item.fil || "—"}</p>
                   </div>
@@ -320,12 +321,12 @@ export default function ConsoleKnowledgePage() {
         ))}
       </div>
 
-      {/* 四列对照编辑器抽屉 */}
+      {/* 多语言对照编辑器抽屉 */}
       <Drawer
         open={!!selectedItem}
         onClose={() => setSelectedItem(null)}
-        title="四列多语言知识问答编辑器"
-        subtitle={`知识条目分类: ${selectedItem?.category} • 自动同步至 WhatsApp 意图路由`}
+        title={getI18nText(locale, "kb_drawer_title")}
+        subtitle={`${selectedItem?.category} • WhatsApp NLP`}
         width="xl"
       >
         {selectedItem && (
@@ -333,14 +334,14 @@ export default function ConsoleKnowledgePage() {
             {editSuccess && (
               <div className="p-3 bg-emerald-50 text-emerald-800 border border-emerald-200 rounded-lg flex items-center gap-2">
                 <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-                <span>知识条目已保存并即刻同步至全渠道 NLP 神经路由！</span>
+                <span>{getI18nText(locale, "settings_saved_success")}</span>
               </div>
             )}
 
             <div className="flex items-center justify-between p-3 bg-zinc-50 rounded-lg border border-zinc-200 text-zinc-600">
               <div className="flex items-center gap-2">
                 <AlertCircle className="w-4 h-4 text-indigo-600 shrink-0" />
-                <span>系统已对各语言中出现的数字（天数、金额）进行交叉语义比对，确保承诺一致。</span>
+                <span className="text-[11px]">{getI18nText(locale, "kb_conflict_desc")}</span>
               </div>
               <Button
                 size="sm"
@@ -353,7 +354,7 @@ export default function ConsoleKnowledgePage() {
                 ) : (
                   <Sparkles className="w-3.5 h-3.5 mr-1 text-indigo-600" />
                 )}
-                AI 智能重新转译
+                {getI18nText(locale, "kb_btn_ai_translate")}
               </Button>
             </div>
 
@@ -361,7 +362,7 @@ export default function ConsoleKnowledgePage() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="text-amber-700 uppercase text-[10px] block mb-1 font-bold">
-                  1. 中文基准底稿 (卖家业务原意)
+                  {getI18nText(locale, "kb_col_zh")}
                 </label>
                 <textarea
                   rows={3}
@@ -373,7 +374,7 @@ export default function ConsoleKnowledgePage() {
 
               <div>
                 <label className="text-emerald-700 uppercase text-[10px] block mb-1 font-bold">
-                  2. 印尼本土口语 (Bahasa Gaul / 电商网购俚语)
+                  {getI18nText(locale, "kb_col_id")}
                 </label>
                 <textarea
                   rows={3}
@@ -385,7 +386,7 @@ export default function ConsoleKnowledgePage() {
 
               <div>
                 <label className="text-blue-700 uppercase text-[10px] block mb-1 font-bold">
-                  3. 国际英语 (English)
+                  {getI18nText(locale, "kb_col_en")}
                 </label>
                 <textarea
                   rows={3}
@@ -397,7 +398,7 @@ export default function ConsoleKnowledgePage() {
 
               <div>
                 <label className="text-purple-700 uppercase text-[10px] block mb-1 font-bold">
-                  4. 泰语本地化 (Thai / 行高保持 1.6 以上)
+                  {getI18nText(locale, "kb_col_th")}
                 </label>
                 <textarea
                   rows={3}
@@ -410,58 +411,51 @@ export default function ConsoleKnowledgePage() {
 
             {/* 东南亚本土扩展语言配置 */}
             <div className="pt-3 border-t border-zinc-200 space-y-3">
-              <h3 className="text-[11px] font-mono font-bold text-zinc-700 uppercase">
-                东南亚本土扩展语言配置 (Singapore / Malaysia / Vietnam / Philippines)
-              </h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="text-amber-800 uppercase text-[10px] block mb-1 font-bold">
-                    5. 新加坡英语 (Singlish / lah, leh, PayNow)
+                    {getI18nText(locale, "kb_col_sg")}
                   </label>
                   <textarea
                     rows={3}
                     value={enSgText}
                     onChange={(e) => setEnSgText(e.target.value)}
-                    placeholder="例如: Can lah, islandwide delivery 1-2 days only..."
                     className="w-full p-2.5 border border-zinc-200 rounded-lg font-sans text-xs focus:outline-none focus:border-zinc-900"
                   />
                 </div>
 
                 <div>
                   <label className="text-cyan-800 uppercase text-[10px] block mb-1 font-bold">
-                    6. 马来西亚 (Bahasa Melayu / 电商口语)
+                    {getI18nText(locale, "kb_col_ms")}
                   </label>
                   <textarea
                     rows={3}
                     value={msText}
                     onChange={(e) => setMsText(e.target.value)}
-                    placeholder="例如: Boleh sis, kami pos laju 1-2 hari sampai..."
                     className="w-full p-2.5 border border-zinc-200 rounded-lg font-sans text-xs focus:outline-none focus:border-zinc-900"
                   />
                 </div>
 
                 <div>
                   <label className="text-blue-800 uppercase text-[10px] block mb-1 font-bold">
-                    7. 越南语 (Tiếng Việt)
+                    {getI18nText(locale, "kb_col_vi")}
                   </label>
                   <textarea
                     rows={3}
                     value={viText}
                     onChange={(e) => setViText(e.target.value)}
-                    placeholder="例如: Dạ được nha shop ơi, giao hàng 1-2 ngày là nhận được ạ..."
                     className="w-full p-2.5 border border-zinc-200 rounded-lg font-sans text-xs focus:outline-none focus:border-zinc-900"
                   />
                 </div>
 
                 <div>
                   <label className="text-rose-800 uppercase text-[10px] block mb-1 font-bold">
-                    8. 菲律宾语 (Taglish / po-opo 敬语)
+                    {getI18nText(locale, "kb_col_ph")}
                   </label>
                   <textarea
                     rows={3}
                     value={filText}
                     onChange={(e) => setFilText(e.target.value)}
-                    placeholder="例如: Opo, available po ang delivery sa loob ng 1-2 araw..."
                     className="w-full p-2.5 border border-zinc-200 rounded-lg font-sans text-xs focus:outline-none focus:border-zinc-900"
                   />
                 </div>
@@ -470,10 +464,10 @@ export default function ConsoleKnowledgePage() {
 
             <div className="pt-4 border-t border-zinc-200 flex gap-3">
               <Button onClick={handleSave} className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white">
-                保存并发布上线
+                {getI18nText(locale, "action_save")}
               </Button>
               <Button variant="outline" onClick={() => setSelectedItem(null)}>
-                取消
+                {getI18nText(locale, "action_cancel")}
               </Button>
             </div>
           </div>
@@ -484,14 +478,14 @@ export default function ConsoleKnowledgePage() {
       <Drawer
         open={newDrawerOpen}
         onClose={() => setNewDrawerOpen(false)}
-        title="新增多语言知识条目"
-        subtitle="输入中文原意，点击 AI 自动生成东南亚本土多语言表达"
+        title={getI18nText(locale, "kb_drawer_new_title")}
+        subtitle="AI NLP"
         width="xl"
       >
         <form onSubmit={handleCreateNew} className="space-y-5 text-xs font-mono">
           <div>
             <label className="text-zinc-500 uppercase text-[10px] block mb-1 font-bold">
-              分类类别
+              Category
             </label>
             <div className="flex gap-2">
               {(["FAQ", "PRODUCT", "LOGISTICS"] as const).map((cat) => (
@@ -506,7 +500,7 @@ export default function ConsoleKnowledgePage() {
                       : "bg-white text-zinc-600 border-zinc-200 hover:border-zinc-400"
                   )}
                 >
-                  {cat === "FAQ" ? "常见疑问 (FAQ)" : cat === "PRODUCT" ? "商品属性" : "物流运费"}
+                  {cat}
                 </button>
               ))}
             </div>
@@ -515,7 +509,7 @@ export default function ConsoleKnowledgePage() {
           <div>
             <div className="flex items-center justify-between mb-1">
               <label className="text-amber-700 uppercase text-[10px] font-bold">
-                1. 中文原意问答内容
+                {getI18nText(locale, "kb_col_zh")}
               </label>
               <Button
                 type="button"
@@ -529,12 +523,11 @@ export default function ConsoleKnowledgePage() {
                 ) : (
                   <Sparkles className="w-3 h-3 mr-1 text-indigo-600" />
                 )}
-                AI 一键生成东南亚 7 国语言
+                {getI18nText(locale, "kb_btn_ai_translate")}
               </Button>
             </div>
             <textarea
               rows={3}
-              placeholder="例如：支持货到付款吗？一般几天能送到？"
               value={newZh}
               onChange={(e) => setNewZh(e.target.value)}
               className="w-full p-2.5 border border-zinc-200 rounded-lg font-sans text-xs focus:outline-none focus:border-zinc-900"
@@ -545,11 +538,10 @@ export default function ConsoleKnowledgePage() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
             <div>
               <label className="text-emerald-700 uppercase text-[10px] block mb-1 font-bold">
-                2. 印尼本土口语 (Bahasa Gaul)
+                {getI18nText(locale, "kb_col_id")}
               </label>
               <textarea
                 rows={2}
-                placeholder="AI 自动生成或手动输入..."
                 value={newId}
                 onChange={(e) => setNewId(e.target.value)}
                 className="w-full p-2 border border-zinc-200 rounded-lg font-sans text-xs focus:outline-none focus:border-zinc-900"
@@ -558,11 +550,10 @@ export default function ConsoleKnowledgePage() {
 
             <div>
               <label className="text-blue-700 uppercase text-[10px] block mb-1 font-bold">
-                3. 国际英语 (English)
+                {getI18nText(locale, "kb_col_en")}
               </label>
               <textarea
                 rows={2}
-                placeholder="AI 自动生成或手动输入..."
                 value={newEn}
                 onChange={(e) => setNewEn(e.target.value)}
                 className="w-full p-2 border border-zinc-200 rounded-lg font-sans text-xs focus:outline-none focus:border-zinc-900"
@@ -571,11 +562,10 @@ export default function ConsoleKnowledgePage() {
 
             <div>
               <label className="text-purple-700 uppercase text-[10px] block mb-1 font-bold">
-                4. 泰语 (Thai)
+                {getI18nText(locale, "kb_col_th")}
               </label>
               <textarea
                 rows={2}
-                placeholder="AI 自动生成或手动输入..."
                 value={newTh}
                 onChange={(e) => setNewTh(e.target.value)}
                 className="w-full p-2 border border-zinc-200 rounded-lg font-sans text-xs leading-[1.6] focus:outline-none focus:border-zinc-900"
@@ -586,11 +576,10 @@ export default function ConsoleKnowledgePage() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pt-2 border-t border-zinc-200/60">
             <div>
               <label className="text-amber-800 uppercase text-[10px] block mb-1 font-bold">
-                5. 新加坡英语 (Singlish)
+                {getI18nText(locale, "kb_col_sg")}
               </label>
               <textarea
                 rows={2}
-                placeholder="AI 自动生成或手动输入..."
                 value={newEnSg}
                 onChange={(e) => setNewEnSg(e.target.value)}
                 className="w-full p-2 border border-zinc-200 rounded-lg font-sans text-xs focus:outline-none focus:border-zinc-900"
@@ -599,11 +588,10 @@ export default function ConsoleKnowledgePage() {
 
             <div>
               <label className="text-cyan-800 uppercase text-[10px] block mb-1 font-bold">
-                6. 马来西亚语 (Bahasa Melayu)
+                {getI18nText(locale, "kb_col_ms")}
               </label>
               <textarea
                 rows={2}
-                placeholder="AI 自动生成或手动输入..."
                 value={newMs}
                 onChange={(e) => setNewMs(e.target.value)}
                 className="w-full p-2 border border-zinc-200 rounded-lg font-sans text-xs focus:outline-none focus:border-zinc-900"
@@ -612,11 +600,10 @@ export default function ConsoleKnowledgePage() {
 
             <div>
               <label className="text-blue-800 uppercase text-[10px] block mb-1 font-bold">
-                7. 越南语 (Tiếng Việt)
+                {getI18nText(locale, "kb_col_vi")}
               </label>
               <textarea
                 rows={2}
-                placeholder="AI 自动生成或手动输入..."
                 value={newVi}
                 onChange={(e) => setNewVi(e.target.value)}
                 className="w-full p-2 border border-zinc-200 rounded-lg font-sans text-xs focus:outline-none focus:border-zinc-900"
@@ -625,11 +612,10 @@ export default function ConsoleKnowledgePage() {
 
             <div>
               <label className="text-rose-800 uppercase text-[10px] block mb-1 font-bold">
-                8. 菲律宾语 (Taglish)
+                {getI18nText(locale, "kb_col_ph")}
               </label>
               <textarea
                 rows={2}
-                placeholder="AI 自动生成或手动输入..."
                 value={newFil}
                 onChange={(e) => setNewFil(e.target.value)}
                 className="w-full p-2 border border-zinc-200 rounded-lg font-sans text-xs focus:outline-none focus:border-zinc-900"
@@ -642,14 +628,14 @@ export default function ConsoleKnowledgePage() {
               type="submit"
               className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white"
             >
-              创建并发布条目
+              {getI18nText(locale, "action_confirm")}
             </Button>
             <Button
               type="button"
               variant="outline"
               onClick={() => setNewDrawerOpen(false)}
             >
-              取消
+              {getI18nText(locale, "action_cancel")}
             </Button>
           </div>
         </form>

@@ -7,7 +7,7 @@ vi.mock("next/headers", () => ({ cookies: async () => ({ get: mocks.get, set: mo
 vi.mock("./database", () => ({ database: () => ({ query: mocks.query, transaction: <T>(fn: (db: { query: typeof mocks.query }) => Promise<T>) => fn({ query: mocks.query }) }) }));
 import { assertOrigin, createLocalSession, paymentResponse, readBody, tenantSession } from "./http";
 import { paymentConfig } from "./config";
-import { GET as getOrder, PATCH as patchOrder, DELETE as deleteOrder } from "@/app/api/payments/orders/[id]/route";
+import { GET as getOrder, PATCH as patchOrder, DELETE as deleteOrder } from "@/app/api/v1/payments/orders/[id]/route";
 
 beforeEach(() => {
   vi.resetAllMocks();
@@ -15,7 +15,7 @@ beforeEach(() => {
   vi.stubEnv("DATABASE_URL", "postgresql://test@localhost/test"); vi.stubEnv("SOLANA_RECIPIENT", "11111111111111111111111111111111"); vi.stubEnv("PAYMENT_APP_ORIGIN", "http://localhost:3000");
   mocks.query.mockResolvedValue({ rows: [] });
 });
-const request = (origin = "http://localhost:3000") => new Request("http://localhost:3000/api/payments/session", { method: "POST", headers: { origin } });
+const request = (origin = "http://localhost:3000") => new Request("http://localhost:3000/api/v1/payments/session", { method: "POST", headers: { origin } });
 describe("payment HTTP security", () => {
   it("requires explicit enablement and forbids production", () => {
     vi.stubEnv("PAYMENTS_DEVNET_ENABLED", "false"); expect(paymentConfig).toThrow();
@@ -72,7 +72,7 @@ describe("payment HTTP security", () => {
       .mockResolvedValueOnce({ rows: [{ tenant_id: tenant }] }) // session
       .mockResolvedValueOnce({ rows: [order] }) // get order
       .mockResolvedValueOnce({ rows: [{ ...order, status: "cancelled" }] }); // cancel query
-    const patchReq = new Request("http://localhost:3000/api/payments/orders/22222222-2222-4222-8222-222222222222", {
+    const patchReq = new Request("http://localhost:3000/api/v1/payments/orders/22222222-2222-4222-8222-222222222222", {
       method: "PATCH",
       headers: { origin: "http://localhost:3000", "Content-Type": "application/json" },
       body: JSON.stringify({ status: "cancelled" }),
@@ -86,7 +86,7 @@ describe("payment HTTP security", () => {
     mocks.query
       .mockResolvedValueOnce({ rows: [{ tenant_id: tenant }] })
       .mockResolvedValueOnce({ rows: [{ ...order, status: "credited" }] });
-    const patchReq2 = new Request("http://localhost:3000/api/payments/orders/22222222-2222-4222-8222-222222222222", {
+    const patchReq2 = new Request("http://localhost:3000/api/v1/payments/orders/22222222-2222-4222-8222-222222222222", {
       method: "PATCH",
       headers: { origin: "http://localhost:3000", "Content-Type": "application/json" },
       body: JSON.stringify({ status: "cancelled" }),
@@ -103,7 +103,7 @@ describe("payment HTTP security", () => {
       .mockResolvedValueOnce({ rows: [{ status: "awaiting_payment" }] }) // repository.delete status query
       .mockResolvedValueOnce({ rows: [] }) // candidate delete
       .mockResolvedValueOnce({ rowCount: 1 }); // order delete
-    const deleteReq = new Request("http://localhost:3000/api/payments/orders/22222222-2222-4222-8222-222222222222", {
+    const deleteReq = new Request("http://localhost:3000/api/v1/payments/orders/22222222-2222-4222-8222-222222222222", {
       method: "DELETE",
       headers: { origin: "http://localhost:3000" },
     });
@@ -116,7 +116,7 @@ describe("payment HTTP security", () => {
     mocks.query
       .mockResolvedValueOnce({ rows: [{ tenant_id: tenant }] })
       .mockResolvedValueOnce({ rows: [{ ...order, status: "credited" }] });
-    const deleteReq2 = new Request("http://localhost:3000/api/payments/orders/22222222-2222-4222-8222-222222222222", {
+    const deleteReq2 = new Request("http://localhost:3000/api/v1/payments/orders/22222222-2222-4222-8222-222222222222", {
       method: "DELETE",
       headers: { origin: "http://localhost:3000" },
     });

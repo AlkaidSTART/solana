@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Drawer } from "@/components/ui/drawer";
 import { Tabs } from "@/components/ui/tabs";
+import { GsapEntrance, useGsapStagger } from "@/components/ui/gsap-transition";
 import {
   Search,
   Download,
@@ -44,16 +45,22 @@ export default function ConsoleOrdersPage() {
     return matchesSearch && matchesStatus && matchesType;
   });
 
+  const tableBodyRef = useGsapStagger<HTMLTableSectionElement>(
+    "tr",
+    { stagger: 0.03, distance: 8, duration: 0.25 },
+    [statusFilter, typeFilter, searchQuery, filteredOrders.length]
+  );
+
   const getStatusBadge = (status: OrderItem["status"]) => {
     switch (status) {
       case "RECOVERED":
-        return <Badge variant="success" dot>{getI18nText(locale, "orders_status_recovered")}</Badge>;
+        return <Badge variant="success">{getI18nText(locale, "orders_status_recovered")}</Badge>;
       case "COD_VERIFIED":
-        return <Badge variant="success" dot>{getI18nText(locale, "orders_status_cod_verified")}</Badge>;
+        return <Badge variant="success">{getI18nText(locale, "orders_status_cod_verified")}</Badge>;
       case "PENDING":
-        return <Badge variant="warning" dot>{getI18nText(locale, "orders_status_pending")}</Badge>;
+        return <Badge variant="warning">{getI18nText(locale, "orders_status_pending")}</Badge>;
       case "COD_REJECTED":
-        return <Badge variant="danger" dot>{getI18nText(locale, "orders_status_rejected")}</Badge>;
+        return <Badge variant="danger">{getI18nText(locale, "orders_status_rejected")}</Badge>;
       case "CANCELLED":
         return <Badge variant="neutral">{getI18nText(locale, "orders_status_cancelled")}</Badge>;
     }
@@ -140,7 +147,7 @@ export default function ConsoleOrdersPage() {
   };
 
   return (
-    <div className="space-y-6">
+    <GsapEntrance direction="fade" duration={0.25} className="space-y-6">
       {/* 顶部标题与导出 */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-zinc-200 gap-3">
         <div>
@@ -241,7 +248,7 @@ export default function ConsoleOrdersPage() {
               <TableHead className="text-right">{getI18nText(locale, "orders_col_action")}</TableHead>
             </TableRow>
           </TableHeader>
-          <TableBody>
+          <TableBody ref={tableBodyRef}>
             {filteredOrders.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={7} className="text-center py-10 text-zinc-400 font-mono">
@@ -461,6 +468,6 @@ export default function ConsoleOrdersPage() {
           </div>
         )}
       </Drawer>
-    </div>
+    </GsapEntrance>
   );
 }

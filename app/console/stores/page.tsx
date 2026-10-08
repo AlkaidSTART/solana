@@ -200,7 +200,7 @@ export default function ConsoleStoresPage() {
                     </span>
                   </div>
                 </div>
-                <Badge variant="success" dot>
+                <Badge variant="success">
                   已连接
                 </Badge>
               </div>
@@ -250,7 +250,7 @@ export default function ConsoleStoresPage() {
                     </span>
                   </div>
                 </div>
-                <Badge variant="success" dot>
+                <Badge variant="success">
                   已连接
                 </Badge>
               </div>
@@ -293,8 +293,7 @@ export default function ConsoleStoresPage() {
         <Card className="rounded-xl shadow-2xs">
           <CardHeader>
             <div className="flex flex-col sm:flex-row sm:items-center justify-between w-full gap-2">
-              <div className="flex items-center gap-2.5">
-                <div className="w-3 h-3 rounded-full bg-emerald-600 ring-2 ring-emerald-500/20" />
+              <div className="flex items-center gap-2">
                 <h3 className="text-xs font-mono font-bold text-zinc-900">
                   官方认证商业号码: +62 812-3456-7890 (TokoSepatu Official)
                 </h3>
@@ -386,7 +385,7 @@ export default function ConsoleStoresPage() {
                 </div>
 
                 <div className="flex items-center gap-2 self-end sm:self-auto shrink-0">
-                  <Badge variant="success" dot>
+                  <Badge variant="success">
                     获批生效 (Approved)
                   </Badge>
                   <Button

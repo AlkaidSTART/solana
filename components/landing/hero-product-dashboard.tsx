@@ -133,7 +133,6 @@ export const HeroProductDashboard: React.FC = () => {
           </div>
           <div className="h-3.5 w-px bg-zinc-200 mx-1" />
           <div className="flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-emerald-500 inline-block animate-pulse" />
             <span className="font-semibold text-zinc-900 tracking-tight">SolaFlow Live Ops Console</span>
             <span className="text-zinc-400 hidden sm:inline">·</span>
             <span className="text-zinc-500 hidden sm:inline font-mono text-[11px]">TokoSepatu_ID (Shopify)</span>

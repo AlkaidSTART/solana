@@ -6,7 +6,11 @@ import { HeroProductDashboard } from "@/components/landing/hero-product-dashboar
 import { TelemetrySandbox } from "@/components/landing/telemetry-sandbox";
 import { RoiCalculator } from "@/components/landing/roi-calculator";
 import { SolanaPayModal } from "@/components/billing/solana-pay-modal";
+import { HeroTopoCanvas } from "@/components/landing/topo-mesh";
+import { SeaTopologyGlobe } from "@/components/landing/three-sea-globe";
+import { SolanaSettlementCoin3D } from "@/components/landing/three-solana-coin";
 import { Button } from "@/components/ui/button";
+import { GsapEntrance, GsapStagger } from "@/components/ui/gsap-transition";
 import {
   ArrowRight,
   Sparkles,
@@ -99,8 +103,7 @@ export default function LandingPage() {
               </span>
             </Link>
             <div className="hidden sm:flex items-center gap-2 text-xs font-mono text-zinc-500 border-l border-zinc-200 pl-4">
-              <span className="inline-block w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-              <span>Devnet v1.1 · Meta BAA</span>
+              <span>Devnet · Meta BAA</span>
             </div>
           </div>
 
@@ -172,55 +175,73 @@ export default function LandingPage() {
           {/* 背景极其细腻的径向微光 */}
           <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(ellipse_70%_50%_at_50%_0%,rgba(16,185,129,0.04),rgba(255,255,255,0))]" />
 
+          {/* 3D WebGL 极简单色拓扑地貌雕塑微动效背景 */}
+          <div className="absolute inset-0 pointer-events-none opacity-85 flex items-center justify-center overflow-hidden">
+            <HeroTopoCanvas className="w-full h-full max-w-6xl mx-auto" />
+          </div>
+
           <div className="max-w-7xl mx-auto px-4 sm:px-8 relative z-10 text-center">
-            {/* 顶部微胶囊标签 */}
-            <div className="inline-flex items-center gap-2 text-xs font-mono text-zinc-600 border border-zinc-200/80 px-3.5 py-1.5 bg-zinc-50/80 rounded-full mb-6 shadow-2xs">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-              <span>{t.badge}</span>
-            </div>
+            {/* GSAP 进场与语言切换平滑过渡 */}
+            <GsapEntrance triggerKey={lang} direction="up" distance={16} duration={0.38}>
+              {/* 顶部微胶囊标签 */}
+              <div className="inline-flex items-center gap-2 text-xs font-mono text-zinc-600 border border-zinc-200/80 px-3.5 py-1.5 bg-zinc-50/80 rounded-full mb-6 shadow-2xs">
+                <span>{t.badge}</span>
+              </div>
 
-            {/* 极简超大标题 */}
-            <h1 className="text-4xl sm:text-6xl lg:text-7xl font-sans font-bold tracking-tight text-zinc-950 leading-[1.08] max-w-4xl mx-auto whitespace-pre-line text-balance">
-              {t.headline}
-            </h1>
+              {/* 极简超大标题 */}
+              <h1 className="text-4xl sm:text-6xl lg:text-7xl font-sans font-bold tracking-tight text-zinc-950 leading-[1.08] max-w-4xl mx-auto whitespace-pre-line text-balance">
+                {t.headline}
+              </h1>
 
-            {/* 优雅呼吸感副标 */}
-            <p className="text-base sm:text-lg lg:text-xl text-zinc-600 font-sans leading-relaxed max-w-2xl mx-auto pt-6 text-balance">
-              {t.subhead}
-            </p>
+              {/* 优雅呼吸感副标 */}
+              <p className="text-base sm:text-lg lg:text-xl text-zinc-600 font-sans leading-relaxed max-w-2xl mx-auto pt-6 text-balance">
+                {t.subhead}
+              </p>
+            </GsapEntrance>
 
-            {/* 行动召唤按钮组 */}
-            <div className="flex flex-wrap items-center justify-center gap-3.5 pt-8 sm:pt-10">
-              <Link href="/onboarding">
-                <Button size="lg" className="h-12 px-7 text-xs bg-zinc-900 text-white hover:bg-zinc-800 rounded-xl shadow-sm">
-                  免费接入 (Claim 100 Credits)
-                  <ArrowRight className="w-4 h-4 ml-2" />
+            {/* 行动召唤按钮组 (GSAP 进场) */}
+            <GsapEntrance direction="up" distance={12} delay={0.12} duration={0.35}>
+              <div className="flex flex-wrap items-center justify-center gap-3.5 pt-8 sm:pt-10">
+                <Link href="/onboarding">
+                  <Button size="lg" className="h-12 px-7 text-xs bg-zinc-900 text-white hover:bg-zinc-800 rounded-xl shadow-sm">
+                    免费接入 (Claim 100 Credits)
+                    <ArrowRight className="w-4 h-4 ml-2" />
+                  </Button>
+                </Link>
+                <a href="#sandbox">
+                  <Button variant="outline" size="lg" className="h-12 px-6 text-xs rounded-xl border-zinc-200 text-zinc-700 hover:bg-zinc-50 hover:text-zinc-900">
+                    体验交互沙盒
+                  </Button>
+                </a>
+                <Button
+                  variant="ghost"
+                  size="lg"
+                  onClick={() => setPayModalOpen(true)}
+                  className="h-12 px-5 text-xs text-zinc-600 hover:text-zinc-950"
+                >
+                  Solana Pay 体验 →
                 </Button>
-              </Link>
-              <a href="#sandbox">
-                <Button variant="outline" size="lg" className="h-12 px-6 text-xs rounded-xl border-zinc-200 text-zinc-700 hover:bg-zinc-50 hover:text-zinc-900">
-                  体验交互沙盒
-                </Button>
-              </a>
-              <Button
-                variant="ghost"
-                size="lg"
-                onClick={() => setPayModalOpen(true)}
-                className="h-12 px-5 text-xs text-zinc-600 hover:text-zinc-950"
-              >
-                Solana Pay 体验 →
-              </Button>
-            </div>
+              </div>
+            </GsapEntrance>
 
-            {/* 宽幅实时商户控制台预览视窗 */}
-            <div className="pt-14 sm:pt-20 max-w-5xl mx-auto w-full text-left">
-              <HeroProductDashboard />
-            </div>
+            {/* 宽幅实时商户控制台预览视窗 (GSAP 平滑浮现) */}
+            <GsapEntrance direction="up" distance={18} delay={0.2} duration={0.42}>
+              <div className="pt-14 sm:pt-20 max-w-5xl mx-auto w-full text-left">
+                <HeroProductDashboard />
+              </div>
+            </GsapEntrance>
 
-            {/* 4 维核心业务数据行 (通透轻量大字号排版) */}
+            {/* 4 维核心业务数据行 (GSAP Stagger 级联进场) */}
             <div className="pt-16 sm:pt-24 max-w-5xl mx-auto">
-              <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8 divide-zinc-200">
-                <div className="p-4 sm:p-6 rounded-2xl bg-zinc-50/60 border border-zinc-200/60 text-center">
+              <GsapStagger
+                selector=".metric-cell"
+                stagger={0.06}
+                delay={0.25}
+                distance={14}
+                duration={0.35}
+                className="grid grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8 divide-zinc-200"
+              >
+                <div className="metric-cell p-4 sm:p-6 rounded-2xl bg-zinc-50/60 border border-zinc-200/60 text-center">
                   <div className="text-3xl sm:text-4xl font-sans font-bold text-zinc-950 tracking-tight">
                     +18.4%
                   </div>
@@ -229,7 +250,7 @@ export default function LandingPage() {
                   </div>
                 </div>
 
-                <div className="p-4 sm:p-6 rounded-2xl bg-zinc-50/60 border border-zinc-200/60 text-center">
+                <div className="metric-cell p-4 sm:p-6 rounded-2xl bg-zinc-50/60 border border-zinc-200/60 text-center">
                   <div className="text-3xl sm:text-4xl font-sans font-bold text-zinc-950 tracking-tight">
                     -6.2%
                   </div>
@@ -238,7 +259,7 @@ export default function LandingPage() {
                   </div>
                 </div>
 
-                <div className="p-4 sm:p-6 rounded-2xl bg-zinc-50/60 border border-zinc-200/60 text-center">
+                <div className="metric-cell p-4 sm:p-6 rounded-2xl bg-zinc-50/60 border border-zinc-200/60 text-center">
                   <div className="text-3xl sm:text-4xl font-sans font-bold text-zinc-950 tracking-tight">
                     &lt; 3.2s
                   </div>
@@ -247,7 +268,7 @@ export default function LandingPage() {
                   </div>
                 </div>
 
-                <div className="p-4 sm:p-6 rounded-2xl bg-zinc-50/60 border border-zinc-200/60 text-center">
+                <div className="metric-cell p-4 sm:p-6 rounded-2xl bg-zinc-50/60 border border-zinc-200/60 text-center">
                   <div className="text-3xl sm:text-4xl font-sans font-bold text-zinc-950 tracking-tight">
                     $0.00025
                   </div>
@@ -255,7 +276,7 @@ export default function LandingPage() {
                     链上单笔结算手续费
                   </div>
                 </div>
-              </div>
+              </GsapStagger>
             </div>
           </div>
         </section>
@@ -304,9 +325,14 @@ export default function LandingPage() {
                   <h3 className="text-xl sm:text-2xl font-sans font-bold text-zinc-950 tracking-tight mb-3">
                     东南亚多语言与印尼俚语深度解析
                   </h3>
-                  <p className="text-sm sm:text-base text-zinc-600 leading-relaxed font-sans">
+                  <p className="text-sm sm:text-base text-zinc-600 leading-relaxed font-sans mb-6">
                     不仅掌握标准印尼语（Bahasa Indonesia），更精准识别雅加达本土口语缩写（Bahasa Gaul，如 <em>min, ongkir, ga nyasar</em>）与泰语礼貌语气助词（<em>krub/ka</em>）。
                   </p>
+
+                  {/* 3D 东南亚跨境拓扑航线与多语言数据球体微组件 */}
+                  <div className="mt-2 p-3 sm:p-4 bg-zinc-50/60 rounded-xl border border-zinc-200/70">
+                    <SeaTopologyGlobe />
+                  </div>
                 </div>
                 <div className="mt-8 pt-5 border-t border-zinc-100 flex items-center justify-between text-xs font-mono text-zinc-500">
                   <span className="text-emerald-700 font-medium">印尼语 • 泰语 • 英语 • 越南语</span>
@@ -323,9 +349,14 @@ export default function LandingPage() {
                   <h3 className="text-xl sm:text-2xl font-sans font-bold text-zinc-950 tracking-tight mb-3">
                     Solana Pay 毫秒级原生结算
                   </h3>
-                  <p className="text-sm sm:text-base text-zinc-600 leading-relaxed font-sans">
+                  <p className="text-sm sm:text-base text-zinc-600 leading-relaxed font-sans mb-6">
                     0 传统跨国信用卡 3% 货币兑换与通道手续费损耗。原生 USDC 充值即时到账，单笔手续费低至 $0.00025。
                   </p>
+
+                  {/* 3D 毫秒级原生结算硬币/棱镜微组件 */}
+                  <div className="mt-2 p-3 sm:p-4 bg-zinc-50/60 rounded-xl border border-zinc-200/70">
+                    <SolanaSettlementCoin3D />
+                  </div>
                 </div>
                 <div className="mt-8 pt-5 border-t border-zinc-100 flex items-center justify-between text-xs font-mono text-indigo-700 font-semibold">
                   <span>418ms Finality</span>

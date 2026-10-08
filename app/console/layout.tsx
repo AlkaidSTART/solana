@@ -90,18 +90,13 @@ export default function ConsoleLayout({
 
         {/* 右侧：通道状态灯、额度胶囊、语言切换 */}
         <div className="flex items-center gap-3 sm:gap-4 text-xs font-mono">
-          {/* WhatsApp API 健康度灯 */}
-          <div className="hidden lg:flex items-center gap-1.5 text-[11px] text-zinc-500">
-            <span className="relative flex h-2 w-2">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-            </span>
-            <span>{getI18nText(locale, "waba_status")}</span>
-          </div>
-
-          {/* Webhook 健康度灯 */}
-          <div className="hidden lg:flex items-center gap-1.5 text-[11px] text-zinc-500">
-            <span className="w-2 h-2 rounded-full bg-emerald-500" />
+          {/* 通道与链路健康状态胶囊 */}
+          <div className="hidden lg:flex items-center gap-2.5 text-[11px] text-zinc-500 border border-zinc-200/80 px-2.5 py-1 rounded-lg bg-zinc-50/60">
+            <div className="flex items-center gap-1.5">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 inline-block" />
+              <span>{getI18nText(locale, "waba_status")}</span>
+            </div>
+            <span className="text-zinc-300">·</span>
             <span>{getI18nText(locale, "webhook_status")}</span>
           </div>
 
@@ -192,15 +187,15 @@ export default function ConsoleLayout({
           {/* 侧栏底部环境元信息 */}
           <div className="p-3.5 border-t border-zinc-200 bg-zinc-50/70 text-[10px] font-mono text-zinc-500 space-y-1.5">
             <div className="flex justify-between">
-              <span>TENANT:</span>
-              <span className="text-zinc-900 font-medium">SEA_8892 (Demo)</span>
+              <span>{getI18nText(locale, "meta_tenant")}:</span>
+              <span className="text-zinc-900 font-medium">SEA_8892 ({getI18nText(locale, "demo_badge")})</span>
             </div>
             <div className="flex justify-between">
-              <span>TIMEZONE:</span>
+              <span>{getI18nText(locale, "meta_timezone")}:</span>
               <span className="text-zinc-900 truncate max-w-[100px]">WIB (UTC+7)</span>
             </div>
             <div className="flex justify-between">
-              <span>NETWORK:</span>
+              <span>{getI18nText(locale, "meta_network")}:</span>
               <span className="text-emerald-700 font-bold">Solana Devnet</span>
             </div>
           </div>

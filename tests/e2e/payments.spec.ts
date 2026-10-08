@@ -11,7 +11,7 @@ async function fixture(page: Page, creationGate?: Promise<void>) {
   let fail = false;
   let posts = 0;
   const qr = await QRCode.toDataURL(paymentUrl(order));
-  await page.route("**/api/payments/**", async (route) => {
+  await page.route("**/api/v1/payments/**", async (route) => {
     const path = new URL(route.request().url()).pathname;
     const method = route.request().method();
     if (fail) return route.fulfill({ status: 503, json: { error: "Mock RPC 暂不可用" } });
