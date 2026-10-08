@@ -28,6 +28,7 @@ import {
   sanitizeOtpPaste,
   isOtpComplete,
 } from "./auth-utils";
+import { OAuthButtons } from "./oauth-buttons";
 
 export type AuthMode = "login" | "register";
 export type LoginMethod = "otp" | "password";
@@ -576,6 +577,9 @@ export function AuthCard({ initialMode = "login", onModeChange }: AuthCardProps)
               )}
             </Button>
 
+            {/* 第三方 OAuth 登录 */}
+            <OAuthButtons onError={(err) => setErrorMsg(err)} />
+
             {/* 快速演示通道 */}
             <div className="pt-2">
               <Button
@@ -805,6 +809,9 @@ export function AuthCard({ initialMode = "login", onModeChange }: AuthCardProps)
                 </span>
               )}
             </Button>
+
+            {/* 第三方 OAuth 快捷注册 */}
+            <OAuthButtons onError={(err) => setErrorMsg(err)} />
 
             {/* 切换到登录 */}
             <div className="text-center pt-1 text-[11px] font-mono text-zinc-500">
