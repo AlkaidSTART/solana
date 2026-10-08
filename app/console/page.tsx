@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import { Tabs } from "@/components/ui/tabs";
 import { GsapEntrance, GsapStagger } from "@/components/ui/gsap-transition";
+import { MOCK_CONTROL_GROUP_METRICS } from "@/mock";
 import { useOnboardingStore } from "@/stores/use-onboarding-store";
 
 export default function ConsoleOverviewPage() {
@@ -110,7 +111,7 @@ export default function ConsoleOverviewPage() {
               {getI18nText(locale, "overview_retry_conn")}
             </Button>
             <Button size="sm" variant="outline">
-              Diagnostic Logs
+              {getI18nText(locale, "overview_btn_diag")}
             </Button>
           </div>
         </div>
@@ -126,7 +127,9 @@ export default function ConsoleOverviewPage() {
           <div className="flex items-center gap-2.5">
             <Sparkles className="w-4 h-4 text-emerald-400 shrink-0" />
             <span>
-              您有一个进行中的店铺初始化向导 (当前处于步骤 {currentStep}/6)，继续完成即可免费激活并领取 100 Credits。
+              {locale === "zh_CN"
+                ? `您有一个进行中的店铺初始化向导 (当前处于步骤 ${currentStep}/6)，继续完成即可免费激活并领取 100 Credits。`
+                : `You have an ongoing store onboarding setup (currently step ${currentStep}/6). Complete it to activate and claim 100 Credits.`}
             </span>
           </div>
           <Link href="/onboarding">
@@ -134,7 +137,7 @@ export default function ConsoleOverviewPage() {
               size="sm"
               className="bg-white text-zinc-900 hover:bg-zinc-100 text-xs font-mono h-7 px-3 shrink-0"
             >
-              继续完成向导
+              {locale === "zh_CN" ? "继续完成向导" : "Resume Setup"}
               <ArrowRight className="w-3.5 h-3.5 ml-1" />
             </Button>
           </Link>
@@ -164,8 +167,8 @@ export default function ConsoleOverviewPage() {
             onChange={(id) => setViewState(id as "normal" | "loading" | "empty" | "error")}
             items={[
               { id: "normal", label: getI18nText(locale, "status_normal") },
-              { id: "loading", label: "Loading" },
-              { id: "empty", label: "Empty" },
+              { id: "loading", label: getI18nText(locale, "overview_tab_loading") },
+              { id: "empty", label: getI18nText(locale, "overview_tab_empty") },
               { id: "error", label: getI18nText(locale, "status_warning") },
             ]}
           />
@@ -184,8 +187,8 @@ export default function ConsoleOverviewPage() {
           <StatCard
             label={`${getI18nText(locale, "orders_tab_pending")} (${pendingOrders.length})`}
             value="18"
-            subValue="COD / Pre-dispatch"
-            trend={{ text: "+4 today", warning: true }}
+            subValue={getI18nText(locale, "overview_stat_pre_dispatch")}
+            trend={{ text: getI18nText(locale, "overview_stat_today"), warning: true }}
             indicator={<Badge variant="warning">{getI18nText(locale, "status_pending")}</Badge>}
           />
         </div>
@@ -193,8 +196,8 @@ export default function ConsoleOverviewPage() {
           <StatCard
             label={getI18nText(locale, "overview_stat_human_queue")}
             value={pendingTakeovers.length}
-            subValue="Critical SLA: 14m"
-            trend={{ text: "Meta 24h Window", positive: true }}
+            subValue={getI18nText(locale, "overview_stat_critical_sla")}
+            trend={{ text: getI18nText(locale, "overview_stat_meta_window"), positive: true }}
             indicator={<Badge variant="danger">{getI18nText(locale, "status_warning")}</Badge>}
           />
         </div>
@@ -202,8 +205,8 @@ export default function ConsoleOverviewPage() {
           <StatCard
             label={getI18nText(locale, "overview_stat_credits")}
             value={credits.available.toLocaleString()}
-            subValue="Reserved: 120"
-            trend={{ text: "~8,400 messages", positive: true }}
+            subValue={getI18nText(locale, "overview_stat_reserved")}
+            trend={{ text: getI18nText(locale, "overview_stat_messages_est"), positive: true }}
             indicator={<Badge variant="success">{getI18nText(locale, "status_normal")}</Badge>}
           />
         </div>
@@ -212,7 +215,7 @@ export default function ConsoleOverviewPage() {
             label={getI18nText(locale, "overview_stat_recovered")}
             value="$ 1,420.00"
             subValue={getI18nText(locale, "overview_stat_cod_rate") + ": 90.6%"}
-            trend={{ text: "Lift: +47.1%", positive: true }}
+            trend={{ text: getI18nText(locale, "overview_stat_lift"), positive: true }}
             indicator={<TrendingUp className="w-3.5 h-3.5 text-[#059669]" />}
           />
         </div>
@@ -226,11 +229,11 @@ export default function ConsoleOverviewPage() {
             <div className="flex items-center gap-2">
               <CardTitle>{getI18nText(locale, "settings_control_group_title")}</CardTitle>
               <Badge variant="success">
-                95% Confidence Verified
+                {getI18nText(locale, "overview_confidence_verified")}
               </Badge>
             </div>
             <div className="text-[11px] font-mono text-[#71717A]">
-              14-Day Rolling Window
+              {getI18nText(locale, "overview_rolling_window")}
             </div>
           </div>
         </CardHeader>
@@ -250,7 +253,7 @@ export default function ConsoleOverviewPage() {
               {/* 提醒组 */}
               <div className="p-3.5 border border-[#E4E4E7] bg-[#FAFAFA] space-y-1">
                 <div className="flex justify-between text-xs font-mono">
-                  <span className="text-[#71717A]">{MOCK_CONTROL_GROUP_METRICS.whatsappActive.label}</span>
+                  <span className="text-[#71717A]">{getI18nText(locale, "overview_group_active")}</span>
                   <span className="font-bold text-[#09090B]">{MOCK_CONTROL_GROUP_METRICS.whatsappActive.conversionRate}</span>
                 </div>
                 <div className="w-full bg-[#E4E4E7] h-2">
@@ -265,14 +268,14 @@ export default function ConsoleOverviewPage() {
               {/* 对照组 */}
               <div className="p-3.5 border border-[#E4E4E7] bg-white space-y-1">
                 <div className="flex justify-between text-xs font-mono">
-                  <span className="text-[#71717A]">{MOCK_CONTROL_GROUP_METRICS.silentControl.label}</span>
-                  <span className="font-bold text-[#71717A]">{MOCK_CONTROL_GROUP_METRICS.silentControl.conversionRate}</span>
+                  <span className="text-[#71717A]">{getI18nText(locale, "overview_group_control")}</span>
+                  <span className="font-bold text-[#71717A]">{getI18nText(locale, "overview_organic_conv")}</span>
                 </div>
                 <div className="w-full bg-[#E4E4E7] h-2">
                   <div className="bg-[#A1A1AA] h-2" style={{ width: MOCK_CONTROL_GROUP_METRICS.silentControl.percentWidth }} />
                 </div>
                 <div className="text-[11px] font-mono text-[#71717A] flex justify-between pt-1">
-                  <span>Organic: {MOCK_CONTROL_GROUP_METRICS.silentControl.organicCount}</span>
+                  <span>{getI18nText(locale, "overview_organic_orders")}</span>
                   <span>GMV: {MOCK_CONTROL_GROUP_METRICS.silentControl.gmv}</span>
                 </div>
               </div>
@@ -286,34 +289,34 @@ export default function ConsoleOverviewPage() {
                 【2】{getI18nText(locale, "workflows_rule_cod_verify")}
               </span>
               <span className="text-[#059669] font-bold">
-                Loss Avoidance: $ 2,480.00 Saved
+                {getI18nText(locale, "overview_loss_avoidance")}
               </span>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-1">
               <div className="p-3.5 border border-[#E4E4E7] bg-[#FAFAFA] space-y-1">
                 <div className="flex justify-between text-xs font-mono">
-                  <span className="text-[#71717A]">{MOCK_CONTROL_GROUP_METRICS.landmarkVerifiedCod.label}</span>
-                  <span className="font-bold text-[#059669]">{MOCK_CONTROL_GROUP_METRICS.landmarkVerifiedCod.deliveryRate}</span>
+                  <span className="text-[#71717A]">{getI18nText(locale, "overview_landmark_verified")}</span>
+                  <span className="font-bold text-[#059669]">{getI18nText(locale, "overview_delivered_rate")}</span>
                 </div>
                 <div className="w-full bg-[#E4E4E7] h-2">
                   <div className="bg-[#059669] h-2" style={{ width: MOCK_CONTROL_GROUP_METRICS.landmarkVerifiedCod.percentWidth }} />
                 </div>
                 <div className="text-[11px] font-mono text-[#71717A] pt-1">
-                  Intercepted fake addresses: {MOCK_CONTROL_GROUP_METRICS.landmarkVerifiedCod.interceptedFakeAddresses} (Prevented round-trip freight loss)
+                  {getI18nText(locale, "overview_fake_address")}
                 </div>
               </div>
 
               <div className="p-3.5 border border-[#E4E4E7] bg-white space-y-1">
                 <div className="flex justify-between text-xs font-mono">
-                  <span className="text-[#71717A]">{MOCK_CONTROL_GROUP_METRICS.unverifiedBaselineCod.label}</span>
-                  <span className="font-bold text-[#E11D48]">{MOCK_CONTROL_GROUP_METRICS.unverifiedBaselineCod.deliveryRate}</span>
+                  <span className="text-[#71717A]">{getI18nText(locale, "overview_unverified")}</span>
+                  <span className="font-bold text-[#E11D48]">{getI18nText(locale, "overview_unverified_rate")}</span>
                 </div>
                 <div className="w-full bg-[#E4E4E7] h-2">
                   <div className="bg-[#E11D48] h-2" style={{ width: MOCK_CONTROL_GROUP_METRICS.unverifiedBaselineCod.percentWidth }} />
                 </div>
                 <div className="text-[11px] font-mono text-[#71717A] pt-1">
-                  {MOCK_CONTROL_GROUP_METRICS.unverifiedBaselineCod.excessNote}
+                  {getI18nText(locale, "overview_unverified_diff")}
                 </div>
               </div>
             </div>

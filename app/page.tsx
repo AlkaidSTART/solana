@@ -38,54 +38,46 @@ export default function LandingPage() {
   const [lang, setLang] = useState<LandingLang>("ZH");
   const [payModalOpen, setPayModalOpen] = useState(false);
 
-  const heroTitles: Record<LandingLang, { headline: string; subhead: string; badge: string }> = {
+  const heroTitles: Record<LandingLang, { headline: string; subhead: string }> = {
     ZH: {
       headline: "Autonomous WhatsApp Agents.\nSettled on Solana.",
       subhead:
         "专为东南亚跨境电商打造：待支付订单 15 分钟温和挽回，印尼 COD 订单发货前智能地标核验。官方 WhatsApp 商业 API 直连，USDC 零汇损即时结算。",
-      badge: "2026 东南亚电商 AI · 新加坡 / 印尼 / 大马 / 泰国 / 越南 / 菲律宾",
     },
     EN: {
       headline: "Autonomous WhatsApp Agents.\nSettled on Solana.",
       subhead:
         "Engineered for Southeast Asian cross-border e-commerce: 15-minute abandoned cart recovery and pre-dispatch COD address verification. Official WhatsApp API with instant USDC settlement.",
-      badge: "2026 SOUTHEAST ASIA COMMERCE AI · SOLANA PAY",
     },
     SG: {
       headline: "Autonomous WhatsApp Agents.\nSettled on Solana.",
       subhead:
         "Built for SG & Southeast Asian cross-border sellers: 15-minute gentle cart recovery and pre-delivery COD landmark verification lah. Official WhatsApp Cloud API with zero-slippage USDC settlement.",
-      badge: "SINGAPORE & SEA HUB · FAST PAYNOW & SOLANA USDC SETTLEMENT",
     },
     ID: {
       headline: "Asisten Pesanan WhatsApp Otonom.\nSelesai di Solana.",
       subhead:
         "Solusi cerdas e-commerce Asia Tenggara: pemulihan keranjang belanja 15 menit dan verifikasi alamat COD pra-pengiriman. Terhubung ke API resmi WhatsApp dengan settlement USDC instan.",
-      badge: "AI E-COMMERCE ASIA TENGGARA 2026 · SOLANA PAY",
     },
     MY: {
       headline: "Ejen Pesanan WhatsApp Autonomi.\nSelesai di Solana.",
       subhead:
         "Khas untuk e-dagang rentas sempadan Asia Tenggara: pemulihan troli terbiar 15 minit & pengesahan COD sebelum pos laju. API rasmi WhatsApp dengan penyelesaian USDC segera.",
-      badge: "AI E-DAGANG ASIA TENGGARA · MALAYSIA & REGIONAL",
     },
     TH: {
       headline: "ระบบผู้ช่วยคำสั่งซื้อ WhatsApp อัตโนมัติ\nชำระเงินบน Solana",
       subhead:
         "ออกแบบมาเพื่ออีคอมเมิร์ซเอเชียตะวันออกเฉียงใต้: กู้คืนตะกร้าสินค้าใน 15 นาที และยืนยันที่อยู่ COD ก่อนจัดส่ง เชื่อมต่อ WhatsApp Business API ทางการ พร้อมชำระเงิน USDC ทันที",
-      badge: "AI อีคอมเมิร์ซเอเชียตะวันออกเฉียงใต้ 2026 · SOLANA PAY",
     },
     VI: {
       headline: "Trợ Lý Đơn Hàng WhatsApp Tự Động.\nThanh Toán Trên Solana.",
       subhead:
         "Thiết kế riêng cho thương mại điện tử Đông Nam Á: thu hồi giỏ hàng bỏ quên sau 15 phút, xác minh địa chỉ giao COD trước khi gửi hàng. Kết nối trực tiếp WhatsApp Cloud API, tất toán USDC không trượt giá.",
-      badge: "AI THƯƠNG MẠI ĐIỆN TỬ ĐÔNG NAM Á 2026 · SOLANA PAY",
     },
     PH: {
       headline: "Awtomatikong WhatsApp Order Assistant.\nSettled sa Solana.",
       subhead:
         "Ginawa para sa e-commerce sa Southeast Asia: 15-minutong pagbawi ng abandoned cart at beripikasyon ng landmark sa COD bago i-dispatch po. Opisyal na WhatsApp API na may instant settlement gamit ang USDC.",
-      badge: "SOUTHEAST ASIA COMMERCE AI 2026 · PILIPINAS & REGIONAL",
     },
   };
 
@@ -187,11 +179,6 @@ export default function LandingPage() {
           <div className="max-w-7xl mx-auto px-4 sm:px-8 relative z-10 text-center">
             {/* GSAP 进场与语言切换平滑过渡 */}
             <GsapEntrance triggerKey={lang} direction="up" distance={16} duration={0.38}>
-              {/* 顶部微胶囊标签 */}
-              <div className="inline-flex items-center gap-2 text-xs font-mono text-zinc-600 border border-zinc-200/80 px-3.5 py-1.5 bg-zinc-50/80 rounded-full mb-6 shadow-2xs">
-                <span>{t.badge}</span>
-              </div>
-
               {/* 极简超大标题 */}
               <h1 className="text-4xl sm:text-6xl lg:text-7xl font-sans font-bold tracking-tight text-zinc-950 leading-[1.08] max-w-4xl mx-auto whitespace-pre-line text-balance">
                 {t.headline}

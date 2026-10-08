@@ -3,90 +3,11 @@
 import React, { useEffect, useRef, useState, useMemo } from "react";
 import * as THREE from "three";
 import { clsx } from "clsx";
-
-interface CityNode {
-  id: string;
-  code: string;
-  name: string;
-  lat: number;
-  lon: number;
-  market: string;
-  tag: string;
-  metric: string;
-}
-
-const SEA_NODES: CityNode[] = [
-  {
-    id: "cgk",
-    code: "CGK",
-    name: "雅加达 (Jakarta)",
-    lat: -6.2,
-    lon: 106.85,
-    market: "印尼 · +62",
-    tag: "COD 地标校验 · Bahasa Gaul 俚语",
-    metric: "99.4% 发货核验率",
-  },
-  {
-    id: "sin",
-    code: "SIN",
-    name: "新加坡 (Singapore)",
-    lat: 1.35,
-    lon: 103.82,
-    market: "区域枢纽 · +65",
-    tag: "Solana Pay 结算 · Singlish 召回",
-    metric: "418ms 原生结算",
-  },
-  {
-    id: "bkk",
-    code: "BKK",
-    name: "曼谷 (Bangkok)",
-    lat: 13.75,
-    lon: 100.5,
-    market: "泰国 · +66",
-    tag: "PromptPay 扫码 · 15min 弃购挽回",
-    metric: "18.4% 挽回转化",
-  },
-  {
-    id: "mnl",
-    code: "MNL",
-    name: "马尼拉 (Manila)",
-    lat: 14.6,
-    lon: 120.98,
-    market: "菲律宾 · +63",
-    tag: "GCash 预检 · COD 防拒签保护",
-    metric: "-6.2% 运费损耗",
-  },
-  {
-    id: "sgn",
-    code: "SGN",
-    name: "胡志明市 (HCMC)",
-    lat: 10.82,
-    lon: 106.63,
-    market: "越南 · +84",
-    tag: "MoMo 直连 · 02:00 夜间咨询促单",
-    metric: "< 3.2s 平均应答",
-  },
-  {
-    id: "szx",
-    code: "SZX",
-    name: "深圳 (Shenzhen)",
-    lat: 22.54,
-    lon: 114.05,
-    market: "跨境供应链发货港",
-    tag: "Shopify/WooCommerce 毫秒同步",
-    metric: "150ms Webhook 接入",
-  },
-];
-
-// 航线连接对
-const ROUTES: [string, string][] = [
-  ["szx", "sin"],
-  ["szx", "cgk"],
-  ["szx", "bkk"],
-  ["sin", "cgk"],
-  ["sin", "mnl"],
-  ["bkk", "sgn"],
-];
+import {
+  MOCK_SEA_NODES as SEA_NODES,
+  MOCK_SEA_ROUTES as ROUTES,
+  type CityNode,
+} from "@/mock";
 
 function latLonToVector3(lat: number, lon: number, radius: number): THREE.Vector3 {
   const phi = (90 - lat) * (Math.PI / 180);
