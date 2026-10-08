@@ -1,134 +1,88 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { Suspense } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { Button } from "@/components/ui/button";
-import { Mail } from "lucide-react";
-import { MOCK_DEMO_LOGIN_CREDENTIALS } from "@/mock";
+import { useSearchParams } from "next/navigation";
+import { ArrowLeft, Globe } from "lucide-react";
+import { AuthCard } from "@/components/auth/auth-card";
+import { useAppStore } from "@/stores/use-app-store";
+import type { SupportedLocale } from "@/lib/i18n";
+
+function LoginContent() {
+  const searchParams = useSearchParams();
+  const initialMode = searchParams.get("mode") === "register" ? "register" : "login";
+
+  return <AuthCard initialMode={initialMode} />;
+}
 
 export default function LoginPage() {
-  const router = useRouter();
-  const [email, setEmail] = useState(MOCK_DEMO_LOGIN_CREDENTIALS.email);
-  const code = MOCK_DEMO_LOGIN_CREDENTIALS.code;
-  const sentCode = true;
-  const [loading, setLoading] = useState(false);
-
-  const handleLogin = (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
-      router.push("/onboarding");
-    }, 400);
-  };
-
-  const handleQuickDemo = () => {
-    setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
-      router.push("/console");
-    }, 300);
-  };
+  const { locale, setLocale } = useAppStore();
 
   return (
-    <div className="min-h-screen bg-white text-[#09090B] font-sans flex flex-col justify-between selection:bg-[#09090B] selection:text-white">
+    <div className="min-h-screen bg-white text-zinc-950 font-sans flex flex-col justify-between selection:bg-zinc-950 selection:text-white">
       {/* 顶部商户导航 */}
-      <header className="h-16 border-b border-[#E4E4E7] px-6 flex items-center justify-between">
-        <Link href="/" className="flex items-center gap-2">
-          <span className="font-mono text-base font-bold tracking-tight text-[#09090B]">
-            SolaFlow
-          </span>
-          <span className="text-[10px] font-mono uppercase px-1.5 py-0.5 bg-[#09090B] text-white">
-            AI
-          </span>
-        </Link>
-        <div className="text-xs font-mono text-[#71717A]">
-          东南亚跨境电商 WhatsApp 订单助手
+      <header className="h-16 border-b border-zinc-200 px-4 sm:px-8 flex items-center justify-between">
+        <div className="flex items-center gap-4">
+          <Link href="/" className="flex items-center gap-2 group">
+            <span className="font-sans text-base font-bold tracking-tight text-zinc-950">
+              SolaFlow
+            </span>
+            <span className="text-[10px] font-mono uppercase px-1.5 py-0.5 bg-zinc-950 text-white rounded">
+              AI
+            </span>
+          </Link>
+          <div className="hidden md:flex items-center gap-2 text-xs font-mono text-zinc-500 border-l border-zinc-200 pl-4">
+            <span>东南亚跨境电商 WhatsApp 订单助手</span>
+          </div>
+        </div>
+
+        {/* 顶部右侧：多语言切换与返回官网 */}
+        <div className="flex items-center gap-3 sm:gap-4">
+          <div className="flex items-center gap-1.5 border border-zinc-200 px-2 py-1 text-xs font-mono bg-zinc-50">
+            <Globe className="w-3.5 h-3.5 text-zinc-500" />
+            <select
+              value={locale}
+              onChange={(e) => setLocale(e.target.value as SupportedLocale)}
+              className="bg-transparent text-zinc-900 font-mono text-xs focus:outline-none cursor-pointer"
+              aria-label="选择语言"
+            >
+              <option value="zh_CN">🇨🇳 中文</option>
+              <option value="en_US">🌐 English</option>
+              <option value="id_ID">🇮🇩 Bahasa Indonesia</option>
+            </select>
+          </div>
+
+          <Link
+            href="/"
+            className="text-xs font-mono text-zinc-500 hover:text-zinc-950 flex items-center gap-1 transition-colors"
+          >
+            <ArrowLeft className="w-3.5 h-3.5" />
+            <span className="hidden sm:inline">返回官网</span>
+          </Link>
         </div>
       </header>
 
-      {/* 居中商户登录卡片 */}
-      <main className="flex-1 flex items-center justify-center p-6">
-        <div className="w-full max-w-md border border-[#E4E4E7] bg-white p-8 space-y-6">
-          <div className="space-y-1">
-            <div className="text-[10px] font-mono uppercase tracking-wider text-[#71717A]">
-              SOLAFLOW CONSOLE · MERCHANT AUTH
+      {/* 居中商户认证卡片 */}
+      <main className="flex-1 flex items-center justify-center p-4 sm:p-6 my-8">
+        <Suspense
+          fallback={
+            <div className="w-full max-w-md h-96 border border-zinc-200 bg-white p-8 flex items-center justify-center text-xs font-mono text-zinc-400">
+              加载中...
             </div>
-            <h1 className="text-xl font-mono font-bold uppercase text-[#09090B]">
-              商家工作台免密登录
-            </h1>
-            <p className="text-xs text-[#71717A] font-mono">
-              输入工作邮箱获取 6 位动态验证码，免去繁琐密码记忆
-            </p>
-          </div>
-
-          <form onSubmit={handleLogin} className="space-y-4 text-xs font-mono">
-            <div>
-              <label className="text-[#71717A] uppercase text-[10px] block mb-1">
-                商家工作邮箱 (Work Email)
-              </label>
-              <div className="relative">
-                <Mail className="w-3.5 h-3.5 absolute left-3 top-3 text-[#71717A]" />
-                <input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="w-full pl-9 pr-3 py-2 bg-white border border-[#E4E4E7] focus:outline-none focus:border-[#09090B]"
-                  required
-                />
-              </div>
-            </div>
-
-            {sentCode && (
-              <div>
-                <div className="flex justify-between items-center mb-1">
-                  <label className="text-[#71717A] uppercase text-[10px]">
-                    输入 6 位动态验证码
-                  </label>
-                  <span className="text-[10px] text-[#059669]">已发送验证码至邮箱</span>
-                </div>
-                <div className="grid grid-cols-6 gap-2">
-                  {code.map((digit, i) => (
-                    <input
-                      key={i}
-                      type="text"
-                      maxLength={1}
-                      defaultValue={digit}
-                      className="h-11 text-center font-mono font-bold text-base border border-[#E4E4E7] focus:outline-none focus:border-[#09090B] bg-[#FAFAFA]"
-                    />
-                  ))}
-                </div>
-              </div>
-            )}
-
-            <Button type="submit" disabled={loading} className="w-full h-11 text-xs">
-              {loading ? "正在验证身份..." : "登录进入商户工作台"}
-            </Button>
-
-            {/* 快速体验 Demo */}
-            <div className="pt-2">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={handleQuickDemo}
-                className="w-full h-10 text-xs"
-              >
-                一键以演示商户身份直接进入控制台
-              </Button>
-            </div>
-          </form>
-
-          <div className="pt-4 border-t border-[#E4E4E7] text-[10px] font-mono text-[#71717A] text-center">
-            登录即代表您同意 SolaFlow 出海商户服务条款与 Meta 商业数据处理协议
-          </div>
-        </div>
+          }
+        >
+          <LoginContent />
+        </Suspense>
       </main>
 
       {/* 底部版权 */}
-      <footer className="h-12 border-t border-[#E4E4E7] px-6 flex items-center justify-between text-[11px] font-mono text-[#71717A]">
-        <span>SolaFlow AI © 2026</span>
-        <span>Secure Auth • Solana L1 Finalized</span>
+      <footer className="h-14 border-t border-zinc-200 px-4 sm:px-8 flex flex-col sm:flex-row items-center justify-between text-[11px] font-mono text-zinc-500 gap-2 sm:gap-0 py-2 sm:py-0">
+        <span>SolaFlow AI © 2026 · 东南亚出海跨境电商基础设施</span>
+        <div className="flex items-center gap-4">
+          <span>Meta BAA 合规认证</span>
+          <span>•</span>
+          <span>Solana L1 结算引擎</span>
+        </div>
       </footer>
     </div>
   );
