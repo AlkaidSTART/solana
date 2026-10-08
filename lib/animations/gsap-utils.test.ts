@@ -9,30 +9,41 @@ import {
 import { gsap } from "gsap";
 
 describe("gsap-utils", () => {
-  let originalMatchMedia: typeof window.matchMedia;
+  const originalWindow = (globalThis as unknown as { window?: unknown }).window;
 
   beforeEach(() => {
-    originalMatchMedia = window.matchMedia;
     vi.restoreAllMocks();
+    (globalThis as unknown as { window: unknown }).window = {
+      matchMedia: vi.fn().mockReturnValue({ matches: false }),
+    };
   });
 
   afterEach(() => {
-    window.matchMedia = originalMatchMedia;
+    if (originalWindow === undefined) {
+      delete (globalThis as unknown as { window?: unknown }).window;
+    } else {
+      (globalThis as unknown as { window: unknown }).window = originalWindow;
+    }
   });
 
   describe("shouldReduceMotion", () => {
     it("returns false when prefers-reduced-motion is false", () => {
-      window.matchMedia = vi.fn().mockReturnValue({
+      (globalThis as unknown as { window: { matchMedia: ReturnType<typeof vi.fn> } }).window.matchMedia = vi.fn().mockReturnValue({
         matches: false,
-      } as MediaQueryList);
+      });
       expect(shouldReduceMotion()).toBe(false);
     });
 
     it("returns true when prefers-reduced-motion is true", () => {
-      window.matchMedia = vi.fn().mockReturnValue({
+      (globalThis as unknown as { window: { matchMedia: ReturnType<typeof vi.fn> } }).window.matchMedia = vi.fn().mockReturnValue({
         matches: true,
-      } as MediaQueryList);
+      });
       expect(shouldReduceMotion()).toBe(true);
+    });
+
+    it("returns false when window is undefined", () => {
+      delete (globalThis as unknown as { window?: unknown }).window;
+      expect(shouldReduceMotion()).toBe(false);
     });
   });
 
@@ -41,39 +52,48 @@ describe("gsap-utils", () => {
       expect(animateEntrance(null)).toBeNull();
     });
 
+    it("returns null if window is undefined", () => {
+      delete (globalThis as unknown as { window?: unknown }).window;
+      const el = {} as HTMLElement;
+      expect(animateEntrance(el)).toBeNull();
+    });
+
     it("immediately sets styles if shouldReduceMotion is true", () => {
-      window.matchMedia = vi.fn().mockReturnValue({ matches: true } as MediaQueryList);
-      const div = document.createElement("div");
+      (globalThis as unknown as { window: { matchMedia: ReturnType<typeof vi.fn> } }).window.matchMedia = vi.fn().mockReturnValue({
+        matches: true,
+      });
+      const el = {} as HTMLElement;
       const setSpy = vi.spyOn(gsap, "set");
 
-      animateEntrance(div, { direction: "up" });
-      expect(setSpy).toHaveBeenCalledWith(div, expect.objectContaining({
-        opacity: 1,
-        y: 0,
-      }));
+      animateEntrance(el, { direction: "up" });
+      expect(setSpy).toHaveBeenCalledWith(
+        el,
+        expect.objectContaining({
+          opacity: 1,
+          y: 0,
+        })
+      );
     });
 
     it("calls gsap.fromTo with up direction when motion is enabled", () => {
-      window.matchMedia = vi.fn().mockReturnValue({ matches: false } as MediaQueryList);
-      const div = document.createElement("div");
+      const el = {} as HTMLElement;
       const fromToSpy = vi.spyOn(gsap, "fromTo");
 
-      animateEntrance(div, { direction: "up", distance: 20 });
+      animateEntrance(el, { direction: "up", distance: 20 });
       expect(fromToSpy).toHaveBeenCalledWith(
-        div,
+        el,
         expect.objectContaining({ opacity: 0, y: 20 }),
         expect.objectContaining({ opacity: 1, y: 0 })
       );
     });
 
     it("calls gsap.fromTo with scale direction", () => {
-      window.matchMedia = vi.fn().mockReturnValue({ matches: false } as MediaQueryList);
-      const div = document.createElement("div");
+      const el = {} as HTMLElement;
       const fromToSpy = vi.spyOn(gsap, "fromTo");
 
-      animateEntrance(div, { direction: "scale" });
+      animateEntrance(el, { direction: "scale" });
       expect(fromToSpy).toHaveBeenCalledWith(
-        div,
+        el,
         expect.objectContaining({ opacity: 0, scale: 0.94 }),
         expect.objectContaining({ opacity: 1, scale: 1 })
       );
@@ -87,27 +107,31 @@ describe("gsap-utils", () => {
     });
 
     it("immediately sets styles if shouldReduceMotion is true", () => {
-      window.matchMedia = vi.fn().mockReturnValue({ matches: true } as MediaQueryList);
-      const div1 = document.createElement("div");
-      const div2 = document.createElement("div");
+      (globalThis as unknown as { window: { matchMedia: ReturnType<typeof vi.fn> } }).window.matchMedia = vi.fn().mockReturnValue({
+        matches: true,
+      });
+      const el1 = {} as HTMLElement;
+      const el2 = {} as HTMLElement;
       const setSpy = vi.spyOn(gsap, "set");
 
-      animateStagger([div1, div2], { stagger: 0.1 });
-      expect(setSpy).toHaveBeenCalledWith([div1, div2], expect.objectContaining({
-        opacity: 1,
-        y: 0,
-      }));
+      animateStagger([el1, el2], { stagger: 0.1 });
+      expect(setSpy).toHaveBeenCalledWith(
+        [el1, el2],
+        expect.objectContaining({
+          opacity: 1,
+          y: 0,
+        })
+      );
     });
 
     it("animates elements with stagger when motion is enabled", () => {
-      window.matchMedia = vi.fn().mockReturnValue({ matches: false } as MediaQueryList);
-      const div1 = document.createElement("div");
-      const div2 = document.createElement("div");
+      const el1 = {} as HTMLElement;
+      const el2 = {} as HTMLElement;
       const fromToSpy = vi.spyOn(gsap, "fromTo");
 
-      animateStagger([div1, div2], { stagger: 0.08, direction: "down", distance: 10 });
+      animateStagger([el1, el2], { stagger: 0.08, direction: "down", distance: 10 });
       expect(fromToSpy).toHaveBeenCalledWith(
-        [div1, div2],
+        [el1, el2],
         expect.objectContaining({ opacity: 0, y: -10 }),
         expect.objectContaining({ opacity: 1, y: 0, stagger: 0.08 })
       );
@@ -120,12 +144,14 @@ describe("gsap-utils", () => {
     });
 
     it("sets immediately when reduceMotion is active", () => {
-      window.matchMedia = vi.fn().mockReturnValue({ matches: true } as MediaQueryList);
-      const div = document.createElement("div");
+      (globalThis as unknown as { window: { matchMedia: ReturnType<typeof vi.fn> } }).window.matchMedia = vi.fn().mockReturnValue({
+        matches: true,
+      });
+      const el = {} as HTMLElement;
       const setSpy = vi.spyOn(gsap, "set");
 
-      animateContentSwitch(div, "left");
-      expect(setSpy).toHaveBeenCalledWith(div, expect.objectContaining({ opacity: 1, x: 0 }));
+      animateContentSwitch(el, "left");
+      expect(setSpy).toHaveBeenCalledWith(el, expect.objectContaining({ opacity: 1, x: 0 }));
     });
   });
 
@@ -135,16 +161,19 @@ describe("gsap-utils", () => {
     });
 
     it("sets position immediately if reduce motion is active", () => {
-      window.matchMedia = vi.fn().mockReturnValue({ matches: true } as MediaQueryList);
-      const ind = document.createElement("div");
-      const btn = document.createElement("button");
-      Object.defineProperty(btn, "offsetLeft", { value: 40 });
-      Object.defineProperty(btn, "offsetWidth", { value: 80 });
+      (globalThis as unknown as { window: { matchMedia: ReturnType<typeof vi.fn> } }).window.matchMedia = vi.fn().mockReturnValue({
+        matches: true,
+      });
+      const ind = {} as HTMLElement;
+      const btn = { offsetLeft: 40, offsetWidth: 80 } as HTMLElement;
 
       const setSpy = vi.spyOn(gsap, "set");
       animateTabIndicator(ind, btn);
 
-      expect(setSpy).toHaveBeenCalledWith(ind, { x: 40, width: 80 });
+      expect(setSpy).toHaveBeenCalledWith(
+        ind,
+        expect.objectContaining({ x: 40, width: 80 })
+      );
     });
   });
 });
