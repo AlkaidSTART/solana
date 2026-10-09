@@ -9,6 +9,7 @@ import {
   Bot,
   User,
 } from "lucide-react";
+import { motion, AnimatePresence } from "motion/react";
 import { TopoMesh } from "@/components/landing/topo-mesh";
 import { useAppStore } from "@/stores/use-app-store";
 
@@ -151,53 +152,69 @@ export function AuthShowcase() {
           </div>
 
           {/* 会话气泡 */}
-          {activeTab === "recovery" ? (
-            <div className="space-y-3 font-mono text-xs">
-              {/* Bot 催付消息 */}
-              <div className="flex gap-2 max-w-[90%]">
-                <div className="w-5 h-5 rounded-sm bg-zinc-800 flex items-center justify-center text-zinc-400 shrink-0 mt-0.5">
-                  <Bot className="w-3 h-3" />
+          <AnimatePresence mode="wait">
+            {activeTab === "recovery" ? (
+              <motion.div
+                key="recovery-chat"
+                initial={{ opacity: 0, y: 6 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -6 }}
+                transition={{ duration: 0.2 }}
+                className="space-y-3 font-mono text-xs"
+              >
+                {/* Bot 催付消息 */}
+                <div className="flex gap-2 max-w-[90%]">
+                  <div className="w-5 h-5 rounded-sm bg-zinc-800 flex items-center justify-center text-zinc-400 shrink-0 mt-0.5">
+                    <Bot className="w-3 h-3" />
+                  </div>
+                  <div className="p-2.5 bg-zinc-800/80 border border-zinc-700 text-zinc-200 text-[11px] leading-relaxed">
+                    <p>Halo Kak Budi! Pesanan sneakers <strong>Air Obsidian 42</strong> Anda masih tersimpan di keranjang.</p>
+                    <p className="mt-1 text-zinc-400 text-[10px]">Stok tersisa 2 pasang. Selesaikan sekarang untuk mendapatkan free ongkir Jakarta hari ini.</p>
+                  </div>
                 </div>
-                <div className="p-2.5 bg-zinc-800/80 border border-zinc-700 text-zinc-200 text-[11px] leading-relaxed">
-                  <p>Halo Kak Budi! Pesanan sneakers <strong>Air Obsidian 42</strong> Anda masih tersimpan di keranjang.</p>
-                  <p className="mt-1 text-zinc-400 text-[10px]">Stok tersisa 2 pasang. Selesaikan sekarang untuk mendapatkan free ongkir Jakarta hari ini.</p>
-                </div>
-              </div>
 
-              {/* 买家回复 */}
-              <div className="flex gap-2 max-w-[90%] ml-auto justify-end">
-                <div className="p-2.5 bg-emerald-950/60 border border-emerald-800/60 text-emerald-200 text-[11px] leading-relaxed">
-                  <p>Siap Gan, kirim link QRIS pembayarannya ya! Langsung transfer sekarang.</p>
+                {/* 买家回复 */}
+                <div className="flex gap-2 max-w-[90%] ml-auto justify-end">
+                  <div className="p-2.5 bg-emerald-950/60 border border-emerald-800/60 text-emerald-200 text-[11px] leading-relaxed">
+                    <p>Siap Gan, kirim link QRIS pembayarannya ya! Langsung transfer sekarang.</p>
+                  </div>
+                  <div className="w-5 h-5 rounded-sm bg-zinc-800 flex items-center justify-center text-zinc-400 shrink-0 mt-0.5">
+                    <User className="w-3 h-3" />
+                  </div>
                 </div>
-                <div className="w-5 h-5 rounded-sm bg-zinc-800 flex items-center justify-center text-zinc-400 shrink-0 mt-0.5">
-                  <User className="w-3 h-3" />
+              </motion.div>
+            ) : (
+              <motion.div
+                key="cod-chat"
+                initial={{ opacity: 0, y: 6 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -6 }}
+                transition={{ duration: 0.2 }}
+                className="space-y-3 font-mono text-xs"
+              >
+                {/* Bot COD 核验 */}
+                <div className="flex gap-2 max-w-[90%]">
+                  <div className="w-5 h-5 rounded-sm bg-zinc-800 flex items-center justify-center text-zinc-400 shrink-0 mt-0.5">
+                    <Bot className="w-3 h-3" />
+                  </div>
+                  <div className="p-2.5 bg-zinc-800/80 border border-zinc-700 text-zinc-200 text-[11px] leading-relaxed">
+                    <p>Halo Sis Rina! Konfirmasi COD #ID-9821 senilai Rp 280.000 ke <strong>Jl. Tebet Barat Dalam No. 14</strong>.</p>
+                    <p className="mt-1 text-zinc-400 text-[10px]">Apakah penerima ada di rumah besok siang untuk serah terima paket kurir J&T?</p>
+                  </div>
                 </div>
-              </div>
-            </div>
-          ) : (
-            <div className="space-y-3 font-mono text-xs">
-              {/* Bot COD 核验 */}
-              <div className="flex gap-2 max-w-[90%]">
-                <div className="w-5 h-5 rounded-sm bg-zinc-800 flex items-center justify-center text-zinc-400 shrink-0 mt-0.5">
-                  <Bot className="w-3 h-3" />
-                </div>
-                <div className="p-2.5 bg-zinc-800/80 border border-zinc-700 text-zinc-200 text-[11px] leading-relaxed">
-                  <p>Halo Sis Rina! Konfirmasi COD #ID-9821 senilai Rp 280.000 ke <strong>Jl. Tebet Barat Dalam No. 14</strong>.</p>
-                  <p className="mt-1 text-zinc-400 text-[10px]">Apakah penerima ada di rumah besok siang untuk serah terima paket kurir J&T?</p>
-                </div>
-              </div>
 
-              {/* 买家确认 */}
-              <div className="flex gap-2 max-w-[90%] ml-auto justify-end">
-                <div className="p-2.5 bg-emerald-950/60 border border-emerald-800/60 text-emerald-200 text-[11px] leading-relaxed">
-                  <p>Ada Kak, patokannya depan Masjid Al-Huda ya. Uang pas sudah siap.</p>
+                {/* 买家确认 */}
+                <div className="flex gap-2 max-w-[90%] ml-auto justify-end">
+                  <div className="p-2.5 bg-emerald-950/60 border border-emerald-800/60 text-emerald-200 text-[11px] leading-relaxed">
+                    <p>Ada Kak, patokannya depan Masjid Al-Huda ya. Uang pas sudah siap.</p>
+                  </div>
+                  <div className="w-5 h-5 rounded-sm bg-zinc-800 flex items-center justify-center text-zinc-400 shrink-0 mt-0.5">
+                    <User className="w-3 h-3" />
+                  </div>
                 </div>
-                <div className="w-5 h-5 rounded-sm bg-zinc-800 flex items-center justify-center text-zinc-400 shrink-0 mt-0.5">
-                  <User className="w-3 h-3" />
-                </div>
-              </div>
-            </div>
-          )}
+              </motion.div>
+            )}
+          </AnimatePresence>
 
           {/* 遥测雷达面板 */}
           <div className="pt-2 border-t border-zinc-800/80 grid grid-cols-3 gap-2 text-[10px] font-mono">

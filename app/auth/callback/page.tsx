@@ -12,28 +12,28 @@ function CallbackContent() {
   const searchParams = useSearchParams();
   const { locale } = useAppStore();
 
-  const [status, setStatus] = useState<"processing" | "success" | "error">("processing");
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
-
   const isEn = locale === "en_US";
   const isId = locale === "id_ID";
 
+  const initialParams = parseOAuthCallbackParams(searchParams);
+
+  const [status, setStatus] = useState<"processing" | "success" | "error">(() =>
+    initialParams.error ? "error" : "processing"
+  );
+  const errorMessage = initialParams.error
+    ? initialParams.errorDescription ||
+      initialParams.error ||
+      (isEn
+        ? "OAuth authorization failed. Please try again."
+        : isId
+        ? "Otorisasi OAuth gagal. Silakan coba lagi."
+        : "第三方授权失败，请重试。")
+    : null;
+
   useEffect(() => {
-    const params = parseOAuthCallbackParams(searchParams);
+    if (status !== "processing") return;
 
-    if (params.error) {
-      setStatus("error");
-      setErrorMessage(
-        params.errorDescription ||
-          params.error ||
-          (isEn
-            ? "OAuth authorization failed. Please try again."
-            : "第三方授权失败，请重试。")
-      );
-      return;
-    }
-
-    // 凭据核验与回写
+    // 凭据核验与跳转
     const timer = setTimeout(() => {
       setStatus("success");
       const redirectTimer = setTimeout(() => {
@@ -43,7 +43,7 @@ function CallbackContent() {
     }, 800);
 
     return () => clearTimeout(timer);
-  }, [searchParams, router, isEn]);
+  }, [status, router]);
 
   return (
     <div className="w-full max-w-[420px] mx-auto border border-zinc-200 bg-white p-8 space-y-6 shadow-[0_4px_24px_-4px_rgba(0,0,0,0.06)] font-mono text-center">

@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import { clsx } from "clsx";
-import { RotateCw, AlertCircle } from "lucide-react";
+import { RotateCw } from "lucide-react";
 import { initiateOAuthSignIn, type OAuthProvider } from "@/lib/auth/neon-auth";
 import { useAppStore } from "@/stores/use-app-store";
 

@@ -18,6 +18,7 @@ function LoginContent() {
 
 export default function LoginPage() {
   const { locale, setLocale } = useAppStore();
+  const [mobileTelemetryOpen, setMobileTelemetryOpen] = React.useState(false);
 
   const isEn = locale === "en_US";
   const isId = locale === "id_ID";
@@ -36,6 +37,14 @@ export default function LoginPage() {
       : "SolaFlow AI © 2026 · 东南亚出海跨境电商自动化基础设施",
     compliance: isEn ? "Meta BAA Compliant" : isId ? "Kepatuhan Meta BAA" : "Meta BAA 商业数据合规",
     settlement: isEn ? "Solana Pay Settlement" : isId ? "Settlement Solana Pay" : "Solana Pay USDC 即时结算",
+    baaDirect: isEn ? "Meta BAA Direct" : isId ? "Meta BAA Terhubung" : "Meta BAA 直连",
+    loading: isEn ? "Loading..." : isId ? "Memuat..." : "加载中...",
+    selectLanguage: isEn ? "Select Language" : isId ? "Pilih Bahasa" : "选择语言",
+    mobileViewMetrics: isEn ? "View Telemetry Highlights" : isId ? "Lihat Sorotan Metrik" : "查看出海核心遥测指标",
+    mobileHideMetrics: isEn ? "Hide Telemetry Highlights" : isId ? "Sembunyikan Metrik" : "收起出海核心指标",
+    recoveryMetric: isEn ? "+18.4% Cart Recovery" : isId ? "+18.4% Pemulihan Keranjang" : "+18.4% 弃购挽回率",
+    codMetric: isEn ? "-6.2% COD Return Loss" : isId ? "-6.2% Retur COD" : "-6.2% COD 拒签损耗",
+    settlementMetric: isEn ? "400ms Solana Settlement" : isId ? "400ms Settlement Solana" : "400ms Solana 结算",
   };
 
   return (
@@ -66,7 +75,7 @@ export default function LoginPage() {
               value={locale}
               onChange={(e) => setLocale(e.target.value as SupportedLocale)}
               className="bg-transparent text-zinc-900 font-mono text-xs focus:outline-none cursor-pointer"
-              aria-label="选择语言"
+              aria-label={t.selectLanguage}
             >
               <option value="zh_CN">🇨🇳 简体中文</option>
               <option value="en_US">🌐 English</option>
@@ -105,17 +114,41 @@ export default function LoginPage() {
             />
 
             {/* 移动端顶部轻量业务标头 (<1024px 显示) */}
-            <div className="lg:hidden w-full max-w-md mb-6 p-3.5 border border-zinc-200/90 bg-zinc-50/80 font-mono space-y-1.5">
+            <div className="lg:hidden w-full max-w-md mb-4 p-3.5 border border-zinc-200/90 bg-zinc-50/80 font-mono space-y-2">
               <div className="flex items-center justify-between text-[10px]">
                 <span className="text-zinc-500 uppercase tracking-wider">SOLAFLOW OS</span>
                 <span className="inline-flex items-center gap-1 text-emerald-700 font-semibold">
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                  Meta BAA 直连
+                  {t.baaDirect}
                 </span>
               </div>
               <p className="text-xs text-zinc-700 font-medium leading-snug">
                 {t.tagline}
               </p>
+              
+              {/* 移动端轻量展开指标 */}
+              <div className="pt-1 border-t border-zinc-200/60">
+                <button
+                  type="button"
+                  onClick={() => setMobileTelemetryOpen(!mobileTelemetryOpen)}
+                  className="text-[10px] text-zinc-500 hover:text-zinc-900 underline flex items-center gap-1 cursor-pointer"
+                >
+                  <span>{mobileTelemetryOpen ? t.mobileHideMetrics : t.mobileViewMetrics}</span>
+                </button>
+                {mobileTelemetryOpen && (
+                  <div className="mt-2 grid grid-cols-3 gap-1.5 text-[10px] bg-white p-2 border border-zinc-200 animate-in fade-in">
+                    <div className="text-center">
+                      <span className="font-bold text-zinc-900 block">{t.recoveryMetric}</span>
+                    </div>
+                    <div className="text-center border-x border-zinc-100">
+                      <span className="font-bold text-emerald-700 block">{t.codMetric}</span>
+                    </div>
+                    <div className="text-center">
+                      <span className="font-bold text-zinc-900 block">{t.settlementMetric}</span>
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
 
             {/* 居中认证卡片 */}
@@ -123,7 +156,7 @@ export default function LoginPage() {
               <Suspense
                 fallback={
                   <div className="w-full h-96 border border-zinc-200 bg-white p-8 flex items-center justify-center text-xs font-mono text-zinc-400">
-                    加载中...
+                    {t.loading}
                   </div>
                 }
               >

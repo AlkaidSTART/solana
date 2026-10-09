@@ -28,22 +28,28 @@ describe("auth-utils - 商户登录注册表单核心校验与密码评估", () 
       const res = calculatePasswordStrength("");
       expect(res.level).toBe("weak");
       expect(res.score).toBe(0);
+      expect(res.labelZh).toBe("未填写");
+      expect(res.labelEn).toBe("Empty");
+      expect(res.labelId).toBe("Kosong");
     });
 
     it("小于 8 位的短密码应判定为 weak", () => {
       const res = calculatePasswordStrength("1234567");
       expect(res.level).toBe("weak");
+      expect(res.labelId).toBe("Lemah (<8 kar.)");
     });
 
     it("8 位以上普通组合判定为 medium", () => {
       const res = calculatePasswordStrength("pass123456");
       expect(res.level).toBe("medium");
+      expect(res.labelId).toBe("Sedang");
     });
 
     it("12 位以上包含大写、数字及符号判定为 strong", () => {
       const res = calculatePasswordStrength("SolaFlow2026!Secure");
       expect(res.level).toBe("strong");
       expect(res.score).toBeGreaterThanOrEqual(80);
+      expect(res.labelId).toBe("Kuat");
     });
   });
 

@@ -8,6 +8,7 @@ export interface PasswordStrengthResult {
   level: PasswordStrengthLevel;
   labelZh: string;
   labelEn: string;
+  labelId: string;
   score: number; // 0-100
 }
 
@@ -27,7 +28,7 @@ export function validateEmail(email: string): boolean {
  */
 export function calculatePasswordStrength(password: string): PasswordStrengthResult {
   if (!password || password.length === 0) {
-    return { level: "weak", labelZh: "未填写", labelEn: "Empty", score: 0 };
+    return { level: "weak", labelZh: "未填写", labelEn: "Empty", labelId: "Kosong", score: 0 };
   }
 
   let score = 0;
@@ -39,12 +40,12 @@ export function calculatePasswordStrength(password: string): PasswordStrengthRes
   if (/[^A-Za-z0-9]/.test(password)) score += 15;
 
   if (password.length < 8) {
-    return { level: "weak", labelZh: "弱 (需8位以上)", labelEn: "Weak (<8 chars)", score };
+    return { level: "weak", labelZh: "弱 (需8位以上)", labelEn: "Weak (<8 chars)", labelId: "Lemah (<8 kar.)", score };
   }
   if (score < 70) {
-    return { level: "medium", labelZh: "中等", labelEn: "Medium", score };
+    return { level: "medium", labelZh: "中等", labelEn: "Medium", labelId: "Sedang", score };
   }
-  return { level: "strong", labelZh: "高强度", labelEn: "Strong", score };
+  return { level: "strong", labelZh: "高强度", labelEn: "Strong", labelId: "Kuat", score };
 }
 
 /**
