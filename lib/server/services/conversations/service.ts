@@ -7,6 +7,7 @@ import { requireRole } from "@/lib/server/auth/roles";
 import { writeAuditEvent } from "@/lib/server/audit/service";
 import { getRuntimeConfig } from "@/lib/server/config/env";
 import { ApiError } from "@/lib/server/http/errors";
+import { accepted } from "@/lib/server/http/responses";
 import type { RequestContext } from "@/lib/server/http/request";
 import { withDatabase, withTransaction, type TransactionSql } from "@/lib/server/db/client";
 import { executeIdempotent } from "@/lib/server/idempotency/service";
@@ -304,73 +305,142 @@ export async function createHumanMessage(
   actor: ActorContext,
   conversationId: string,
   input: z.output<typeof createHumanMessageSchema>,
-): Promise<never> {
+  requestContext: RequestContext,
+): Promise<Response> {
   requireRole(actor, ["Owner", "Admin", "Agent"]);
-  const conversation = await withTransaction(async (transaction) => lockConversation(transaction, actor, conversationId));
-  assertAgentConversationAccess(actor, conversation);
+  const config = getRuntimeConfig();
+  const encryptionKey = config.security.credentialEncryptionKey;
+  if (!config.whatsapp.appSecret || !config.whatsapp.verifyToken || !config.whatsapp.graphApiVersion) {
+    throw new ApiError(503, "CAPABILITY_UNAVAILABLE", "WhatsApp Cloud API is not configured", { retryable: true });
+  }
+  if (!encryptionKey) {
+    throw new ApiError(503, "CAPABILITY_UNAVAILABLE", "Conversation message encryption is not configured", { retryable: true });
+  }
+
+  const message = await withTransaction(async (transaction) => {
+    const conversation = await lockConversation(transaction, actor, conversationId);
+    assertManualReplyAllowed(actor, conversation);
+    await assertSendEligibility(transaction, actor, conversation, input);
+
+    const messageId = randomUUID();
+    const rows = await transaction<MessageRow[]>`
+      INSERT INTO conversation_messages (
+        id, tenant_id, store_id, conversation_id, direction, message_type, status,
+        content_ciphertext, language, template_id, status_evidence, created_by_user_id, created_at, updated_at
+      ) VALUES (
+        ${messageId}, ${actor.tenantId}, ${conversation.store_id}, ${conversation.id}, 'outbound',
+        ${input.templateId ? "template" : "text"}, 'queued',
+        ${encryptSecret(input.text, encryptionKey)}, ${input.language}, ${input.templateId ?? null},
+        ${JSON.stringify({ queuedBy: "human_agent" })}::jsonb, ${actor.userId}, now(), now()
+      )
+      RETURNING id, provider_message_id, direction, message_type, status, content_ciphertext,
+        translation_ciphertext, language, template_id, status_evidence, created_at, sent_at, delivered_at, read_at
+    `;
+    const inserted = rows[0];
+    if (!inserted) {
+      throw new ApiError(503, "MESSAGE_NOT_QUEUED", "The manual reply could not be queued", { retryable: true });
+    }
+
+    const operationId = randomUUID();
+    await transaction`
+      INSERT INTO operations (
+        id, tenant_id, requested_by_user_id, operation_type, status, progress, input, created_at, updated_at
+      ) VALUES (
+        ${operationId}, ${actor.tenantId}, ${actor.userId}, 'whatsapp.message.send', 'queued', 0,
+        ${JSON.stringify({ messageId, conversationId: conversation.id })}::jsonb, now(), now()
+      )
+    `;
+    await transaction`
+      INSERT INTO outbox_events (
+        id, deduplication_key, tenant_id, event_type, aggregate_type, aggregate_id, payload,
+        status, available_at, created_at, updated_at
+      ) VALUES (
+        ${randomUUID()}, ${`whatsapp-message-send:${messageId}`}, ${actor.tenantId}, 'whatsapp.message.send',
+        'conversation_message', ${messageId},
+        ${JSON.stringify({ operationId, messageId, conversationId: conversation.id })}::jsonb,
+        'pending', now(), now(), now()
+      )
+    `;
+    await transaction`
+      UPDATE conversations SET last_message_at = now(), updated_at = now()
+      WHERE tenant_id = ${actor.tenantId} AND id = ${conversation.id}
+    `;
+    await writeAuditEvent({
+      actor,
+      action: "conversation.message_queued",
+      resourceType: "conversation",
+      resourceId: conversation.id,
+      requestId: requestContext.requestId,
+      metadata: { direction: "outbound", messageType: input.templateId ? "template" : "text" },
+    }, transaction);
+
+    return inserted;
+  });
+
+  return accepted(requestContext, toMessageView(message, encryptionKey));
+}
+
+function assertManualReplyAllowed(actor: ActorContext, conversation: ConversationRow): void {
   if (actor.role === "Agent" && (conversation.status !== "human_active" || conversation.assigned_to_membership_id !== actor.membershipId)) {
     throw new ApiError(403, "FORBIDDEN", "Only the assigned agent can send a manual reply");
   }
   if ((actor.role === "Owner" || actor.role === "Admin") && conversation.status !== "human_active") {
     throw new ApiError(409, "CONVERSATION_NOT_CLAIMED", "Claim the conversation before sending a manual reply");
   }
+}
 
-  const eligibility = await withDatabase(async (sql) => {
-    const suppression = await sql<{ id: string }[]>`
-      SELECT id FROM suppression_entries WHERE tenant_id = ${actor.tenantId}
-        AND store_id = ${conversation.store_id} AND contact_id = ${conversation.contact_id} AND revoked_at IS NULL
-      LIMIT 1
+async function assertSendEligibility(
+  transaction: TransactionSql,
+  actor: ActorContext,
+  conversation: ConversationRow,
+  input: z.output<typeof createHumanMessageSchema>,
+): Promise<void> {
+  const suppression = await transaction<{ id: string }[]>`
+    SELECT id FROM suppression_entries WHERE tenant_id = ${actor.tenantId}
+      AND store_id = ${conversation.store_id} AND contact_id = ${conversation.contact_id} AND revoked_at IS NULL
+    LIMIT 1
+  `;
+  if (suppression[0]) throw new ApiError(422, "CONTACT_OPTED_OUT", "Messages are blocked for this opted-out contact");
+  let templateCategory: string | null = null;
+  if (input.templateId) {
+    const templateRows = await transaction<{ category: string; locale: string }[]>`
+      SELECT category, locale FROM whatsapp_templates
+      WHERE tenant_id = ${actor.tenantId} AND channel_id = ${conversation.channel_id}
+        AND id = ${input.templateId} AND status = 'approved'
     `;
-    if (suppression[0]) throw new ApiError(422, "CONTACT_OPTED_OUT", "Messages are blocked for this opted-out contact");
-    let templateCategory: string | null = null;
-    if (input.templateId) {
-      const templateRows = await sql<{ category: string; locale: string }[]>`
-        SELECT category, locale FROM whatsapp_templates
-        WHERE tenant_id = ${actor.tenantId} AND channel_id = ${conversation.channel_id}
-          AND id = ${input.templateId} AND status = 'approved'
-      `;
-      const template = templateRows[0];
-      if (!template || template.locale !== input.language) {
-        throw new ApiError(422, "TEMPLATE_NOT_APPROVED", "The requested template is not approved for this language");
-      }
-      templateCategory = template.category;
+    const template = templateRows[0];
+    if (!template || template.locale !== input.language) {
+      throw new ApiError(422, "TEMPLATE_NOT_APPROVED", "The requested template is not approved for this language");
     }
-    const withinServiceWindow = conversation.service_window_expires_at !== null
-      && conversation.service_window_expires_at.getTime() > Date.now();
-    if (!withinServiceWindow && !input.templateId) {
-      throw new ApiError(422, "SERVICE_WINDOW_CLOSED", "A free-form reply requires an open WhatsApp service window");
-    }
-    if (!withinServiceWindow && templateCategory) {
-      if (templateCategory === "authentication") {
-        throw new ApiError(422, "TEMPLATE_NOT_ALLOWED", "Authentication templates cannot be used for conversation replies");
-      }
-      const purpose = templateCategory === "marketing" ? "marketing" : "utility";
-      const consent = await sql<{ id: string }[]>`
-        SELECT id FROM consents WHERE tenant_id = ${actor.tenantId} AND store_id = ${conversation.store_id}
-          AND contact_id = ${conversation.contact_id} AND purpose IN (${purpose}, 'all')
-          AND revoked_at IS NULL AND granted_at <= now()
-        ORDER BY granted_at DESC LIMIT 1
-      `;
-      if (!consent[0]) throw new ApiError(422, "CONSENT_REQUIRED", "A valid consent is required to send this template");
-    }
-    if (withinServiceWindow && templateCategory === "marketing") {
-      const marketingConsent = await sql<{ id: string }[]>`
-        SELECT id FROM consents WHERE tenant_id = ${actor.tenantId} AND store_id = ${conversation.store_id}
-          AND contact_id = ${conversation.contact_id} AND purpose IN ('marketing', 'all')
-          AND revoked_at IS NULL AND granted_at <= now()
-        ORDER BY granted_at DESC LIMIT 1
-      `;
-      if (!marketingConsent[0]) throw new ApiError(422, "CONSENT_REQUIRED", "A valid marketing consent is required for this template");
-    }
-    return { withinServiceWindow };
-  });
-  void eligibility;
-
-  const config = getRuntimeConfig();
-  if (!config.whatsapp.appSecret || !config.whatsapp.verifyToken) {
-    throw new ApiError(503, "CAPABILITY_UNAVAILABLE", "WhatsApp Cloud API is not configured", { retryable: true });
+    templateCategory = template.category;
   }
-  throw new ApiError(503, "WHATSAPP_WORKER_UNAVAILABLE", "Manual messages are not sent because the durable WhatsApp worker is unavailable", { retryable: true });
+  const withinServiceWindow = conversation.service_window_expires_at !== null
+    && conversation.service_window_expires_at.getTime() > Date.now();
+  if (!withinServiceWindow && !input.templateId) {
+    throw new ApiError(422, "SERVICE_WINDOW_CLOSED", "A free-form reply requires an open WhatsApp service window");
+  }
+  if (!withinServiceWindow && templateCategory) {
+    if (templateCategory === "authentication") {
+      throw new ApiError(422, "TEMPLATE_NOT_ALLOWED", "Authentication templates cannot be used for conversation replies");
+    }
+    const purpose = templateCategory === "marketing" ? "marketing" : "utility";
+    const consent = await transaction<{ id: string }[]>`
+      SELECT id FROM consents WHERE tenant_id = ${actor.tenantId} AND store_id = ${conversation.store_id}
+        AND contact_id = ${conversation.contact_id} AND purpose IN (${purpose}, 'all')
+        AND revoked_at IS NULL AND granted_at <= now()
+      ORDER BY granted_at DESC LIMIT 1
+    `;
+    if (!consent[0]) throw new ApiError(422, "CONSENT_REQUIRED", "A valid consent is required to send this template");
+  }
+  if (withinServiceWindow && templateCategory === "marketing") {
+    const marketingConsent = await transaction<{ id: string }[]>`
+      SELECT id FROM consents WHERE tenant_id = ${actor.tenantId} AND store_id = ${conversation.store_id}
+        AND contact_id = ${conversation.contact_id} AND purpose IN ('marketing', 'all')
+        AND revoked_at IS NULL AND granted_at <= now()
+      ORDER BY granted_at DESC LIMIT 1
+    `;
+    if (!marketingConsent[0]) throw new ApiError(422, "CONSENT_REQUIRED", "A valid marketing consent is required for this template");
+  }
 }
 
 async function loadConversation(actor: ActorContext, conversationId: string): Promise<ConversationAccessRow> {

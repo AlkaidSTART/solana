@@ -18,7 +18,7 @@ describe("UserNavDropdown Component", () => {
     });
   });
 
-  it("renders trigger button with user initials, name and role badge", () => {
+  it("renders trigger button with user default icon, name and role badge", () => {
     const html = renderToStaticMarkup(
       <UserNavDropdown
         sessionEmail="owner@example.com"

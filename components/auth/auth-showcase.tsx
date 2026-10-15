@@ -17,8 +17,9 @@ export function AuthShowcase() {
   const { locale } = useAppStore();
   const [activeTab, setActiveTab] = useState<"recovery" | "cod">("recovery");
 
-  const isEn = locale === "en_US";
+  const isZh = locale.startsWith("zh");
   const isId = locale === "id_ID";
+  const isEn = !isZh && !isId;
 
   const t = {
     badge: isEn

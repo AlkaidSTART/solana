@@ -111,10 +111,10 @@ export function UserAssetsBanner({ sessionEmail, tenantName }: UserAssetsBannerP
             </div>
 
             <div className="pt-2 text-[11px] font-mono text-zinc-400 flex items-center justify-between">
-              <span>Solana Devnet 链上就绪</span>
+              <span>{getI18nText(locale, "console_wallet_ready")}</span>
               <span className="text-emerald-600 font-medium inline-flex items-center gap-1">
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 inline-block animate-pulse" />
-                Active
+                {getI18nText(locale, "console_wallet_active")}
               </span>
             </div>
           </div>
@@ -129,13 +129,13 @@ export function UserAssetsBanner({ sessionEmail, tenantName }: UserAssetsBannerP
                     <Coins className="w-4 h-4 text-emerald-600" />
                     {getI18nText(locale, "user_assets_credits")}
                   </span>
-                  <span className="text-[10px] text-zinc-400">平台点数</span>
+                  <span className="text-[10px] text-zinc-400">{getI18nText(locale, "console_credits_platform")}</span>
                 </div>
                 <div className="text-2xl font-bold font-mono text-zinc-900 tracking-tight">
                   {credits.available.toLocaleString()}
                 </div>
                 <div className="text-[11px] font-mono text-zinc-500 flex justify-between">
-                  <span>预留: {credits.reserved}</span>
+                  <span>{getI18nText(locale, "console_credits_reserved_label")}: {credits.reserved}</span>
                   <span className="text-emerald-700 font-medium">≈ ${estimatedUsdc} USDC</span>
                 </div>
               </div>
@@ -192,7 +192,7 @@ export function UserAssetsBanner({ sessionEmail, tenantName }: UserAssetsBannerP
                   </>
                 ) : (
                   <div className="py-2 text-xs text-zinc-400 font-mono">
-                    点击连接 Devnet 钱包查看 SOL / USDC
+                    {getI18nText(locale, "console_wallet_bind_prompt")}
                   </div>
                 )}
               </div>
@@ -205,7 +205,7 @@ export function UserAssetsBanner({ sessionEmail, tenantName }: UserAssetsBannerP
                     onClick={() => disconnectWallet()}
                     className="w-full text-xs font-mono h-7 justify-center text-zinc-600 hover:text-zinc-900"
                   >
-                    断开钱包
+                    {getI18nText(locale, "console_wallet_disconnect_btn")}
                   </Button>
                 ) : (
                   <Button
@@ -213,7 +213,7 @@ export function UserAssetsBanner({ sessionEmail, tenantName }: UserAssetsBannerP
                     onClick={() => connectWallet()}
                     className="w-full text-xs font-mono h-7 justify-center bg-indigo-600 hover:bg-indigo-700 text-white"
                   >
-                    连接钱包
+                    {getI18nText(locale, "console_wallet_connect_btn")}
                   </Button>
                 )}
               </div>
@@ -225,7 +225,7 @@ export function UserAssetsBanner({ sessionEmail, tenantName }: UserAssetsBannerP
                 <div className="flex items-center justify-between text-xs font-mono text-zinc-500">
                   <span className="flex items-center gap-1.5 font-medium">
                     <TrendingUp className="w-4 h-4 text-emerald-600" />
-                    已挽回 GMV 资产
+                    {getI18nText(locale, "overview_stat_recovered")}
                   </span>
                   <span className="text-[10px] text-emerald-600 font-medium">+24.8%</span>
                 </div>
@@ -233,14 +233,14 @@ export function UserAssetsBanner({ sessionEmail, tenantName }: UserAssetsBannerP
                   $14,250
                 </div>
                 <div className="text-[11px] font-mono text-zinc-500 flex justify-between">
-                  <span>约 Rp 218M 印尼盾</span>
-                  <span className="text-zinc-400">全渠道累计</span>
+                  <span>{locale.startsWith("zh") ? "约 Rp 218M 印尼盾" : "≈ Rp 218M IDR"}</span>
+                  <span className="text-zinc-400">{locale.startsWith("zh") ? "全渠道累计" : "Omnichannel Total"}</span>
                 </div>
               </div>
 
               <Link href="/console/orders" className="block pt-1">
                 <Button size="sm" variant="outline" className="w-full text-xs font-mono h-7 justify-center">
-                  查看挽回订单
+                  {getI18nText(locale, "nav_orders")}
                   <ArrowRight className="w-3 h-3 ml-1" />
                 </Button>
               </Link>

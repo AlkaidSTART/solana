@@ -269,9 +269,11 @@ export async function queueChannelOperation(
       throw new ApiError(409, "CHANNEL_NOT_ACTIVE", "WhatsApp channel is not available for this operation");
     }
 
+    let operationInput = safeOperationInput(input);
+
     if (operationType === "whatsapp.channel.test_message") {
       await assertApprovedTestTemplate(transaction, actor, channelId, input.templateId);
-      throw new ApiError(503, "TEST_RECIPIENT_ALLOWLIST_UNCONFIGURED", "No approved WhatsApp test-recipient allowlist is configured", { retryable: true });
+      operationInput = buildTestMessageOperationInput(input);
     }
 
     if (operationType === "whatsapp.channel.delete") {
@@ -292,7 +294,7 @@ export async function queueChannelOperation(
       `;
     }
 
-    const operation = await insertOperation(transaction, actor, channelId, operationType, safeOperationInput(input));
+    const operation = await insertOperation(transaction, actor, channelId, operationType, operationInput);
     await writeAuditEvent({
       actor,
       action: operationType.replaceAll(".", "_"),
@@ -327,7 +329,7 @@ export async function listTemplates(
 
 export function assertManualCloudApiConfigured(): void {
   const config = getRuntimeConfig();
-  if (!config.whatsapp.appSecret || !config.whatsapp.verifyToken
+  if (!config.whatsapp.appSecret || !config.whatsapp.verifyToken || !config.whatsapp.graphApiVersion
     || !config.security.credentialEncryptionKey || !config.security.otpHmacKey) {
     throw capabilityUnavailable();
   }
@@ -392,6 +394,36 @@ async function assertApprovedTestTemplate(
     WHERE id = ${templateId} AND tenant_id = ${actor.tenantId} AND channel_id = ${channelId} AND status = 'approved'
   `;
   if (!rows[0]) throw new ApiError(422, "TEMPLATE_NOT_APPROVED", "A verified approved template is required");
+}
+
+/**
+ * The recipient is stored as an HMAC so `operations.input` never carries a plaintext phone number,
+ * while the worker can still re-check the allowlist before it sends anything.
+ */
+function buildTestMessageOperationInput(input: Record<string, unknown>): Record<string, unknown> {
+  const config = getRuntimeConfig();
+  const recipients = config.whatsapp.testRecipients;
+  const otpHmacKey = config.security.otpHmacKey;
+  if (recipients.length === 0 || !otpHmacKey) {
+    throw new ApiError(503, "TEST_RECIPIENT_ALLOWLIST_UNCONFIGURED", "No approved WhatsApp test-recipient allowlist is configured", { retryable: true });
+  }
+
+  const recipient = typeof input.testRecipient === "string" ? input.testRecipient : "";
+  if (!recipients.includes(recipient)) {
+    throw new ApiError(422, "TEST_RECIPIENT_NOT_ALLOWLISTED", "Test messages can only be sent to an allowlisted recipient");
+  }
+
+  const variables = input.variables;
+  if (variables && typeof variables === "object" && Object.keys(variables).length > 0) {
+    throw new ApiError(422, "TEMPLATE_VARIABLES_UNSUPPORTED", "Template variables are not supported for WhatsApp test messages yet");
+  }
+
+  const templateId = typeof input.templateId === "string" ? input.templateId : "";
+  if (!templateId) {
+    throw new ApiError(422, "TEMPLATE_NOT_APPROVED", "A verified approved template is required");
+  }
+
+  return { templateId, testRecipientHash: hmacSha256Hex(otpHmacKey, recipient) };
 }
 
 async function sameChannelPhone(

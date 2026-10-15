@@ -30,6 +30,8 @@ export type RuntimeConfig = {
     appSecret: string | null;
     verifyToken: string | null;
     accessToken: string | null;
+    graphApiVersion: string | null;
+    testRecipients: string[];
   };
   solana: {
     cluster: "devnet" | "testnet" | "mainnet-beta" | null;
@@ -63,6 +65,13 @@ export type RuntimeCapabilityProjection = {
   solanaPayment: "configured" | "unconfigured";
   solanaCluster: RuntimeConfig["solana"]["cluster"];
 };
+
+const GRAPH_API_VERSION_PATTERN = /^v\d{1,2}\.\d$/;
+// v25.0 is the version used by Meta's own Messages API examples as of 2026-10-15 and stays available
+// until 2028-07-29; the Graph API changelog lists v26.0 as the latest release. Override per environment.
+const DEFAULT_GRAPH_API_VERSION = "v25.0";
+const E164_PATTERN = /^\+[1-9]\d{7,14}$/;
+const MAX_TEST_RECIPIENTS = 50;
 
 function optionalValue(value: string | undefined): string | null {
   const normalized = value?.trim();
@@ -166,6 +175,8 @@ export function getRuntimeConfig(environment: NodeJS.ProcessEnv = process.env): 
       appSecret: optionalValue(environment.WHATSAPP_APP_SECRET),
       verifyToken: optionalValue(environment.WHATSAPP_VERIFY_TOKEN),
       accessToken: optionalValue(environment.WHATSAPP_ACCESS_TOKEN),
+      graphApiVersion: parseGraphApiVersion(environment.WHATSAPP_GRAPH_API_VERSION),
+      testRecipients: parseTestRecipients(environment.WHATSAPP_TEST_RECIPIENTS),
     },
     solana: {
       cluster: environment.SOLANA_CLUSTER === "devnet" || environment.SOLANA_CLUSTER === "testnet" || environment.SOLANA_CLUSTER === "mainnet-beta"
@@ -208,6 +219,7 @@ export function getRuntimeCapabilityProjection(
       ? "configured"
       : "unconfigured",
     whatsapp: config.whatsapp.appSecret && config.whatsapp.verifyToken && config.whatsapp.accessToken
+      && config.whatsapp.graphApiVersion
       ? "configured"
       : "unconfigured",
     solanaRpc: isConfigured(config.solana.rpcUrl),
@@ -241,6 +253,28 @@ function positiveSafeInteger(value: string | undefined): number | null {
   }
   const parsed = Number(normalized);
   return Number.isSafeInteger(parsed) && parsed > 0 ? parsed : null;
+}
+
+function parseGraphApiVersion(value: string | undefined): string | null {
+  const normalized = optionalValue(value);
+  if (!normalized) {
+    return DEFAULT_GRAPH_API_VERSION;
+  }
+
+  return GRAPH_API_VERSION_PATTERN.test(normalized) ? normalized : null;
+}
+
+function parseTestRecipients(value: string | undefined): string[] {
+  if (!value) {
+    return [];
+  }
+
+  const recipients = value
+    .split(",")
+    .map((entry) => entry.trim().replace(/[\s()-]/g, ""))
+    .filter((entry) => E164_PATTERN.test(entry));
+
+  return [...new Set(recipients)].slice(0, MAX_TEST_RECIPIENTS);
 }
 
 function normalizeOtpEndpoint(value: string | undefined): string | null {

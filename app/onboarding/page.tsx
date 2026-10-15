@@ -17,21 +17,23 @@ import {
   LogOut,
   Home,
   RotateCcw,
+  Globe,
 } from "lucide-react";
 import { clsx } from "clsx";
-
-const STEPS = [
-  { id: 1, label: "账号注册" },
-  { id: 2, label: "电商授权" },
-  { id: 3, label: "WhatsApp绑定" },
-  { id: 4, label: "规则与模板" },
-  { id: 5, label: "仿真演练" },
-  { id: 6, label: "试用激活" },
-];
+import { getI18nText, SUPPORTED_LOCALES, MARKETS, type SupportedLocale } from "@/lib/i18n";
 
 export default function OnboardingPage() {
   const router = useRouter();
-  const { topupCredits } = useAppStore();
+  const { locale, setLocale, topupCredits } = useAppStore();
+
+  const steps = [
+    { id: 1, label: getI18nText(locale, "onboard_step1_label") },
+    { id: 2, label: getI18nText(locale, "onboard_step2_label") },
+    { id: 3, label: getI18nText(locale, "onboard_step3_label") },
+    { id: 4, label: getI18nText(locale, "onboard_step4_label") },
+    { id: 5, label: getI18nText(locale, "onboard_step5_label") },
+    { id: 6, label: getI18nText(locale, "onboard_step6_label") },
+  ];
 
   const {
     currentStep,
@@ -111,7 +113,7 @@ export default function OnboardingPage() {
   return (
     <div className="min-h-screen bg-white text-[#09090B] font-sans flex flex-col justify-between selection:bg-[#09090B] selection:text-white">
       {/* 顶部状态栏 */}
-      <header className="h-16 border-b border-[#E4E4E7] px-6 flex items-center justify-between">
+      <header className="h-16 border-b border-[#E4E4E7] px-4 sm:px-6 flex items-center justify-between">
         <div className="flex items-center gap-3">
           <Link
             href="/"
@@ -120,16 +122,36 @@ export default function OnboardingPage() {
             SolaFlow AI
           </Link>
           <span className="text-xs font-mono text-[#71717A] hidden sm:inline">
-            出海商户 6 步初始化激活向导 (严格对齐 PRD 3.1)
+            {getI18nText(locale, "onboard_title")}
           </span>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 sm:gap-3">
+          {/* 国际化语言选择器 */}
+          <div className="flex items-center gap-1.5 border border-[#E4E4E7] px-2 py-1 text-xs font-mono rounded bg-white">
+            <Globe className="w-3.5 h-3.5 text-[#71717A] shrink-0" />
+            <select
+              value={locale}
+              onChange={(e) => setLocale(e.target.value as SupportedLocale)}
+              className="bg-transparent text-zinc-800 font-mono text-xs focus:outline-none cursor-pointer"
+              aria-label="Language"
+            >
+              {SUPPORTED_LOCALES.map((loc) => {
+                const m = MARKETS[loc];
+                return (
+                  <option key={loc} value={loc}>
+                    {m.flag} {m.nativeLabel} ({m.shortLabel})
+                  </option>
+                );
+              })}
+            </select>
+          </div>
+
           {/* 自动保存状态指示 */}
           {isMounted && (
             <span className="text-[11px] font-mono text-emerald-600 hidden md:inline-flex items-center gap-1.5 bg-emerald-50 px-2.5 py-1 rounded border border-emerald-100">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-              进度已自动保存
+              {getI18nText(locale, "onboard_auto_saved")}
             </span>
           )}
 
@@ -141,7 +163,7 @@ export default function OnboardingPage() {
             className="text-xs font-mono text-[#71717A] hover:text-[#09090B] flex items-center gap-1.5"
           >
             <LogOut className="w-3.5 h-3.5" />
-            <span>退出向导</span>
+            <span>{getI18nText(locale, "onboard_btn_exit")}</span>
           </Button>
 
           <Button
@@ -150,7 +172,7 @@ export default function OnboardingPage() {
             onClick={handleExitToConsole}
             className="text-xs font-mono hidden sm:inline-flex"
           >
-            控制台 →
+            {getI18nText(locale, "nav_overview")} →
           </Button>
         </div>
       </header>
@@ -158,7 +180,7 @@ export default function OnboardingPage() {
       {/* 企业级入驻步骤条指示器 */}
       <div className="border-b border-[#E4E4E7] bg-[#FAFAFA] py-4 px-6 overflow-x-auto">
         <div className="max-w-4xl mx-auto flex items-center justify-between min-w-[560px]">
-          {STEPS.map((s, idx) => {
+          {steps.map((s, idx) => {
             const isCompletedStep = s.id < currentStep;
             const isCurrent = s.id === currentStep;
             const canJump = s.id <= currentStep;
@@ -197,7 +219,7 @@ export default function OnboardingPage() {
                     {s.label}
                   </span>
                 </div>
-                {idx < STEPS.length - 1 && (
+                {idx < steps.length - 1 && (
                   <div className="flex-1 h-[1px] bg-[#E4E4E7] mx-3" />
                 )}
               </React.Fragment>
@@ -214,7 +236,7 @@ export default function OnboardingPage() {
             <div className="flex items-center gap-2">
               <Sparkles className="w-4 h-4 text-emerald-600 shrink-0" />
               <span>
-                已恢复上次填写的接入进度：<strong>步骤 {currentStep} · {STEPS[currentStep - 1]?.label}</strong>
+                {getI18nText(locale, "onboard_step_of")} <strong>{currentStep} · {steps[currentStep - 1]?.label}</strong>
                 {formattedSavedTime && (
                   <span className="text-emerald-700/80 ml-1.5 text-[11px]">
                     (自动暂存于 {formattedSavedTime})
@@ -228,7 +250,7 @@ export default function OnboardingPage() {
               className="text-[11px] underline text-emerald-800 hover:text-emerald-950 font-medium ml-3 cursor-pointer shrink-0 flex items-center gap-1"
             >
               <RotateCcw className="w-3 h-3" />
-              从头开始
+              {getI18nText(locale, "onboard_btn_reset")}
             </button>
           </div>
         )}
@@ -240,11 +262,11 @@ export default function OnboardingPage() {
               <div className="flex items-center gap-2">
                 <CheckCircle2 className="w-5 h-5 text-[#059669]" />
                 <h2 className="text-base font-bold uppercase text-[#09090B]">
-                  步骤 1: 商户账号注册完成
+                  {steps[0]?.label}: {getI18nText(locale, "onboard_step1_title")}
                 </h2>
               </div>
               <p className="text-[#71717A] leading-relaxed">
-                您已使用 merchant@crossborder-shop.com 完成工作邮箱鉴权。
+                {getI18nText(locale, "onboard_step1_desc")}
               </p>
             </div>
           )}
@@ -255,10 +277,10 @@ export default function OnboardingPage() {
               <div>
                 <span className="text-[10px] text-[#71717A] uppercase block">STEP 02</span>
                 <h2 className="text-base font-bold uppercase text-[#09090B]">
-                  步骤 2: 绑定您的独立电商出海店铺
+                  {steps[1]?.label}: {getI18nText(locale, "onboard_step2_title")}
                 </h2>
                 <p className="text-[#71717A] mt-1">
-                  选择电商品牌平台以监听订单与弃购事件 Webhook (耗时约 30 秒)
+                  {getI18nText(locale, "onboard_step2_desc")}
                 </p>
               </div>
 
@@ -272,9 +294,9 @@ export default function OnboardingPage() {
                       : "bg-white border-[#E4E4E7] hover:border-[#09090B]"
                   )}
                 >
-                  <div className="font-bold text-[#09090B]">WooCommerce 直连</div>
+                  <div className="font-bold text-[#09090B]">WooCommerce</div>
                   <div className="text-[10px] text-[#71717A]">
-                    安装 SolaFlow 官方插件或录入 REST API Consumer Key
+                    {getI18nText(locale, "onboard_step2_webhook_hint")}
                   </div>
                 </div>
 
@@ -287,21 +309,22 @@ export default function OnboardingPage() {
                       : "bg-white border-[#E4E4E7] hover:border-[#09090B]"
                   )}
                 >
-                  <div className="font-bold text-[#09090B]">Shopify App 直连</div>
+                  <div className="font-bold text-[#09090B]">Shopify App</div>
                   <div className="text-[10px] text-[#71717A]">
-                    通过 Shopify App Store 一键官方 OAuth 授权
+                    {getI18nText(locale, "onboard_step2_webhook_hint")}
                   </div>
                 </div>
               </div>
 
               <div>
                 <label className="text-[#71717A] uppercase text-[10px] block mb-1">
-                  店铺站点公开 URL
+                  {getI18nText(locale, "onboard_step2_store_url_label")}
                 </label>
                 <input
                   type="text"
                   value={storeUrl}
                   onChange={(e) => updateDraft({ storeUrl: e.target.value })}
+                  placeholder="https://my-store.com"
                   className="w-full p-2 border border-[#E4E4E7] focus:outline-none focus:border-[#09090B]"
                 />
               </div>
@@ -314,26 +337,26 @@ export default function OnboardingPage() {
               <div>
                 <span className="text-[10px] text-[#71717A] uppercase block">STEP 03</span>
                 <h2 className="text-base font-bold uppercase text-[#09090B]">
-                  步骤 3: 绑定商户自有 WhatsApp Business (Meta 官方直连)
+                  {steps[2]?.label}: {getI18nText(locale, "onboard_step3_title")}
                 </h2>
                 <p className="text-[#71717A] mt-1">
-                  SolaFlow 采用商户自有 WABA 模式，消息费用由商户直接向 Meta 结算，保障账号主权
+                  {getI18nText(locale, "onboard_step3_desc")}
                 </p>
               </div>
 
               <div className="space-y-3">
                 <Button className="w-full h-11 text-xs">
-                  启动 Meta 官方嵌入式快速登录 (Embedded Signup)
+                  Meta Embedded Signup (WABA)
                 </Button>
 
                 <div className="text-center text-[10px] text-[#71717A] uppercase">
-                  —— 或手动录入 API 凭据 ——
+                  —— API ——
                 </div>
 
                 <div className="space-y-3 p-4 bg-[#FAFAFA] border border-[#E4E4E7]">
                   <div>
                     <label className="text-[#71717A] text-[10px] block mb-1">
-                      WABA ID (WhatsApp Business Account ID)
+                      {getI18nText(locale, "onboard_step3_waba_label")}
                     </label>
                     <input
                       type="text"
@@ -344,7 +367,7 @@ export default function OnboardingPage() {
                   </div>
                   <div>
                     <label className="text-[#71717A] text-[10px] block mb-1">
-                      Phone Number ID
+                      {getI18nText(locale, "onboard_step3_phone_label")}
                     </label>
                     <input
                       type="text"
@@ -364,10 +387,10 @@ export default function OnboardingPage() {
               <div>
                 <span className="text-[10px] text-[#71717A] uppercase block">STEP 04</span>
                 <h2 className="text-base font-bold uppercase text-[#09090B]">
-                  步骤 4: 预装官方获批规则与多语言模板
+                  {steps[3]?.label}: {getI18nText(locale, "onboard_step4_title")}
                 </h2>
                 <p className="text-[#71717A] mt-1">
-                  勾选开箱即用的自动化流程，系统已为您预置 Meta 官方绿色通道获批模板
+                  {getI18nText(locale, "onboard_step4_desc")}
                 </p>
               </div>
 
@@ -381,10 +404,10 @@ export default function OnboardingPage() {
                   />
                   <div>
                     <div className="font-bold text-[#09090B]">
-                      15 分钟待支付弃购温和挽回 (WF_RECOVERY_ABANDONED)
+                      {getI18nText(locale, "onboard_step4_cart_title")}
                     </div>
                     <div className="text-[11px] text-[#71717A] mt-0.5">
-                      支持印尼语、泰语、英语多语言分流，夜间 22:00 ~ 08:00 自动顺延免打扰。
+                      {getI18nText(locale, "onboard_step4_cart_desc")}
                     </div>
                   </div>
                 </label>
@@ -398,10 +421,10 @@ export default function OnboardingPage() {
                   />
                   <div>
                     <div className="font-bold text-[#09090B]">
-                      COD 货到付款发货前地址核验 (WF_COD_CONFIRM)
+                      {getI18nText(locale, "onboard_step4_cod_title")}
                     </div>
                     <div className="text-[11px] text-[#71717A] mt-0.5">
-                      发货前通过 WhatsApp 发送地址核验消息，引导买家补充真实地标，截流拒签亏损。
+                      {getI18nText(locale, "onboard_step4_cod_desc")}
                     </div>
                   </div>
                 </label>
@@ -415,16 +438,16 @@ export default function OnboardingPage() {
               <div>
                 <span className="text-[10px] text-[#71717A] uppercase block">STEP 05</span>
                 <h2 className="text-base font-bold uppercase text-[#09090B]">
-                  步骤 5: 交互仿真演练 (Dry-Run Test)
+                  {steps[4]?.label}: {getI18nText(locale, "onboard_step5_title")}
                 </h2>
                 <p className="text-[#71717A] mt-1">
-                  向您的测试手机发送一条真实的 WhatsApp 仿真核验消息，亲身体验买家端交互
+                  {getI18nText(locale, "onboard_step5_desc")}
                 </p>
               </div>
 
               <div>
                 <label className="text-[#71717A] uppercase text-[10px] block mb-1">
-                  测试手机号 (含国际区号)
+                  {getI18nText(locale, "onboard_step5_phone_label")}
                 </label>
                 <div className="flex gap-2">
                   <input
@@ -437,7 +460,7 @@ export default function OnboardingPage() {
                     onClick={() => updateDraft({ testSent: true })}
                     variant={testSent ? "outline" : "primary"}
                   >
-                    {testSent ? "重新发送" : "发送测试仿真消息"}
+                    {testSent ? getI18nText(locale, "action_refresh") : getI18nText(locale, "onboard_step5_send_btn")}
                   </Button>
                 </div>
               </div>
@@ -446,11 +469,8 @@ export default function OnboardingPage() {
                 <div className="p-4 bg-[#059669]/10 border border-[#059669]/20 text-[#059669] space-y-1">
                   <div className="font-bold flex items-center gap-1.5">
                     <CheckCircle2 className="w-4 h-4" />
-                    <span>仿真消息已成功送达您的 WhatsApp！</span>
+                    <span>{getI18nText(locale, "onboard_step5_success_msg")}</span>
                   </div>
-                  <p className="text-[11px] text-[#71717A]">
-                    已验证 Webhook 回执与双向状态同步，您的商业通道已就绪。
-                  </p>
                 </div>
               )}
             </div>
@@ -466,10 +486,10 @@ export default function OnboardingPage() {
               <div>
                 <span className="text-[10px] text-[#71717A] uppercase block">STEP 06 · READY</span>
                 <h2 className="text-xl font-bold uppercase text-[#09090B] mt-1">
-                  激活店铺并领取 100 免费 Credits
+                  {getI18nText(locale, "onboard_step6_title")}
                 </h2>
                 <p className="text-xs text-[#71717A] mt-2 max-w-md mx-auto leading-relaxed">
-                  恭喜！您的店铺已成功接入 SolaFlow AI 神经规则引擎。点击下方按钮立即派发 100 Credits 试用额度并进入控制台。
+                  {getI18nText(locale, "onboard_step6_desc")}
                 </p>
               </div>
 
@@ -479,7 +499,7 @@ export default function OnboardingPage() {
                   disabled={activated}
                   className="w-full h-12 text-xs"
                 >
-                  {activated ? "正在进入控制台..." : "领取 100 Credits 并开始使用"}
+                  {activated ? getI18nText(locale, "status_pending") : getI18nText(locale, "onboard_btn_finish")}
                 </Button>
 
                 <Button
@@ -488,7 +508,7 @@ export default function OnboardingPage() {
                   onClick={() => setExitModalOpen(true)}
                   className="text-[11px] text-[#71717A] hover:text-[#09090B] w-full"
                 >
-                  稍后激活，暂存并退出
+                  {getI18nText(locale, "onboard_btn_exit")}
                 </Button>
               </div>
             </div>
@@ -503,7 +523,7 @@ export default function OnboardingPage() {
                 onClick={handleBack}
               >
                 <ArrowLeft className="w-3.5 h-3.5 mr-1" />
-                上一步
+                {getI18nText(locale, "onboard_btn_back")}
               </Button>
 
               {/* 辅助退出入口 */}
@@ -512,11 +532,11 @@ export default function OnboardingPage() {
                 onClick={() => setExitModalOpen(true)}
                 className="text-xs font-mono text-[#71717A] hover:text-[#09090B] underline cursor-pointer"
               >
-                暂存进度并退出
+                {getI18nText(locale, "onboard_btn_exit")}
               </button>
 
               <Button onClick={handleNext}>
-                下一步
+                {getI18nText(locale, "onboard_btn_next")}
                 <ArrowRight className="w-3.5 h-3.5 ml-1" />
               </Button>
             </div>
@@ -534,23 +554,23 @@ export default function OnboardingPage() {
       <Modal
         open={exitModalOpen}
         onClose={() => setExitModalOpen(false)}
-        title="暂存进度并退出向导"
-        subtitle="随时离开，您的配置已自动安全保存"
+        title={getI18nText(locale, "onboard_exit_modal_title")}
+        subtitle={getI18nText(locale, "onboard_exit_modal_desc")}
         width="md"
       >
         <div className="space-y-4 text-xs font-mono">
           <div className="p-4 bg-zinc-50 border border-zinc-200 rounded-lg space-y-2.5">
             <div className="flex items-center justify-between text-zinc-900 font-bold">
-              <span>当前保存节点</span>
+              <span>{getI18nText(locale, "onboard_auto_saved")}</span>
               <span className="text-emerald-600 flex items-center gap-1 text-[11px]">
-                <CheckCircle2 className="w-3.5 h-3.5" /> 进度已自动持久化
+                <CheckCircle2 className="w-3.5 h-3.5" /> {getI18nText(locale, "status_normal")}
               </span>
             </div>
             <div className="text-zinc-700 font-medium">
-              步骤 {currentStep} / 6: {STEPS[currentStep - 1]?.label}
+              {getI18nText(locale, "onboard_step_of")} {currentStep} / 6: {steps[currentStep - 1]?.label}
             </div>
             <p className="text-[11px] text-zinc-500 leading-relaxed">
-              您当前已配置的平台 ({selectedPlatform})、店铺 URL 以及凭证均已妥善保留。任何时候重新进入「免费接入」，均可从当前步骤无缝继续。
+              {getI18nText(locale, "onboard_exit_modal_desc")}
             </p>
           </div>
 
@@ -560,7 +580,7 @@ export default function OnboardingPage() {
               onClick={handleExitToHome}
             >
               <Home className="w-3.5 h-3.5 mr-1.5" />
-              返回官网首页
+              {getI18nText(locale, "onboard_exit_to_home")}
             </Button>
 
             <Button
@@ -568,7 +588,7 @@ export default function OnboardingPage() {
               className="w-full justify-center h-10 text-xs border-zinc-200 text-zinc-700 hover:bg-zinc-50"
               onClick={handleExitToConsole}
             >
-              前往商户控制台 (Console) →
+              {getI18nText(locale, "onboard_exit_to_console")} →
             </Button>
 
             <Button
@@ -576,7 +596,7 @@ export default function OnboardingPage() {
               className="w-full justify-center h-9 text-xs text-zinc-500 hover:text-zinc-800"
               onClick={() => setExitModalOpen(false)}
             >
-              继续完成向导
+              {getI18nText(locale, "action_cancel")}
             </Button>
           </div>
         </div>
@@ -586,12 +606,12 @@ export default function OnboardingPage() {
       <Modal
         open={resetModalOpen}
         onClose={() => setResetModalOpen(false)}
-        title="确认重置接入进度？"
+        title={getI18nText(locale, "onboard_reset_modal_title")}
         width="sm"
       >
         <div className="space-y-4 text-xs font-mono">
           <p className="text-zinc-600 leading-relaxed">
-            重置后将清除当前已暂存的店铺信息与表单填写内容，并返回第 2 步重新开始。此操作不可逆。
+            {getI18nText(locale, "onboard_reset_modal_desc")}
           </p>
           <div className="flex gap-2 justify-end pt-2">
             <Button
@@ -599,7 +619,7 @@ export default function OnboardingPage() {
               size="sm"
               onClick={() => setResetModalOpen(false)}
             >
-              取消
+              {getI18nText(locale, "action_cancel")}
             </Button>
             <Button
               variant="primary"
@@ -610,7 +630,7 @@ export default function OnboardingPage() {
                 setResetModalOpen(false);
               }}
             >
-              确认重置并从头开始
+              {getI18nText(locale, "onboard_reset_confirm")}
             </Button>
           </div>
         </div>

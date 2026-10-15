@@ -26,10 +26,10 @@ describe("neon-auth - Neon Auth 托管端点与第三方 OAuth 授权集成", ()
     expect(getNeonAuthUrl()).toBe("https://custom-auth.neon.tech/auth");
   });
 
-  it("当配置了 VITE_NEON_AUTH_URL 时亦可生效", () => {
+  it("当仅配置了 NEON_AUTH_URL 别名时回退使用", () => {
     delete process.env.NEXT_PUBLIC_NEON_AUTH_URL;
-    process.env.VITE_NEON_AUTH_URL = "https://vite-auth.neon.tech/auth";
-    expect(getNeonAuthUrl()).toBe("https://vite-auth.neon.tech/auth");
+    process.env.NEON_AUTH_URL = "https://alias-auth.neon.tech/auth";
+    expect(getNeonAuthUrl()).toBe("https://alias-auth.neon.tech/auth");
   });
 
   it("能为 Google OAuth 正确构建社交登录授权跳转 URL", () => {

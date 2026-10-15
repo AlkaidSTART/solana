@@ -5,6 +5,7 @@ import { clsx } from "clsx";
 import { RotateCw } from "lucide-react";
 import { authClient } from "@/lib/auth/client";
 import { useAppStore } from "@/stores/use-app-store";
+import { getI18nText } from "@/lib/i18n";
 
 interface OAuthButtonsProps {
   className?: string;
@@ -15,12 +16,9 @@ export function OAuthButtons({ className, onError }: OAuthButtonsProps) {
   const { locale } = useAppStore();
   const [isRedirecting, setIsRedirecting] = useState(false);
 
-  const isEn = locale === "en_US";
-  const isId = locale === "id_ID";
-
   const t = {
-    google: isEn ? "Continue with Google" : isId ? "Lanjutkan dengan Google" : "使用 Google 账号登录",
-    divider: isEn ? "OR CONTINUE WITH SOCIAL" : isId ? "ATAU MASUK DENGAN SOSIAL" : "或使用第三方快捷登录",
+    google: getI18nText(locale, "auth_oauth_google"),
+    divider: getI18nText(locale, "auth_or_divider"),
   };
 
   const handleGoogleSignIn = async () => {
@@ -33,6 +31,7 @@ export function OAuthButtons({ className, onError }: OAuthButtonsProps) {
       if (error) throw new Error(error.message);
     } catch (err: unknown) {
       setIsRedirecting(false);
+      const isEn = !locale.startsWith("zh");
       const message =
         err instanceof Error
           ? err.message

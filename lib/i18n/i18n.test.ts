@@ -337,6 +337,54 @@ describe("i18n Southeast Asia & Singapore Specifications", () => {
       "user_action_copy_address",
       "user_copied_address",
       "user_logout",
+
+      // Landing
+      "landing_nav_console",
+      "landing_nav_onboard",
+      "landing_hero_claim_badge",
+      "landing_metric_recovery",
+      "landing_sec2_title",
+      "landing_sec3_title",
+      "landing_card1_title",
+      "landing_card2_title",
+      "landing_sec5_title",
+
+      // Auth
+      "auth_tagline",
+      "auth_status_live",
+      "auth_back_home",
+      "auth_title_login",
+      "auth_title_register",
+      "auth_email_label",
+      "auth_password_label",
+
+      // Onboarding
+      "onboard_step1_label",
+      "onboard_step2_label",
+      "onboard_step3_label",
+      "onboard_step4_label",
+      "onboard_step5_label",
+      "onboard_step6_label",
+      "onboard_title",
+      "onboard_btn_back",
+      "onboard_btn_next",
+      "onboard_btn_finish",
+
+      // Billing
+      "billing_devnet_title",
+      "billing_devnet_desc",
+      "billing_notice",
+      "billing_server_credits",
+      "billing_buy_title",
+      "billing_create_quote_btn",
+      "billing_orders_title",
+      "billing_qr_modal_title",
+
+      // Console & User Assets
+      "console_wallet_connect_btn",
+      "console_wallet_disconnect_btn",
+      "console_profile_title",
+      "console_capabilities_title",
     ];
 
     for (const locale of SUPPORTED_LOCALES) {

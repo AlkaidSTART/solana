@@ -134,16 +134,16 @@ export default function ConsoleSettingsPage() {
       {/* 模块 0: 商户主理人档案与数字资产 (USER PROFILE & ASSETS) */}
       <div className="space-y-3">
         <h2 className="text-xs font-mono uppercase tracking-wider font-bold text-[#71717A]">
-          商户主理人档案与数字资产 (PROFILE & ASSETS)
+          {getI18nText(locale, "console_profile_title")}
         </h2>
         <Card>
           <CardHeader>
             <div className="flex items-center justify-between w-full">
               <div className="flex items-center gap-2">
-                <CardTitle>个人档案与 Web3 钱包设置</CardTitle>
+                <CardTitle>{getI18nText(locale, "console_profile_subtitle")}</CardTitle>
                 <Badge variant="outline">{getI18nText(locale, "demo_badge")}</Badge>
               </div>
-              <Badge variant="success">已认证</Badge>
+              <Badge variant="success">{getI18nText(locale, "console_profile_verified")}</Badge>
             </div>
           </CardHeader>
           <CardContent className="space-y-6 text-xs font-mono">
@@ -180,7 +180,7 @@ export default function ConsoleSettingsPage() {
                 <input
                   type="text"
                   disabled
-                  value={`${userProfile.role} (店铺所有者)`}
+                  value={`${userProfile.role} (${getI18nText(locale, "console_profile_owner")})`}
                   className="w-full p-2 bg-zinc-100 border border-[#E4E4E7] text-zinc-600 cursor-not-allowed"
                 />
               </div>
@@ -195,16 +195,16 @@ export default function ConsoleSettingsPage() {
                     <Coins className="w-4 h-4 text-emerald-600" />
                     {getI18nText(locale, "user_assets_credits")}
                   </span>
-                  <span className="text-[10px] text-zinc-400">可用点数</span>
+                  <span className="text-[10px] text-zinc-400">{getI18nText(locale, "console_credits_platform")}</span>
                 </div>
                 <div className="text-xl font-bold font-mono text-zinc-900">
                   {credits.available.toLocaleString()}{" "}
                   <span className="text-xs text-zinc-400 font-normal">Credits</span>
                 </div>
                 <div className="text-[11px] text-zinc-500 flex justify-between pt-1 border-t border-zinc-100">
-                  <span>预留额度: {credits.reserved}</span>
+                  <span>{getI18nText(locale, "console_credits_reserved_label")} {credits.reserved}</span>
                   <span className="text-emerald-700 font-medium">
-                    折合 ≈ ${(credits.available * 0.02).toFixed(2)} USDC
+                    ≈ ${(credits.available * 0.02).toFixed(2)} USDC
                   </span>
                 </div>
               </div>
@@ -255,15 +255,15 @@ export default function ConsoleSettingsPage() {
                         onClick={() => disconnectWallet()}
                         className="text-zinc-400 hover:text-rose-600 text-[10px] underline"
                       >
-                        断开钱包
+                        {getI18nText(locale, "console_wallet_disconnect_btn")}
                       </button>
                     </div>
                   </>
                 ) : (
                   <div className="flex items-center justify-between pt-2">
-                    <span className="text-zinc-400">未连接 Devnet 钱包</span>
+                    <span className="text-zinc-400">{getI18nText(locale, "console_wallet_not_connected")}</span>
                     <Button size="sm" onClick={() => connectWallet()}>
-                      连接钱包
+                      {getI18nText(locale, "console_wallet_connect_btn")}
                     </Button>
                   </div>
                 )}
@@ -357,12 +357,24 @@ export default function ConsoleSettingsPage() {
                   onChange={(e) => setCustomTimezone(e.target.value)}
                   className="w-full p-2 bg-white border border-[#E4E4E7] text-[#09090B] cursor-pointer"
                 >
-                  <option value="Asia/Singapore">Asia/Singapore (新加坡时间 SGT, UTC+8)</option>
-                  <option value="Asia/Jakarta">Asia/Jakarta (印尼西部时间 WIB, UTC+7)</option>
-                  <option value="Asia/Kuala_Lumpur">Asia/Kuala_Lumpur (马来西亚时间 MYT, UTC+8)</option>
-                  <option value="Asia/Bangkok">Asia/Bangkok (泰国时间 ICT, UTC+7)</option>
-                  <option value="Asia/Ho_Chi_Minh">Asia/Ho_Chi_Minh (越南时间 ICT, UTC+7)</option>
-                  <option value="Asia/Manila">Asia/Manila (菲律宾时间 PHT, UTC+8)</option>
+                  <option value="Asia/Singapore">
+                    {locale.startsWith("zh") ? "Asia/Singapore (新加坡时间 SGT, UTC+8)" : "Asia/Singapore (SGT, UTC+8)"}
+                  </option>
+                  <option value="Asia/Jakarta">
+                    {locale.startsWith("zh") ? "Asia/Jakarta (印尼西部时间 WIB, UTC+7)" : "Asia/Jakarta (WIB, UTC+7)"}
+                  </option>
+                  <option value="Asia/Kuala_Lumpur">
+                    {locale.startsWith("zh") ? "Asia/Kuala_Lumpur (马来西亚时间 MYT, UTC+8)" : "Asia/Kuala_Lumpur (MYT, UTC+8)"}
+                  </option>
+                  <option value="Asia/Bangkok">
+                    {locale.startsWith("zh") ? "Asia/Bangkok (泰国时间 ICT, UTC+7)" : "Asia/Bangkok (ICT, UTC+7)"}
+                  </option>
+                  <option value="Asia/Ho_Chi_Minh">
+                    {locale.startsWith("zh") ? "Asia/Ho_Chi_Minh (越南时间 ICT, UTC+7)" : "Asia/Ho_Chi_Minh (ICT, UTC+7)"}
+                  </option>
+                  <option value="Asia/Manila">
+                    {locale.startsWith("zh") ? "Asia/Manila (菲律宾时间 PHT, UTC+8)" : "Asia/Manila (PHT, UTC+8)"}
+                  </option>
                 </select>
               </div>
 
@@ -375,13 +387,13 @@ export default function ConsoleSettingsPage() {
                   onChange={(e) => setCustomCurrency(e.target.value)}
                   className="w-full p-2 bg-white border border-[#E4E4E7] text-[#09090B] cursor-pointer"
                 >
-                  <option value="SGD">SGD (S$ 新加坡元)</option>
-                  <option value="IDR">IDR (Rp 印尼盾)</option>
-                  <option value="MYR">MYR (RM 马来西亚林吉特)</option>
-                  <option value="THB">THB (฿ 泰铢)</option>
-                  <option value="VND">VND (₫ 越南盾)</option>
-                  <option value="PHP">PHP (₱ 菲律宾比索)</option>
-                  <option value="USD">USD ($ 美元 / Solana USDC 锚定)</option>
+                  <option value="SGD">{locale.startsWith("zh") ? "SGD (S$ 新加坡元)" : "SGD (S$)"}</option>
+                  <option value="IDR">{locale.startsWith("zh") ? "IDR (Rp 印尼盾)" : "IDR (Rp)"}</option>
+                  <option value="MYR">{locale.startsWith("zh") ? "MYR (RM 马来西亚林吉特)" : "MYR (RM)"}</option>
+                  <option value="THB">{locale.startsWith("zh") ? "THB (฿ 泰铢)" : "THB (฿)"}</option>
+                  <option value="VND">{locale.startsWith("zh") ? "VND (₫ 越南盾)" : "VND (₫)"}</option>
+                  <option value="PHP">{locale.startsWith("zh") ? "PHP (₱ 菲律宾比索)" : "PHP (₱)"}</option>
+                  <option value="USD">{locale.startsWith("zh") ? "USD ($ 美元 / Solana USDC 锚定)" : "USD ($ / Solana USDC)"}</option>
                 </select>
               </div>
             </div>
@@ -480,7 +492,7 @@ export default function ConsoleSettingsPage() {
       {/* 模块 5: 系统后端链路能力状态 (System Capabilities) */}
       <div className="space-y-3">
         <h2 className="text-xs font-mono uppercase tracking-wider font-bold text-[#71717A]">
-          后端链路与基础设施能力状态 (SYSTEM CAPABILITIES)
+          {getI18nText(locale, "console_capabilities_title")}
         </h2>
         <Card>
           <CardContent className="p-6 space-y-3 text-xs font-mono">
@@ -488,25 +500,35 @@ export default function ConsoleSettingsPage() {
               <div className="p-3 bg-zinc-50 border border-zinc-200 rounded">
                 <span className="text-[10px] text-zinc-500 block">PostgreSQL</span>
                 <span className="font-bold text-zinc-900">
-                  {capabilities?.database === "configured" ? "已连接 (OK)" : "演示降级 (Mock)"}
+                  {capabilities?.database === "configured"
+                    ? getI18nText(locale, "console_status_connected")
+                    : getI18nText(locale, "console_status_mock")}
                 </span>
               </div>
               <div className="p-3 bg-zinc-50 border border-zinc-200 rounded">
                 <span className="text-[10px] text-zinc-500 block">Meta WhatsApp WABA</span>
                 <span className="font-bold text-zinc-900">
-                  {capabilities?.whatsapp === "configured" ? "API 直连 (OK)" : "沙盒模式 (Sandbox)"}
+                  {capabilities?.whatsapp === "configured"
+                    ? getI18nText(locale, "console_status_direct")
+                    : getI18nText(locale, "console_status_sandbox")}
                 </span>
               </div>
               <div className="p-3 bg-zinc-50 border border-zinc-200 rounded">
                 <span className="text-[10px] text-zinc-500 block">WooCommerce Webhook</span>
                 <span className="font-bold text-zinc-900">
-                  {capabilities?.woocommerce === "configured" ? "已就绪 (Ready)" : "模拟监听 (Demo)"}
+                  {capabilities?.woocommerce === "configured"
+                    ? getI18nText(locale, "console_status_ready")
+                    : getI18nText(locale, "console_status_demo")}
                 </span>
               </div>
               <div className="p-3 bg-zinc-50 border border-zinc-200 rounded">
-                <span className="text-[10px] text-zinc-500 block">Solana Devnet 结算</span>
+                <span className="text-[10px] text-zinc-500 block">
+                  {locale.startsWith("zh") ? "Solana Devnet 结算" : "Solana Devnet Settlement"}
+                </span>
                 <span className="font-bold text-emerald-700">
-                  {capabilities?.solanaPayment === "configured" ? "Devnet RPC 正常" : "演示环境"}
+                  {capabilities?.solanaPayment === "configured"
+                    ? getI18nText(locale, "console_status_devnet_ok")
+                    : getI18nText(locale, "console_status_devnet_env")}
                 </span>
               </div>
             </div>

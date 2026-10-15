@@ -5,6 +5,8 @@ import { useRef, useState, useSyncExternalStore } from "react";
 import { QueryClient, QueryClientProvider, useMutation, useQuery } from "@tanstack/react-query";
 import { z } from "zod";
 
+import { useAppStore } from "@/stores/use-app-store";
+import { getI18nText } from "@/lib/i18n";
 import { paymentRequest } from "@/lib/payments/client";
 import { explorerUrl } from "@/lib/payments/contracts";
 import { paymentWallet } from "@/lib/payments/wallet";
@@ -25,6 +27,7 @@ export function SolTestPanel() {
   return <QueryClientProvider client={client}><SolTestContent /></QueryClientProvider>;
 }
 function SolTestContent() {
+  const { locale } = useAppStore();
   const [initial] = useState(() => {
     try { return { recovery: readRecovery(), error: "" }; }
     catch { return { recovery: null, error: "无法读取本页付款记录，请先核查钱包历史；为防止重复付款，当前已禁用创建。请恢复浏览器存储，或在确认旧交易后清除此站点的会话存储。" }; }
@@ -74,7 +77,7 @@ function SolTestContent() {
   const quote = recovery?.checkout.quote;
   const statuses = { pending: "尚未查到交易，请等待或核对签名；不要重复付款。", confirmed: "已 confirmed，等待 finalized；尚未验证成功。", verified: "SOL 测试支付成功：已 finalized，收款人、金额和 reference 均通过服务端校验。未增加 Credits。", invalid: "链上证据不符合报价，未验证成功。请核查交易，不要重复付款。" };
   return <div className="mx-auto w-full max-w-3xl space-y-5 p-4 md:p-8">
-    <Link href="/console/billing" className="text-sm underline">返回账单</Link>
+    <Link href="/console/billing" className="text-sm underline">← {getI18nText(locale, "nav_billing")}</Link>
     <header className="space-y-2"><h1 className="text-2xl font-semibold">原生 SOL 小额测试付款</h1><p className="text-sm text-zinc-600">Devnet 实链测试 · 非 USDC · 不购买订阅 / Credits</p></header>
     <section className="space-y-2 rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-950">
       <p>每笔固定 <strong>{SOL_TEST_AMOUNT} SOL</strong>，另有网络手续费；不开放大额输入。请在钱包中切换到 Devnet，勿使用主网资产。</p>
@@ -90,11 +93,11 @@ function SolTestContent() {
         <p className="break-words text-sm">报价截止（UTC）：{new Date(quote.expiresAt * 1000).toISOString()}</p>
         {!connected ? <div className="flex flex-wrap gap-2">
           {wallets.length === 0 && <p className="text-sm">未发现兼容钱包。请启用 Phantom / Solflare 等 Wallet Standard 钱包扩展，切换至 Devnet 后刷新此页。</p>}
-          {wallets.map((wallet) => <button className="payment-button" key={wallet.name} disabled={connect.isPending} onClick={() => connect.mutate(wallet.name)}>连接 {wallet.name}</button>)}
+          {wallets.map((wallet) => <button className="payment-button" key={wallet.name} disabled={connect.isPending} onClick={() => connect.mutate(wallet.name)}>{getI18nText(locale, "console_wallet_connect_btn")} {wallet.name}</button>)}
         </div> : <>
           <p className="break-all text-xs">付款钱包：{connected.account.address}</p>
           <div className="flex flex-wrap gap-2"><button className="payment-button" disabled={send.isPending || recovery.attempt === "attempted" || !!signature} onClick={() => send.mutate()}>{send.isPending ? "等待钱包签名 / 网络响应…" : "确认支付 0.001 SOL"}</button>
-            <button className="payment-button" disabled={send.isPending || disconnect.isPending} onClick={() => disconnect.mutate()}>断开钱包</button></div>
+            <button className="payment-button" disabled={send.isPending || disconnect.isPending} onClick={() => disconnect.mutate()}>{getI18nText(locale, "console_wallet_disconnect_btn")}</button></div>
         </>}
         {recovery.attempt === "attempted" && <p className="text-sm" role="status">已发起过付款。拒签、余额不足或网络超时后均不会自动重发，请先检查钱包记录。</p>}
         {recovery.attempt === "attempted" && !signature && !send.isPending && <button className="payment-button" onClick={() => {

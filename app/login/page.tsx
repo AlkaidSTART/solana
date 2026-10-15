@@ -6,7 +6,7 @@ import { useSearchParams } from "next/navigation";
 import { ArrowLeft, Globe, Shield, Sparkles, Lock, Radio } from "lucide-react";
 import { AuthCard } from "@/components/auth/auth-card";
 import { useAppStore } from "@/stores/use-app-store";
-import type { SupportedLocale } from "@/lib/i18n";
+import { getI18nText, SUPPORTED_LOCALES, MARKETS, type SupportedLocale } from "@/lib/i18n";
 
 function LoginContent() {
   const searchParams = useSearchParams();
@@ -18,31 +18,16 @@ function LoginContent() {
 export default function LoginPage() {
   const { locale, setLocale } = useAppStore();
 
-  const isEn = locale === "en_US";
-  const isId = locale === "id_ID";
-
   const t = {
-    tagline: isEn
-      ? "Enterprise Console // WhatsApp Commerce Automation"
-      : isId
-      ? "Konsol Enterprise // Otomatisasi WhatsApp Asia Tenggara"
-      : "商户控制台 // 东南亚 WhatsApp 订单转化与 COD 防损",
-    statusLive: isEn
-      ? "META BAA DIRECT · 99.99% UPTIME"
-      : isId
-      ? "META BAA TERHUBUNG · 99.99% AKTIF"
-      : "META BAA 官方直连 · 99.99% 运行正常",
-    backHome: isEn ? "Back to Home" : isId ? "Kembali ke Beranda" : "返回官网",
-    copyright: isEn
-      ? "SolaFlow AI © 2026 · Southeast Asian Cross-border Commerce Infrastructure"
-      : isId
-      ? "SolaFlow AI © 2026 · Infrastruktur E-commerce Lintas Batas Asia Tenggara"
-      : "SolaFlow AI © 2026 · 东南亚出海跨境电商自动化基础设施",
-    compliance: isEn ? "Meta BAA Compliant" : isId ? "Kepatuhan Meta BAA" : "Meta BAA 商业数据合规",
-    settlement: isEn ? "Solana Pay Settlement" : isId ? "Settlement Solana Pay" : "Solana Pay USDC 即时结算",
-    encryption: isEn ? "256-bit Encrypted" : isId ? "Enkripsi 256-bit" : "256-bit 端到端安全加密",
-    loading: isEn ? "Loading authentication console..." : isId ? "Memuat konsol autentikasi..." : "加载商户认证控制台...",
-    selectLanguage: isEn ? "Select Language" : isId ? "Pilih Bahasa" : "选择语言",
+    tagline: getI18nText(locale, "auth_tagline"),
+    statusLive: getI18nText(locale, "auth_status_live"),
+    backHome: getI18nText(locale, "auth_back_home"),
+    copyright: getI18nText(locale, "auth_copyright"),
+    compliance: getI18nText(locale, "auth_compliance"),
+    settlement: getI18nText(locale, "auth_settlement"),
+    encryption: getI18nText(locale, "auth_encryption"),
+    loading: getI18nText(locale, "auth_loading"),
+    selectLanguage: getI18nText(locale, "auth_select_language"),
   };
 
   return (
@@ -91,9 +76,14 @@ export default function LoginPage() {
               className="bg-transparent text-zinc-800 font-sans text-xs focus:outline-none cursor-pointer"
               aria-label={t.selectLanguage}
             >
-              <option value="zh_CN">简体中文</option>
-              <option value="en_US">English</option>
-              <option value="id_ID">Bahasa Indonesia</option>
+              {SUPPORTED_LOCALES.map((loc) => {
+                const m = MARKETS[loc];
+                return (
+                  <option key={loc} value={loc}>
+                    {m.flag} {m.nativeLabel} ({m.shortLabel})
+                  </option>
+                );
+              })}
             </select>
           </div>
 

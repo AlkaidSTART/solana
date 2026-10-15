@@ -11,8 +11,9 @@
     "test": "vitest run",
     "test:unit": "vitest run",
     "test:e2e": "playwright test",
-    "payments:db": "node --env-file=.env --import tsx scripts/payment-db.ts",
-    "payments:worker": "node --conditions=react-server --env-file=.env --import tsx scripts/payment-worker.ts"
+    "payments:db": "node --env-file-if-exists=.env --env-file-if-exists=.env.local --import tsx scripts/payment-db.ts",
+    "payments:worker": "node --conditions=react-server --env-file-if-exists=.env --env-file-if-exists=.env.local --import tsx scripts/payment-worker.ts",
+    "whatsapp:worker": "node --conditions=react-server --env-file-if-exists=.env --env-file-if-exists=.env.local --import tsx scripts/whatsapp-worker.ts"
   },
   "dependencies": {
     "@neondatabase/auth": "0.6.0-beta",

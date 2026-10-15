@@ -19,6 +19,7 @@ import { clsx } from "clsx";
 import { motion, AnimatePresence } from "motion/react";
 import { Button } from "@/components/ui/button";
 import { useAppStore } from "@/stores/use-app-store";
+import { getI18nText, SUPPORTED_LOCALES, MARKETS } from "@/lib/i18n";
 import { authApi } from "@/lib/api";
 import { authClient } from "@/lib/auth/client";
 import {
@@ -92,76 +93,48 @@ export function AuthCard({ initialMode = "login", onModeChange }: AuthCardProps)
   };
 
   // 国际化映射
-  const isEn = locale === "en_US";
+  const isEn = locale.startsWith("en_");
   const isId = locale === "id_ID";
 
   const t = useMemo(
     () => ({
-      titleLogin: isEn ? "Merchant Sign In" : isId ? "Masuk Portal Merchant" : "商户登录",
-      titleRegister: isEn ? "Open Merchant Account" : isId ? "Daftar Akun Merchant" : "开通商户账号",
-      descLogin: isEn
-        ? "Access Southeast Asia WhatsApp order & recovery console."
-        : isId
-        ? "Akses dasbor pesanan & pemulihan WhatsApp Asia Tenggara."
-        : "出海东南亚 WhatsApp 订单转化与智能追单控制台。",
-      descRegister: isEn
-        ? "14-day full access with 100 Credits trial included upon activation."
-        : isId
-        ? "Akses penuh 14 hari dengan bonus 100 Kredit uji coba saat aktivasi."
-        : "14 天全功能试用，激活即赠 100 Credits 体验额度。",
-      tabLogin: isEn ? "Sign In" : isId ? "Masuk" : "商户登录",
-      tabRegister: isEn ? "Register" : isId ? "Daftar" : "注册账号",
-      methodOtp: isEn ? "Email OTP (Passwordless)" : isId ? "Kode OTP Email (Tanpa Sandi)" : "邮箱动态免密",
-      methodPassword: isEn ? "Password" : isId ? "Kata Sandi" : "密码登录",
-      otpSentBadge: isEn ? "Code Sent" : isId ? "Terkirim" : "已发送",
-      emailLabel: isEn ? "Work Email" : isId ? "Email Bisnis" : "商家工作邮箱",
+      titleLogin: getI18nText(locale, "auth_title_login"),
+      titleRegister: getI18nText(locale, "auth_title_register"),
+      descLogin: getI18nText(locale, "auth_desc_login"),
+      descRegister: getI18nText(locale, "auth_desc_register"),
+      tabLogin: getI18nText(locale, "auth_tab_login"),
+      tabRegister: getI18nText(locale, "auth_tab_register"),
+      methodOtp: getI18nText(locale, "auth_method_otp"),
+      methodPassword: getI18nText(locale, "auth_method_password"),
+      otpSentBadge: getI18nText(locale, "auth_otp_sent_badge"),
+      emailLabel: getI18nText(locale, "auth_email_label"),
       emailPlaceholder: "merchant@crossborder-shop.com",
-      rememberEmail: isEn ? "Remember email on this browser" : isId ? "Ingat email di browser ini" : "在此浏览器记住工作邮箱",
-      storeNameLabel: isEn ? "Store / Business Name" : isId ? "Nama Toko / Bisnis" : "店铺或品牌名称",
-      storeNamePlaceholder: isEn ? "e.g. Jakarta Fashion Hub" : isId ? "misal: Jakarta Trends Hub" : "例如：Jakarta Trends Hub",
-      marketLabel: isEn ? "Primary Target Market" : isId ? "Pasar Target Utama" : "主营出海市场",
-      passwordLabel: isEn ? "Password" : isId ? "Kata Sandi" : "登录密码",
-      passwordRegisterLabel: isEn ? "Password (at least 8 chars)" : isId ? "Kata Sandi (minimal 8 karakter)" : "登录密码 (至少 8 位)",
-      confirmPasswordLabel: isEn ? "Confirm Password" : isId ? "Konfirmasi Sandi" : "确认登录密码",
-      pwdPlaceholder: isEn ? "Min 8 alphanumeric chars" : isId ? "Min 8 karakter kombinasi" : "至少 8 位字母及字符组合",
-      confirmPwdPlaceholder: isEn ? "Re-enter to confirm" : isId ? "Masukkan ulang untuk konfirmasi" : "再次输入以确认",
-      sendOtpBtn: isEn ? "Send Code" : isId ? "Kirim Kode" : "获取验证码",
-      resendOtpBtn: isEn ? "Resend" : isId ? "Kirim Ulang" : "重新获取",
-      otpHint: isEn
-        ? "Enter 6-digit dynamic code sent to your email:"
-        : isId
-        ? "Masukkan 6 digit kode yang dikirim ke email:"
-        : "请输入已发送至您工作邮箱的 6 位动态验证码：",
-      otpPasteHint: isEn ? "Paste supported" : isId ? "Bisa tempel langsung" : "支持 6 位直接粘贴",
-      autoSubmitHint: isEn ? "Auto-submits on 6th digit" : isId ? "Verifikasi otomatis saat 6 digit terisi" : "输满 6 位自动提交",
-      forgotPassword: isEn ? "Forgot password? Passwordless OTP" : isId ? "Lupa kata sandi? Masuk via OTP" : "忘记密码？免密登录",
-      submitLogin: isEn ? "Sign In to Workspace" : isId ? "Masuk ke Konsol" : "登录进入工作台",
-      submitRegister: isEn
-        ? "Create Account & Start Onboarding"
-        : isId
-        ? "Daftar & Mulai Panduan"
-        : "立即注册并进入入驻向导",
+      rememberEmail: getI18nText(locale, "auth_remember_email"),
+      storeNameLabel: getI18nText(locale, "auth_store_name_label"),
+      storeNamePlaceholder: getI18nText(locale, "auth_store_name_placeholder"),
+      marketLabel: getI18nText(locale, "auth_market_label"),
+      passwordLabel: getI18nText(locale, "auth_password_label"),
+      passwordRegisterLabel: getI18nText(locale, "auth_password_register_label"),
+      confirmPasswordLabel: getI18nText(locale, "auth_confirm_password_label"),
+      pwdPlaceholder: getI18nText(locale, "auth_pwd_placeholder"),
+      confirmPwdPlaceholder: getI18nText(locale, "auth_confirm_pwd_placeholder"),
+      sendOtpBtn: getI18nText(locale, "auth_send_otp_btn"),
+      resendOtpBtn: getI18nText(locale, "auth_resend_otp_btn"),
+      otpHint: getI18nText(locale, "auth_otp_hint"),
+      otpPasteHint: getI18nText(locale, "auth_otp_paste_hint"),
+      autoSubmitHint: getI18nText(locale, "auth_auto_submit_hint"),
+      forgotPassword: getI18nText(locale, "auth_forgot_password"),
+      submitLogin: getI18nText(locale, "auth_submit_login"),
+      submitRegister: getI18nText(locale, "auth_submit_register"),
       verifying: isEn ? "Verifying identity..." : isId ? "Memverifikasi identitas..." : "身份核验中...",
       creatingAccount: isEn ? "Creating account..." : isId ? "Membuat akun..." : "创建账号中...",
       noAccountText: isEn ? "Don't have an account?" : isId ? "Belum punya akun?" : "还没有商户账号？",
       registerFreeCta: isEn ? "Register free (+100 Credits)" : isId ? "Daftar gratis (+100 Kredit)" : "免费注册（送 100 Credits）",
       hasAccountText: isEn ? "Already have an account?" : isId ? "Sudah punya akun?" : "已有商户账号？",
       loginDirectCta: isEn ? "Sign in directly" : isId ? "Langsung masuk" : "直接登录",
-      termsAgreeText: isEn
-        ? "I have read and agree to SolaFlow Merchant Agreement, Privacy Policy, and Meta BAA."
-        : isId
-        ? "Saya telah membaca dan menyetujui Ketentuan Merchant SolaFlow, Kebijakan Privasi, dan Perjanjian Meta BAA."
-        : "我已阅读并同意 SolaFlow 出海服务协议、隐私条款及 Meta 商业数据处理附约",
-      securityGuarantee: isEn
-        ? "Meta BAA Compliant Direct Link · End-to-End Encrypted"
-        : isId
-        ? "Kepatuhan Meta BAA · Terenkripsi Ujung ke Ujung"
-        : "Meta BAA 合规直连 · 端到端安全加密",
-      termsFooter: isEn
-        ? "By continuing, you agree to SolaFlow Merchant Terms and Meta BAA Data Agreement."
-        : isId
-        ? "Dengan melanjutkan, Anda menyetujui Ketentuan Merchant SolaFlow dan Perjanjian Meta BAA."
-        : "登录或注册即代表您同意 SolaFlow 出海商户服务协议与 Meta 商业数据处理附约 (BAA)",
+      termsAgreeText: `${getI18nText(locale, "auth_agree_terms_pre")} ${getI18nText(locale, "auth_terms_link")}, ${getI18nText(locale, "auth_privacy_link")} ${getI18nText(locale, "auth_agree_terms_post")}`,
+      securityGuarantee: `${getI18nText(locale, "auth_compliance")} · ${getI18nText(locale, "auth_encryption")}`,
+      termsFooter: `${getI18nText(locale, "auth_compliance")} · ${getI18nText(locale, "auth_settlement")}`,
 
       // 错误与反馈提示
       errInvalidEmail: isEn ? "Please enter a valid work email address." : isId ? "Silakan masukkan alamat email bisnis yang valid." : "请输入有效的商家工作邮箱地址。",
@@ -181,59 +154,19 @@ export function AuthCard({ initialMode = "login", onModeChange }: AuthCardProps)
       msgOtpSentReal: (em: string) =>
         isEn ? `Verification code sent to ${em}.` : isId ? `Kode verifikasi dikirim ke ${em}.` : `动态验证码已发送至 ${em}。`,
     }),
-    [isEn, isId]
+    [locale, isEn, isId]
   );
 
-  const marketOptions = [
-    {
-      value: "id_ID",
-      label: isEn
-        ? "Indonesia (ID · +62 COD / Recovery focus)"
-        : isId
-        ? "Indonesia (ID · +62 COD & Pemulihan)"
-        : "印度尼西亚 (Indonesia · +62 COD / 催付重点)",
-    },
-    {
-      value: "th_TH",
-      label: isEn
-        ? "Thailand (TH · +66)"
-        : isId
-        ? "Thailand (TH · +66)"
-        : "泰国 (Thailand · +66)",
-    },
-    {
-      value: "en_SG",
-      label: isEn
-        ? "Singapore / SEA English (SG · +65)"
-        : isId
-        ? "Singapura / Bahasa Inggris (SG · +65)"
-        : "新加坡 / 东南亚英文区 (Singapore · +65)",
-    },
-    {
-      value: "ms_MY",
-      label: isEn
-        ? "Malaysia (MY · +60)"
-        : isId
-        ? "Malaysia (MY · +60)"
-        : "马来西亚 (Malaysia · +60)",
-    },
-    {
-      value: "vi_VN",
-      label: isEn
-        ? "Vietnam (VN · +84)"
-        : isId
-        ? "Vietnam (VN · +84)"
-        : "越南 (Vietnam · +84)",
-    },
-    {
-      value: "fil_PH",
-      label: isEn
-        ? "Philippines (PH · +63)"
-        : isId
-        ? "Filipina (PH · +63)"
-        : "菲律宾 (Philippines · +63)",
-    },
-  ];
+  const marketOptions = useMemo(() => {
+    return SUPPORTED_LOCALES.map((loc) => {
+      const m = MARKETS[loc];
+      const countryName = locale.startsWith("zh") ? m.countryNameZh : m.countryNameEn;
+      return {
+        value: loc,
+        label: `${m.flag} ${countryName} (${m.shortLabel} · ${m.phonePrefix})`,
+      };
+    });
+  }, [locale]);
 
   // 持久化记住邮箱
   const persistRememberedEmail = useCallback(

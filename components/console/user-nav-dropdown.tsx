@@ -7,6 +7,7 @@ import { useAppStore } from "@/stores/use-app-store";
 import { getI18nText } from "@/lib/i18n";
 import { authApi } from "@/lib/api";
 import {
+  User,
   ShieldCheck,
   Coins,
   Wallet,
@@ -95,7 +96,7 @@ export function UserNavDropdown({ sessionEmail, tenantName }: UserNavDropdownPro
         onClick={() => setIsOpen(!isOpen)}
         aria-haspopup="true"
         aria-expanded={isOpen}
-        aria-label="打开用户与资产菜单"
+        aria-label={getI18nText(locale, "user_assets_title")}
         className={clsx(
           "flex items-center gap-2 pl-1.5 pr-2.5 py-1 border rounded-lg transition-all select-none font-mono text-xs focus:outline-none focus:ring-2 focus:ring-emerald-500/30",
           isOpen
@@ -237,7 +238,7 @@ export function UserNavDropdown({ sessionEmail, tenantName }: UserNavDropdownPro
                         onClick={() => disconnectWallet()}
                         className="text-zinc-400 hover:text-rose-600 underline text-[9px]"
                       >
-                        断开
+                        {getI18nText(locale, "console_wallet_disconnect_btn")}
                       </button>
                     </div>
                   ) : (
@@ -280,13 +281,13 @@ export function UserNavDropdown({ sessionEmail, tenantName }: UserNavDropdownPro
                 </div>
               ) : (
                 <div className="pt-1 border-t border-zinc-100 flex justify-between items-center text-[11px]">
-                  <span className="text-zinc-400">尚未绑定 Devnet 钱包</span>
+                  <span className="text-zinc-400">{getI18nText(locale, "console_wallet_not_connected")}</span>
                   <button
                     type="button"
                     onClick={() => connectWallet()}
                     className="text-emerald-700 font-medium hover:underline text-xs"
                   >
-                    连接钱包
+                    {getI18nText(locale, "console_wallet_connect_btn")}
                   </button>
                 </div>
               )}
