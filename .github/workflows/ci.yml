@@ -1,0 +1,53 @@
+name: CI
+
+on:
+  push:
+    branches: [main, dev-m]
+  pull_request:
+    branches: [main, dev-m]
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  checks:
+    name: Lint, typecheck & test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      # 版本从 package.json 的 packageManager 字段读取（pnpm@11.17.0）。
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v6
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Lint
+        run: pnpm lint
+
+      - name: Typecheck
+        run: pnpm exec next typegen && pnpm exec tsc --noEmit
+
+      - name: Test with coverage
+        run: pnpm test:coverage
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v7
+        with:
+          files: ./coverage/lcov.info
+          flags: unit
+          # public 仓库可不配置 token 走 tokenless 上传；配置后自动使用。
+          token: ${{ secrets.CODECOV_TOKEN }}
+          fail_ci_if_error: true
