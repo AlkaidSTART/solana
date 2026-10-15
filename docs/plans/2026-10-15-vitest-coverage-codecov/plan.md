@@ -16,8 +16,15 @@
 1. 安装 `@vitest/coverage-v8@^4.1.11`（devDependency），与 vitest 版本对齐。
 2. `vitest.config.mts` 增加 coverage 配置：provider v8，reporter `text` + `lcov`，输出到 `./coverage`。
 3. `package.json` 增加脚本 `test:coverage`。
-4. 新建 `.github/workflows/ci.yml`：push（main/dev-m）与 PR（目标 main/dev-m）触发 → pnpm 安装（frozen lockfile）→ lint → typegen + tsc → `vitest run --coverage` → `codecov/codecov-action@v5` 上传 `coverage/lcov.info`。
-5. 给出 Codecov 侧一次性配置步骤（token secret、badge 可选），并在 result.md 记录。
+4. 新建 `.github/workflows/ci.yml`：push（main/dev-m）与 PR（目标 main/dev-m）触发 → pnpm 安装（frozen lockfile）→ lint → typegen + tsc → `vitest run --coverage` + JUnit → `codecov/codecov-action@v5` 上传 `coverage/lcov.info` 与 `test-results/junit.xml`（Test Analytics）。
+5. 给出 Codecov 侧一次性配置步骤（token secret、GitHub App、badge 可选），并在 result.md 记录。
+
+### 追加范围（2026-10-15 追问：Test Analytics 失败测试展示）
+
+- `package.json` 增加脚本 `test:ci`：`vitest run --coverage --reporter=default --reporter=junit --outputFile.junit=./test-results/junit.xml`（JUnit 为 vitest 内置 reporter，无需新依赖；`test-results/` 已在 .gitignore）。
+- CI 中测试步骤改用 `pnpm test:ci`；新增第二个 codecov step：`report_type: test_results` 上传 JUnit XML，`if: ${{ !cancelled() }}` 保证测试失败时也上传（失败测试 dashboard/PR 评论的数据来源）。
+- 覆盖率上传 step 同样加 `if: ${{ !cancelled() }}`。
+- 前置条件：Codecov GitHub App 需授权安装到仓库，PR 评论才会出现；dashboard 仅需上传成功。
 
 ## 3. MVP 范围
 
@@ -59,10 +66,15 @@
 - 测试 T4（尽力执行）：`pnpm build`；若因本地/环境既有问题失败，记录原因，不作为本次门禁（本次未改业务代码）。
 - 更新 `result.md`（检查清单、命令、实际结果、遗留项）。
 
+### 阶段 4：Test Analytics（JUnit 上传）
+- 执行：`package.json` 增加 `test:ci` 脚本；`ci.yml` 测试步骤改 `pnpm test:ci`，新增 `report_type: test_results` 上传步骤，两个 codecov 步骤加 `if: ${{ !cancelled() }}`。
+- 测试 T5：`pnpm test:ci`；预期：316 用例通过，生成 `test-results/junit.xml` 且为合法 XML（含 testsuite/testcase 节点）。
+
 ## 7. 最终验收标准
 
 - [ ] `@vitest/coverage-v8` 安装为 devDependency 且与 vitest 4.1.11 兼容，`pnpm-lock.yaml` 同步。
 - [ ] `pnpm test:coverage` 本地通过并生成 lcov。
-- [ ] `.github/workflows/ci.yml` 存在，含 lint / typecheck / test+coverage / codecov 上传步骤。
+- [ ] `pnpm test:ci` 通过并生成合法 `test-results/junit.xml`。
+- [ ] `.github/workflows/ci.yml` 存在，含 lint / typecheck / test+coverage / codecov 覆盖率上传 / codecov test_results 上传步骤。
 - [ ] `pnpm lint`、typegen + `tsc --noEmit`、`vitest run --coverage` 全部通过。
 - [ ] result.md 记录实际结果与遗留（含 Codecov 一次性配置说明；CI 真实运行需用户推送/开 PR 后验证）。

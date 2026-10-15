@@ -11,6 +11,7 @@
     "test": "vitest run",
     "test:unit": "vitest run",
     "test:coverage": "vitest run --coverage",
+    "test:ci": "vitest run --coverage --reporter=default --reporter=junit --outputFile.junit=./test-results/junit.xml",
     "test:e2e": "playwright test",
     "payments:db": "node --env-file-if-exists=.env --env-file-if-exists=.env.local --import tsx scripts/payment-db.ts",
     "payments:worker": "node --conditions=react-server --env-file-if-exists=.env --env-file-if-exists=.env.local --import tsx scripts/payment-worker.ts",
