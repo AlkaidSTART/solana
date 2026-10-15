@@ -21,16 +21,49 @@
   - 测试 T1：`node --env-file=.env --import tsx scripts/migrate.ts`；预期：输出 `Database migrations are up to date.`，认证表出现；实际：首次执行输出该文案，`0001~0005` 全部记入 `schema_migrations`，public schema 共 48 张表，`users`/`tenants`/`memberships`/`sessions`/`otp_challenges` 均已存在；devnet 三张原表 + 两张改名表 + 正式计费表 `payment_orders`/`payment_candidates`/`credit_ledger` 共存；二次执行同样输出 `Database migrations are up to date.`（幂等）。
   - 环境变量：向 Vercel Production 写入 `SESSION_SIGNING_KEY`、`CSRF_SIGNING_KEY`、`CREDENTIAL_ENCRYPTION_KEY`、`OTP_HMAC_KEY`、`APP_ALLOWED_ORIGINS`、`TRUST_PROXY_HEADERS`、`PAYMENT_APP_ORIGIN`（原为空串）、`PAYMENTS_DEVNET_ALLOW_PRODUCTION=true`（原为空串）；移除被 Vercel 忽略且误导的 `NODE_ENV`；移除代码已不再引用的 `PAYMENTS_ALLOW_LOCAL_SESSION`。`vercel env ls production` 已确认结果。
   - 测试 T2：线上 `POST /api/v1/auth/otp/request`；预期：不再返回 `CAPABILITY_UNAVAILABLE`；实际：**未执行** —— 生产仍是 7 天前的旧构建，需重新部署后才能验证。遗留/下一步：待授权部署后复验。
-- [ ] 阶段 2：接入 OTP 投递端点（**阻塞：等待需求方提供端点与 Bearer**）。
-  - 测试 T3：真实收到验证码；`/api/v1/auth/otp/verify` 返回 200 并下发 session cookie。未执行。
-- [ ] 阶段 3：商户租户。
-  - 测试 T4：`POST /api/v1/tenants` 成功；`GET /api/v1/auth/session` 返回非空 `currentTenant`。未执行。
+- [已被取代] 阶段 2：接入 OTP 投递端点 —— **方案变更**：改用 Neon Auth 托管 Email OTP，OTP 生成与投递由托管服务负责，原"自建投递端点"需求取消（详见阶段 6）。原测试 T3 改为阶段 6 的 T11 与阶段 7 的 T12。
+- [已被取代] 阶段 3：商户租户。仍由既有 `POST /api/v1/tenants`（`requireWriteUser`）承担，无需新代码；验收改到阶段 7/9 一并验证（原测试 T4）。
 - [x] 阶段 4：支付闸门改造 + 鉴权（代码完成，线上复验待部署）。
   - 交付内容：`lib/server/payments/config.ts`、`lib/server/payments/http.ts`、`lib/server/payments/sol-test/http.ts`、`app/api/v1/payments/{session,billing,orders,orders/[id]}/route.ts`、`lib/server/payments/http.test.ts`、`lib/server/payments/sol-test/http.test.ts`、`components/billing/billing-payments.tsx`、`components/billing/solana-pay-modal.tsx`、`README.md`。
   - 关键变更：生产闸门从无条件 `NODE_ENV === "production"` 改为显式 `PAYMENTS_DEVNET_ALLOW_PRODUCTION === "true"`（未设置时生产仍 fail-closed，devnet genesis 校验继续阻止主网）；移除 localhost hostname 白名单与 `PAYMENTS_ALLOW_LOCAL_SESSION`；`createLocalSession`/`tenantSession` 改为要求 `requireActor` 并把 `payment_sessions.tenant_id` 绑定到 `actor.tenantId`（不再铸造随机租户），且校验已存会话租户与当前 actor 租户一致；`paymentResponse` 现在把 `ApiError` 映射为其自身状态码（401/403 不再被吞成 503）；sol-test 入口同样要求登录。UI 文案由"需先配置 PostgreSQL/Devnet 收款地址/本地会话开关"改为"仅限已登录并绑定商户的账户"并引导至 `/login`。
   - 测试 T5/T6（单元层）：`lib/server/payments/http.test.ts` 新增/改写用例覆盖未登录（401）、无租户 membership（403）、生产未显式开权（抛错）、已开权可用、会话租户与 actor 租户不一致被拒、会话绑定 `actor.tenantId` 而非随机铸租户、原始 cookie 不参与查询参数；`lib/server/payments/sol-test/http.test.ts` 覆盖未登录 401 且不触达 RPC。实际：8 文件 114 用例全部通过。
   - 测试 T7：`pnpm lint`（0 error 0 warning）、`pnpm exec next typegen && pnpm exec tsc --noEmit`（OK）、`pnpm exec vitest run`（24 文件 261 用例全部通过）、`pnpm build`（exit 0，路由清单正常）。实际：全部通过。
-- [ ] 阶段 5：线上端到端。测试 T8/T9/T10 均未执行，需先完成阶段 2/3 并部署。
+- [已部署] 部署执行：`vercel --prod --yes` 两次，均成功并别名至 `https://solana-neon-ten.vercel.app`。第一次部署后线上行为验证：`GET/POST /api/v1/payments/session` 与 `POST /api/v1/payments/orders` 由 503 变为 `401 {"error":"Authentication is required"}`；`/api/v1/health` 的 `database` 为 `ok`。第二次部署含 Neon Auth 接线。
+
+- [x] 阶段 6：接入 Neon Auth 服务端（Identity Provider）。
+  - 交付内容：`lib/auth/server.ts`（惰性 `createNeonAuth({ baseUrl, cookies: { secret } })`，用 zod 校验而非非空断言，惰性化以免缺变量时构建失败）、`app/api/auth/[...path]/route.ts`（`auth.handler()` 的 GET/POST/PUT/DELETE/PATCH 代理）、依赖 `@neondatabase/auth@0.6.0-beta`（peerDeps 实测 `next >=16.0.0`，与本仓库 Next 16.3.8 匹配）、`pnpm-workspace.yaml` 将 pnpm 自动写入的占位值 `core-js: set this to true or false` 定为 `false`（core-js 的 postinstall 仅为赞助提示，不定值会使 `pnpm exec` 整体报错）。
+  - 环境变量：`NEON_AUTH_BASE_URL`、`NEON_AUTH_COOKIE_SECRET`（`openssl rand -base64 32`，44 字符）写入本地 `.env`/`.env.local` 与 Vercel Production。
+  - 测试 T11：线上 `GET /api/auth/ok` → `{"ok":true}` ✅；`GET /api/auth/get-session` → `null`（无会话，符合预期）✅；`POST /api/auth/email-otp/send-verification-otp` → **阻塞**，见下。
+  - 验证：`pnpm exec tsc --noEmit` OK、`pnpm lint` 0 问题、`pnpm exec vitest run` 24 文件 261 用例全绿。
+
+- [ ] 阶段 7：Neon Auth 身份 → 本地会话桥接。未实现，等待阶段 6 的域名白名单解除后一并完成与验证。
+
+- [ ] 阶段 8：登录界面改造与假通道清除。未实现，需需求方确认是否移除演示通道。
+
+- [ ] 阶段 9：线上端到端复验。未执行。
+
+- [ ] MVP 验收：见 plan.md §7。已完成 §7 第 6 项（表名冲突解除，迁移可幂等重复执行）与线上 API 鉴权收紧；第 1~5 项待阶段 7/8/9。
+
+## 阻塞项：Neon Auth 受信域名未添加（2026-10-15 新增）
+
+**现象**：`POST /api/auth/email-otp/send-verification-otp` 返回 `{"message":"Invalid origin","code":"INVALID_ORIGIN"}`。
+
+**定位**：对照实测（同一请求分别打到线上代理与 Neon Auth 直连端点 `https://ep-falling-sky-b5fgcy67.neonauth.c-7.us-east-2.aws.neon.tech/neondb/auth/...`）：
+
+| 请求 | 结果 |
+| --- | --- |
+| 带 `Origin: https://solana-neon-ten.vercel.app` | `INVALID_ORIGIN` |
+| 带 `Origin: https://evil.example` | `INVALID_ORIGIN` |
+| 不带 `Origin` | `{"success":true}` |
+
+结论：`https://solana-neon-ten.vercel.app` **不在 Neon Auth 的受信域名白名单内**。浏览器一定发送 `Origin`，因此线上发 OTP 必然失败。这不是代码或 Vercel 环境变量问题。
+
+**解除方式**（官方文档《Configure trusted domains》给出 Console／CLI／API 三种）：
+- Console：**Auth → Configuration → Domains**，填入 `https://solana-neon-ten.vercel.app`（含协议、无尾部斜杠）。
+- API：`POST https://console.neon.tech/api/v2/projects/{project_id}/branches/{branch_id}/auth/domains`，需要 `NEON_API_KEY`；本机未安装 `neon`/`neonctl`，`.env` 中亦无 `NEON_API_KEY`。
+- 预览环境可另加通配符条目（如 `https://*.alkaidstarts-projects.vercel.app`）。
+
+**需要需求方提供**：Neon API Key（我可用 API 直接添加），或自行在 Console 添加该域名。此阻塞未解除前，阶段 7/8/9 无法端到端验证。
 
 - [ ] MVP 验收：见 plan.md §7。当前完成 §7 第 6 项（表名冲突解除，迁移可幂等重复执行）；第 1~5 项待阶段 2/3/5 与线上复验。
 
