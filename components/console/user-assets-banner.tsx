@@ -8,6 +8,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
+  User,
   ShieldCheck,
   Coins,
   Wallet,
@@ -32,13 +33,6 @@ export function UserAssetsBanner({ sessionEmail, tenantName }: UserAssetsBannerP
   const displayName = userProfile.name;
   const displayRole = userProfile.role;
   const displayTenant = tenantName || userProfile.tenantName;
-
-  const initials = displayName
-    .split(" ")
-    .map((p) => p[0])
-    .join("")
-    .slice(0, 2)
-    .toUpperCase() || "US";
 
   const truncatedAddress = userProfile.walletAddress
     ? `${userProfile.walletAddress.slice(0, 4)}...${userProfile.walletAddress.slice(-4)}`
@@ -66,8 +60,16 @@ export function UserAssetsBanner({ sessionEmail, tenantName }: UserAssetsBannerP
             <div className="space-y-3.5">
               <div className="flex items-start justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 rounded-xl bg-gradient-to-tr from-emerald-600 via-teal-500 to-indigo-600 text-white flex items-center justify-center font-bold text-base shadow-sm ring-4 ring-emerald-50">
-                    {initials}
+                  <div className="w-12 h-12 rounded-xl bg-zinc-100 border border-zinc-200 text-zinc-600 flex items-center justify-center shadow-xs">
+                    {userProfile.avatarUrl ? (
+                      <img
+                        src={userProfile.avatarUrl}
+                        alt={displayName}
+                        className="w-full h-full rounded-xl object-cover"
+                      />
+                    ) : (
+                      <User className="w-6 h-6 text-zinc-600" />
+                    )}
                   </div>
                   <div>
                     <div className="flex items-center gap-2 flex-wrap">

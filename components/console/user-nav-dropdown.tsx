@@ -38,14 +38,6 @@ export function UserNavDropdown({ sessionEmail, tenantName }: UserNavDropdownPro
   const displayRole = userProfile.role;
   const displayTenant = tenantName || userProfile.tenantName;
 
-  // 用户姓名首字母缩写
-  const initials = displayName
-    .split(" ")
-    .map((part) => part[0])
-    .join("")
-    .slice(0, 2)
-    .toUpperCase() || "US";
-
   // 点击外部或按 Escape 关闭下拉
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -111,9 +103,17 @@ export function UserNavDropdown({ sessionEmail, tenantName }: UserNavDropdownPro
             : "border-zinc-200 bg-white hover:border-zinc-300 text-zinc-800 shadow-2xs"
         )}
       >
-        {/* 头像圆点 */}
-        <div className="w-6 h-6 rounded-full bg-gradient-to-tr from-emerald-600 to-teal-500 text-white flex items-center justify-center font-bold text-[10px] tracking-tight shrink-0 shadow-2xs">
-          {initials}
+        {/* 默认用户头像（采用图标库 User 矢量图标） */}
+        <div className="w-6 h-6 rounded-full bg-zinc-100 border border-zinc-200/80 text-zinc-600 flex items-center justify-center shrink-0">
+          {userProfile.avatarUrl ? (
+            <img
+              src={userProfile.avatarUrl}
+              alt={displayName}
+              className="w-full h-full rounded-full object-cover"
+            />
+          ) : (
+            <User className="w-3.5 h-3.5 text-zinc-600" />
+          )}
         </div>
 
         {/* 姓名与角色 */}
@@ -142,8 +142,16 @@ export function UserNavDropdown({ sessionEmail, tenantName }: UserNavDropdownPro
           {/* 区块 1：商户身份名片 */}
           <div className="p-4 bg-gradient-to-b from-zinc-50/80 to-white border-b border-zinc-100">
             <div className="flex items-start gap-3">
-              <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-emerald-600 to-teal-500 text-white flex items-center justify-center font-bold text-sm tracking-tight shrink-0 shadow-xs">
-                {initials}
+              <div className="w-10 h-10 rounded-full bg-zinc-100 border border-zinc-200 text-zinc-600 flex items-center justify-center shrink-0 shadow-xs">
+                {userProfile.avatarUrl ? (
+                  <img
+                    src={userProfile.avatarUrl}
+                    alt={displayName}
+                    className="w-full h-full rounded-full object-cover"
+                  />
+                ) : (
+                  <User className="w-5 h-5 text-zinc-600" />
+                )}
               </div>
               <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-1.5 flex-wrap">

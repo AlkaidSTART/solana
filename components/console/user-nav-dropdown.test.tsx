@@ -28,8 +28,9 @@ describe("UserNavDropdown Component", () => {
 
     // 包含触发按钮
     expect(html).toContain("button");
-    // 包含首字母 "AR" (Alex Rivera)
-    expect(html).toContain("AR");
+    // 包含来自 lucide-react 的 User 矢量图标，不含手绘首字母 "AR"
+    expect(html).toContain("lucide-user");
+    expect(html).not.toContain("AR");
     // 包含用户名
     expect(html).toContain("Alex Rivera");
     // 包含角色
