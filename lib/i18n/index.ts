@@ -491,6 +491,24 @@ export interface UiTranslations {
   meta_timezone: string;
   meta_network: string;
 
+  // User Profile & Assets
+  user_name_label: string;
+  user_email_label: string;
+  user_role_label: string;
+  user_assets_title: string;
+  user_assets_credits: string;
+  user_assets_wallet: string;
+  user_wallet_address: string;
+  user_wallet_connected: string;
+  user_wallet_disconnected: string;
+  user_wallet_sol_balance: string;
+  user_wallet_usdc_balance: string;
+  user_profile_edit: string;
+  user_action_topup: string;
+  user_action_copy_address: string;
+  user_copied_address: string;
+  user_logout: string;
+
 
   // Overview additional
 
@@ -771,6 +789,22 @@ overview_tab_loading: "加载中",
     meta_timezone: "时区",
     meta_network: "网络",
 
+    user_name_label: "商户姓名",
+    user_email_label: "认证邮箱",
+    user_role_label: "管理权限",
+    user_assets_title: "商户数字资产",
+    user_assets_credits: "SolaFlow AI Credits",
+    user_assets_wallet: "Solana Devnet 钱包",
+    user_wallet_address: "钱包地址",
+    user_wallet_connected: "已连接",
+    user_wallet_disconnected: "未连接",
+    user_wallet_sol_balance: "SOL 余额",
+    user_wallet_usdc_balance: "USDC 余额",
+    user_profile_edit: "编辑个人档案",
+    user_action_topup: "立即充值 Credits",
+    user_action_copy_address: "复制地址",
+    user_copied_address: "已复制钱包地址",
+    user_logout: "退出登录",
   },
   en_US: {
     nav_overview: "Dashboard",
@@ -1034,6 +1068,22 @@ overview_tab_loading: "Loading",
     meta_timezone: "TIMEZONE",
     meta_network: "NETWORK",
 
+    user_name_label: "Merchant Name",
+    user_email_label: "Verified Email",
+    user_role_label: "Role & Permissions",
+    user_assets_title: "Merchant Digital Assets",
+    user_assets_credits: "SolaFlow AI Credits",
+    user_assets_wallet: "Solana Devnet Wallet",
+    user_wallet_address: "Wallet Address",
+    user_wallet_connected: "Connected",
+    user_wallet_disconnected: "Not Connected",
+    user_wallet_sol_balance: "SOL Balance",
+    user_wallet_usdc_balance: "USDC Balance",
+    user_profile_edit: "Edit Profile",
+    user_action_topup: "Top Up Credits",
+    user_action_copy_address: "Copy Address",
+    user_copied_address: "Wallet address copied",
+    user_logout: "Log Out",
   },
   en_SG: {
     nav_overview: "Dashboard",
@@ -1297,6 +1347,22 @@ overview_tab_loading: "Loading lah",
     meta_timezone: "TIMEZONE",
     meta_network: "NETWORK",
 
+    user_name_label: "Store Owner Name",
+    user_email_label: "Verified Email",
+    user_role_label: "Access Tier",
+    user_assets_title: "Store Assets & Balance",
+    user_assets_credits: "AI Credits",
+    user_assets_wallet: "Solana Devnet Web3 Wallet",
+    user_wallet_address: "Wallet Address",
+    user_wallet_connected: "Connected lah",
+    user_wallet_disconnected: "Not Connected yet",
+    user_wallet_sol_balance: "SOL Balance",
+    user_wallet_usdc_balance: "USDC Balance",
+    user_profile_edit: "Edit Profile lah",
+    user_action_topup: "Top Up Credits Fast",
+    user_action_copy_address: "Copy Address",
+    user_copied_address: "Wallet address copied already",
+    user_logout: "Log Out",
   },
   id_ID: {
     nav_overview: "Ringkasan Dasbor",
@@ -1560,6 +1626,22 @@ overview_tab_loading: "Memuat...",
     meta_timezone: "ZONA WAKTU",
     meta_network: "JARINGAN",
 
+    user_name_label: "Nama Merchant",
+    user_email_label: "Email Terverifikasi",
+    user_role_label: "Hak Akses",
+    user_assets_title: "Aset Digital Merchant",
+    user_assets_credits: "SolaFlow AI Credits",
+    user_assets_wallet: "Dompet Solana Devnet",
+    user_wallet_address: "Alamat Dompet",
+    user_wallet_connected: "Terhubung",
+    user_wallet_disconnected: "Belum Terhubung",
+    user_wallet_sol_balance: "Saldo SOL",
+    user_wallet_usdc_balance: "Saldo USDC",
+    user_profile_edit: "Edit Profil",
+    user_action_topup: "Isi Ulang Credits",
+    user_action_copy_address: "Salin Alamat",
+    user_copied_address: "Alamat dompet berhasil disalin",
+    user_logout: "Keluar",
   },
   ms_MY: {
     nav_overview: "Ringkasan Pemantauan",
@@ -1823,6 +1905,22 @@ overview_tab_loading: "Memuatkan...",
     meta_timezone: "ZON WAKTU",
     meta_network: "RANGKAIAN",
 
+    user_name_label: "Nama Peniaga",
+    user_email_label: "Emel Disahkan",
+    user_role_label: "Peranan & Akses",
+    user_assets_title: "Aset Digital Peniaga",
+    user_assets_credits: "SolaFlow AI Credits",
+    user_assets_wallet: "Dompet Solana Devnet",
+    user_wallet_address: "Alamat Dompet",
+    user_wallet_connected: "Tersambung",
+    user_wallet_disconnected: "Belum Tersambung",
+    user_wallet_sol_balance: "Baki SOL",
+    user_wallet_usdc_balance: "Baki USDC",
+    user_profile_edit: "Kemaskini Profil",
+    user_action_topup: "Tambah Nilai Credits",
+    user_action_copy_address: "Salin Alamat",
+    user_copied_address: "Alamat dompet berjaya disalin",
+    user_logout: "Log Keluar",
   },
   th_TH: {
     nav_overview: "ภาพรวมระบบ",
@@ -2086,6 +2184,22 @@ overview_tab_loading: "กำลังโหลด...",
     meta_timezone: "เขตเวลา",
     meta_network: "เครือข่าย",
 
+    user_name_label: "ชื่อผู้ดูแลร้านค้า",
+    user_email_label: "อีเมลที่ยืนยันแล้ว",
+    user_role_label: "ระดับสิทธิ์การใช้งาน",
+    user_assets_title: "สินทรัพย์ดิจิทัลของร้านค้า",
+    user_assets_credits: "SolaFlow AI Credits",
+    user_assets_wallet: "กระเป๋าเงิน Solana Devnet",
+    user_wallet_address: "ที่อยู่กระเป๋าเงิน",
+    user_wallet_connected: "เชื่อมต่อแล้ว",
+    user_wallet_disconnected: "ยังไม่ได้เชื่อมต่อ",
+    user_wallet_sol_balance: "ยอดคงเหลือ SOL",
+    user_wallet_usdc_balance: "ยอดคงเหลือ USDC",
+    user_profile_edit: "แก้ไขโปรไฟล์",
+    user_action_topup: "เติม Credits ทันที",
+    user_action_copy_address: "คัดลอกที่อยู่",
+    user_copied_address: "คัดลอกที่อยู่กระเป๋าเงินแล้ว",
+    user_logout: "ออกจากระบบ",
   },
   vi_VN: {
     nav_overview: "Tổng Quan Giám Sát",
@@ -2349,6 +2463,22 @@ overview_tab_loading: "Đang tải...",
     meta_timezone: "MÚI GIỜ",
     meta_network: "MẠNG",
 
+    user_name_label: "Tên chủ cửa hàng",
+    user_email_label: "Email xác thực",
+    user_role_label: "Quyền quản trị",
+    user_assets_title: "Tài sản số của cửa hàng",
+    user_assets_credits: "SolaFlow AI Credits",
+    user_assets_wallet: "Ví Solana Devnet",
+    user_wallet_address: "Địa chỉ ví",
+    user_wallet_connected: "Đã kết nối",
+    user_wallet_disconnected: "Chưa kết nối",
+    user_wallet_sol_balance: "Số dư SOL",
+    user_wallet_usdc_balance: "Số dư USDC",
+    user_profile_edit: "Chỉnh sửa hồ sơ",
+    user_action_topup: "Nạp thêm Credits",
+    user_action_copy_address: "Sao chép địa chỉ",
+    user_copied_address: "Đã sao chép địa chỉ ví",
+    user_logout: "Đăng xuất",
   },
   fil_PH: {
     nav_overview: "Pangkalahatang Dashboard",
@@ -2612,6 +2742,22 @@ overview_tab_loading: "Naglo-load...",
     meta_timezone: "TIMEZONE",
     meta_network: "NETWORK",
 
+    user_name_label: "Pangalan ng Merchant",
+    user_email_label: "Na-verify na Email",
+    user_role_label: "Tungkulin at Pahintulot",
+    user_assets_title: "Mga Digital Asset ng Merchant",
+    user_assets_credits: "SolaFlow AI Credits",
+    user_assets_wallet: "Solana Devnet Wallet",
+    user_wallet_address: "Address ng Wallet",
+    user_wallet_connected: "Konektado",
+    user_wallet_disconnected: "Hindi Konektado",
+    user_wallet_sol_balance: "Balanse ng SOL",
+    user_wallet_usdc_balance: "Balanse ng USDC",
+    user_profile_edit: "I-edit ang Profile",
+    user_action_topup: "Mag-top up ng Credits",
+    user_action_copy_address: "Kopyahin ang Address",
+    user_copied_address: "Nakopya na ang wallet address",
+    user_logout: "Mag-sign Out",
   },
 };
 

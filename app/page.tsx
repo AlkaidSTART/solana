@@ -12,6 +12,8 @@ import { SolanaSettlementConsole } from "@/components/landing/solana-settlement-
 import { ThreeOnboardingGateway } from "@/components/landing/three-onboarding-gateway";
 import { Button } from "@/components/ui/button";
 import { GsapEntrance, GsapStagger } from "@/components/ui/gsap-transition";
+import { motion, AnimatePresence } from "motion/react";
+import { transitions } from "@/lib/animations/motion-transitions";
 import {
   ArrowRight,
   Sparkles,
@@ -107,20 +109,28 @@ export default function LandingPage() {
           {/* 右侧：语言切换胶囊与行动链接 */}
           <div className="flex items-center gap-2 sm:gap-4">
             {/* 语言切换器：大屏为药丸组，小屏为下拉选择 */}
-            <div className="hidden xl:inline-flex items-center p-1 border border-zinc-200/80 bg-zinc-100/80 rounded-xl">
+            {/* 语言切换器：大屏为药丸组 (Motion.dev layoutId 弹簧滑块)，小屏为下拉选择 */}
+            <div className="hidden xl:inline-flex items-center p-1 border border-zinc-200/80 bg-zinc-100/80 rounded-xl select-none">
               <Globe className="w-3.5 h-3.5 text-zinc-400 mx-1.5 shrink-0" aria-hidden="true" />
               {LANDING_LANGS.map((l) => (
                 <button
                   key={l.code}
                   onClick={() => setLang(l.code)}
                   className={clsx(
-                    "px-2 py-1 text-xs font-mono font-medium transition-all cursor-pointer rounded-lg flex items-center",
+                    "relative px-2 py-1 text-xs font-mono font-medium transition-colors cursor-pointer rounded-lg flex items-center z-10",
                     lang === l.code
-                      ? "bg-white text-zinc-950 shadow-xs"
+                      ? "text-zinc-950 font-semibold"
                       : "text-zinc-500 hover:text-zinc-900"
                   )}
                   title={l.label}
                 >
+                  {lang === l.code && (
+                    <motion.div
+                      layoutId="landing-lang-indicator"
+                      transition={transitions.springTab}
+                      className="absolute inset-0 bg-white shadow-xs rounded-lg -z-10"
+                    />
+                  )}
                   <span>{l.code}</span>
                 </button>
               ))}
@@ -179,18 +189,26 @@ export default function LandingPage() {
           </div>
 
           <div className="max-w-7xl mx-auto px-4 sm:px-8 relative z-10 text-center">
-            {/* GSAP 进场与语言切换平滑过渡 */}
-            <GsapEntrance triggerKey={lang} direction="up" distance={16} duration={0.38}>
-              {/* 极简超大标题 */}
-              <h1 className="text-4xl sm:text-6xl lg:text-7xl font-sans font-bold tracking-tight text-zinc-950 leading-[1.08] max-w-4xl mx-auto whitespace-pre-line text-balance">
-                {t.headline}
-              </h1>
+            {/* 多语言标题组平滑过渡 (AnimatePresence mode="wait") */}
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={lang}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -8 }}
+                transition={transitions.entrance}
+              >
+                {/* 极简超大标题 */}
+                <h1 className="text-4xl sm:text-6xl lg:text-7xl font-sans font-bold tracking-tight text-zinc-950 leading-[1.08] max-w-4xl mx-auto whitespace-pre-line text-balance">
+                  {t.headline}
+                </h1>
 
-              {/* 优雅呼吸感副标 */}
-              <p className="text-base sm:text-lg lg:text-xl text-zinc-600 font-sans leading-relaxed max-w-2xl mx-auto pt-6 text-balance">
-                {t.subhead}
-              </p>
-            </GsapEntrance>
+                {/* 优雅呼吸感副标 */}
+                <p className="text-base sm:text-lg lg:text-xl text-zinc-600 font-sans leading-relaxed max-w-2xl mx-auto pt-6 text-balance">
+                  {t.subhead}
+                </p>
+              </motion.div>
+            </AnimatePresence>
 
             {/* 行动召唤按钮组 (GSAP 进场) */}
             <GsapEntrance direction="up" distance={12} delay={0.12} duration={0.35}>

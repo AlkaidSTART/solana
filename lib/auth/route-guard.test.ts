@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { decideRouteAccess, isProtectedPath } from "./route-guard";
+import { decideRouteAccess, isProtectedPath, LOGIN_PATH, OAUTH_CALLBACK_PATH } from "./route-guard";
 
 describe("console route guard", () => {
   it("protects the console and onboarding trees, including their roots", () => {
@@ -23,17 +23,26 @@ describe("console route guard", () => {
       "/",
       "/login",
       "/register",
-      "/auth/callback",
+      OAUTH_CALLBACK_PATH,
       "/api/v1/payments/session",
     ]) {
       expect(isProtectedPath(pathname), pathname).toBe(false);
     }
   });
 
+  it("keeps the OAuth callback reachable so Neon Auth can finish the handshake", () => {
+    expect(OAUTH_CALLBACK_PATH).toBe("/auth/callback");
+    for (const hasSession of [true, false]) {
+      expect(decideRouteAccess({ pathname: OAUTH_CALLBACK_PATH, hasSession })).toEqual({
+        action: "allow",
+      });
+    }
+  });
+
   it("redirects anonymous visitors to the login page", () => {
     expect(decideRouteAccess({ pathname: "/console/billing", hasSession: false })).toEqual({
       action: "redirect",
-      to: "/login",
+      to: LOGIN_PATH,
     });
   });
 

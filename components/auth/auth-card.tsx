@@ -97,7 +97,6 @@ export function AuthCard({ initialMode = "login", onModeChange }: AuthCardProps)
 
   const t = useMemo(
     () => ({
-      badge: isEn ? "ENTERPRISE CONSOLE // V1.1" : isId ? "KONSOL ENTERPRISE // V1.1" : "商户安全工作台 // V1.1",
       titleLogin: isEn ? "Merchant Sign In" : isId ? "Masuk Portal Merchant" : "商户登录",
       titleRegister: isEn ? "Open Merchant Account" : isId ? "Daftar Akun Merchant" : "开通商户账号",
       descLogin: isEn
@@ -451,15 +450,11 @@ export function AuthCard({ initialMode = "login", onModeChange }: AuthCardProps)
   const strength = calculatePasswordStrength(password);
 
   return (
-    <div className="w-full max-w-[460px] mx-auto font-sans">
-      {/* 质感认证卡片容器 (极简现代微圆角与柔和阴影) */}
-      <div className="border border-zinc-200/80 bg-white/95 backdrop-blur-sm rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] p-6 sm:p-8 space-y-6 relative transition-all">
-        {/* 顶部标语与微徽章 */}
-        <div className="space-y-2.5">
-          <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-zinc-100/80 border border-zinc-200/60 text-[10px] font-mono tracking-wider text-zinc-600">
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-            <span>{t.badge}</span>
-          </div>
+    <div className="w-full max-w-[440px] mx-auto font-sans">
+      {/* 质感认证卡片容器 (高定极简微圆角与柔和阴影，居中聚焦) */}
+      <div className="border border-zinc-200/80 bg-white/95 backdrop-blur-md rounded-2xl shadow-[0_12px_36px_rgb(0,0,0,0.05)] p-4 sm:p-6 space-y-3 sm:space-y-4 relative transition-all">
+        {/* 顶部标语 */}
+        <div className="space-y-1.5">
 
           <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-zinc-900 font-sans">
             {mode === "login" ? t.titleLogin : t.titleRegister}
@@ -470,12 +465,12 @@ export function AuthCard({ initialMode = "login", onModeChange }: AuthCardProps)
         </div>
 
         {/* 模式切换胶囊 (登录 / 注册) - 带 Motion 灵动滑块 */}
-        <div className="grid grid-cols-2 p-1 bg-zinc-100/80 border border-zinc-200/60 rounded-xl text-xs relative">
+        <div className="grid grid-cols-2 p-0.5 sm:p-1 bg-zinc-100/80 border border-zinc-200/60 rounded-xl text-xs relative">
           <button
             type="button"
             onClick={() => handleModeSwitch("login")}
             className={clsx(
-              "relative py-1.5 font-medium flex items-center justify-center gap-1 cursor-pointer transition-colors z-10",
+              "relative py-1 sm:py-1.5 font-medium flex items-center justify-center gap-1 cursor-pointer transition-colors z-10",
               mode === "login" ? "text-zinc-950 font-semibold" : "text-zinc-500 hover:text-zinc-900"
             )}
           >
@@ -492,7 +487,7 @@ export function AuthCard({ initialMode = "login", onModeChange }: AuthCardProps)
             type="button"
             onClick={() => handleModeSwitch("register")}
             className={clsx(
-              "relative py-1.5 font-medium flex items-center justify-center gap-1.5 cursor-pointer transition-colors z-10",
+              "relative py-1 sm:py-1.5 font-medium flex items-center justify-center gap-1.5 cursor-pointer transition-colors z-10",
               mode === "register" ? "text-zinc-950 font-semibold" : "text-zinc-500 hover:text-zinc-900"
             )}
           >
@@ -518,7 +513,7 @@ export function AuthCard({ initialMode = "login", onModeChange }: AuthCardProps)
               initial={{ opacity: 0, y: -4, scale: 0.98 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, scale: 0.98 }}
-              className="p-3 bg-rose-50/80 border border-rose-200/80 rounded-xl text-rose-900 text-xs flex items-start gap-2"
+              className="p-2 sm:p-2.5 bg-rose-50/80 border border-rose-200/80 rounded-xl text-rose-900 text-xs flex items-start gap-2"
             >
               <AlertCircle className="w-4 h-4 shrink-0 text-rose-600 mt-0.5" />
               <div className="flex-1 leading-snug">{errorMsg}</div>
@@ -531,7 +526,7 @@ export function AuthCard({ initialMode = "login", onModeChange }: AuthCardProps)
               initial={{ opacity: 0, y: -4, scale: 0.98 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, scale: 0.98 }}
-              className="p-3 bg-emerald-50/80 border border-emerald-200/80 rounded-xl text-emerald-900 text-xs flex items-start gap-2"
+              className="p-2 sm:p-2.5 bg-emerald-50/80 border border-emerald-200/80 rounded-xl text-emerald-900 text-xs flex items-start gap-2"
             >
               <CheckCircle2 className="w-4 h-4 shrink-0 text-emerald-600 mt-0.5" />
               <div className="flex-1 leading-snug">{successMsg}</div>
@@ -549,16 +544,16 @@ export function AuthCard({ initialMode = "login", onModeChange }: AuthCardProps)
               exit={{ opacity: 0, y: -6 }}
               transition={{ duration: 0.2 }}
               onSubmit={handleSubmitLogin}
-              className="space-y-4 text-xs"
+              className="space-y-2.5 sm:space-y-3 text-xs"
             >
               {/* 子方式切换 (OTP / 密码) - 带 Motion 下划线滑块 */}
-              <div className="flex items-center justify-between border-b border-zinc-100 pb-2 text-[11px]">
-                <div className="flex items-center gap-4">
+              <div className="flex items-center justify-between border-b border-zinc-100 pb-1 sm:pb-1.5 text-[11px]">
+                <div className="flex items-center gap-3 sm:gap-4">
                   <button
                     type="button"
                     onClick={() => setLoginMethod("otp")}
                     className={clsx(
-                      "cursor-pointer pb-1 transition-colors font-medium relative",
+                      "cursor-pointer pb-0.5 sm:pb-1 transition-colors font-medium relative",
                       loginMethod === "otp"
                         ? "text-zinc-900 font-semibold"
                         : "text-zinc-400 hover:text-zinc-700"
@@ -577,7 +572,7 @@ export function AuthCard({ initialMode = "login", onModeChange }: AuthCardProps)
                     type="button"
                     onClick={() => setLoginMethod("password")}
                     className={clsx(
-                      "cursor-pointer pb-1 transition-colors font-medium relative",
+                      "cursor-pointer pb-0.5 sm:pb-1 transition-colors font-medium relative",
                       loginMethod === "password"
                         ? "text-zinc-900 font-semibold"
                         : "text-zinc-400 hover:text-zinc-700"
@@ -604,17 +599,17 @@ export function AuthCard({ initialMode = "login", onModeChange }: AuthCardProps)
 
               {/* 邮箱输入框 */}
               <div>
-                <label className="text-zinc-500 uppercase text-[10px] tracking-wider block mb-1.5">
+                <label className="text-zinc-500 uppercase text-[9px] sm:text-[10px] tracking-wider block mb-1">
                   {t.emailLabel}
                 </label>
                 <div className="relative">
-                  <Mail className="w-4 h-4 absolute left-3 top-3 text-zinc-400" />
+                  <Mail className="w-3.5 h-3.5 absolute left-3 top-2.5 sm:top-3 text-zinc-400" />
                   <input
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder={t.emailPlaceholder}
-                    className="w-full pl-9 pr-24 py-2.5 rounded-lg bg-zinc-50/60 hover:bg-white focus:bg-white border border-zinc-200 focus:outline-none focus:ring-2 focus:ring-zinc-900/5 focus:border-zinc-400 text-xs font-mono transition-all text-zinc-900 placeholder:text-zinc-400"
+                    className="w-full pl-8 sm:pl-9 pr-20 sm:pr-24 py-1.5 sm:py-2 rounded-lg bg-zinc-50/60 hover:bg-white focus:bg-white border border-zinc-200 focus:outline-none focus:ring-2 focus:ring-zinc-900/5 focus:border-zinc-400 text-xs font-mono transition-all text-zinc-900 placeholder:text-zinc-400"
                     required
                   />
                   {loginMethod === "otp" && (
@@ -622,7 +617,7 @@ export function AuthCard({ initialMode = "login", onModeChange }: AuthCardProps)
                       type="button"
                       onClick={handleSendOtp}
                       disabled={countdown > 0}
-                      className="absolute right-1.5 top-1.5 px-2.5 py-1 text-[10px] rounded-md border border-zinc-200 hover:border-zinc-300 bg-white hover:bg-zinc-50 text-zinc-700 font-medium disabled:opacity-50 disabled:cursor-not-allowed transition-colors cursor-pointer shadow-2xs"
+                      className="absolute right-1 top-1 sm:right-1.5 sm:top-1.5 px-2 py-0.5 sm:py-1 text-[10px] rounded-md border border-zinc-200 hover:border-zinc-300 bg-white hover:bg-zinc-50 text-zinc-700 font-medium disabled:opacity-50 disabled:cursor-not-allowed transition-colors cursor-pointer shadow-2xs"
                     >
                       {countdown > 0 ? `${countdown}s` : otpSent ? t.resendOtpBtn : t.sendOtpBtn}
                     </button>
@@ -632,7 +627,7 @@ export function AuthCard({ initialMode = "login", onModeChange }: AuthCardProps)
 
               {/* OTP 模式：6 位精密验证码输入 (支持自动提交) */}
               {loginMethod === "otp" && otpSent && (
-                <div className="space-y-2 pt-1">
+                <div className="space-y-1.5 pt-0.5">
                   <div className="flex items-center justify-between text-[10px]">
                     <label className="text-zinc-500 uppercase tracking-wider">
                       {t.otpHint}
@@ -641,7 +636,7 @@ export function AuthCard({ initialMode = "login", onModeChange }: AuthCardProps)
                       {t.autoSubmitHint}
                     </span>
                   </div>
-                  <div className="grid grid-cols-6 gap-2">
+                  <div className="grid grid-cols-6 gap-1.5 sm:gap-2">
                     {otpCode.map((digit, i) => (
                       <input
                         key={i}
@@ -656,7 +651,7 @@ export function AuthCard({ initialMode = "login", onModeChange }: AuthCardProps)
                         onKeyDown={(e) => handleOtpKeyDown(i, e)}
                         onPaste={handleOtpPaste}
                         className={clsx(
-                          "h-12 text-center font-mono font-bold text-lg rounded-lg border transition-all selection:bg-zinc-900 selection:text-white",
+                          "h-10 sm:h-11 text-center font-mono font-bold text-base sm:text-lg rounded-lg border transition-all selection:bg-zinc-900 selection:text-white",
                           digit
                             ? "border-zinc-800 bg-white text-zinc-900 ring-1 ring-zinc-900/10 shadow-xs"
                             : "border-zinc-200 bg-zinc-50/60 focus:border-zinc-400 focus:bg-white focus:ring-2 focus:ring-zinc-900/5 text-zinc-900"
@@ -665,7 +660,7 @@ export function AuthCard({ initialMode = "login", onModeChange }: AuthCardProps)
                       />
                     ))}
                   </div>
-                  <div className="text-[10px] text-zinc-400 text-right">
+                  <div className="text-[9px] sm:text-[10px] text-zinc-400 text-right">
                     {t.otpPasteHint}
                   </div>
                 </div>
@@ -673,66 +668,67 @@ export function AuthCard({ initialMode = "login", onModeChange }: AuthCardProps)
 
               {/* 密码模式：密码输入框 */}
               {loginMethod === "password" && (
-                <div className="space-y-1.5">
-                  <div className="flex items-center justify-between">
-                    <label className="text-zinc-500 uppercase text-[10px] tracking-wider block">
-                      {t.passwordLabel}
-                    </label>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setLoginMethod("otp");
-                        handleSendOtp();
-                      }}
-                      className="text-[10px] text-zinc-500 hover:text-zinc-900 underline cursor-pointer"
-                    >
-                      {t.forgotPassword}
-                    </button>
-                  </div>
+                <div className="space-y-1">
+                  <label className="text-zinc-500 uppercase text-[9px] sm:text-[10px] tracking-wider block">
+                    {t.passwordLabel}
+                  </label>
                   <div className="relative">
-                    <Lock className="w-4 h-4 absolute left-3 top-3 text-zinc-400" />
+                    <Lock className="w-3.5 h-3.5 absolute left-3 top-2.5 sm:top-3 text-zinc-400" />
                     <input
                       type={showPassword ? "text" : "password"}
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       placeholder="••••••••"
-                      className="w-full pl-9 pr-9 py-2.5 rounded-lg bg-zinc-50/60 hover:bg-white focus:bg-white border border-zinc-200 focus:outline-none focus:ring-2 focus:ring-zinc-900/5 focus:border-zinc-400 text-xs font-mono transition-all text-zinc-900 placeholder:text-zinc-400"
+                      className="w-full pl-8 sm:pl-9 pr-8 sm:pr-9 py-1.5 sm:py-2 rounded-lg bg-zinc-50/60 hover:bg-white focus:bg-white border border-zinc-200 focus:outline-none focus:ring-2 focus:ring-zinc-900/5 focus:border-zinc-400 text-xs font-mono transition-all text-zinc-900 placeholder:text-zinc-400"
                       required
                     />
                     <button
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-3 top-3 text-zinc-400 hover:text-zinc-700 cursor-pointer"
+                      className="absolute right-2.5 top-2 sm:top-2.5 text-zinc-400 hover:text-zinc-700 cursor-pointer"
                       aria-label={showPassword ? "隐藏密码" : "显示密码"}
                     >
                       {showPassword ? (
-                        <EyeOff className="w-4 h-4" />
+                        <EyeOff className="w-3.5 h-3.5" />
                       ) : (
-                        <Eye className="w-4 h-4" />
+                        <Eye className="w-3.5 h-3.5" />
                       )}
                     </button>
                   </div>
                 </div>
               )}
 
-              {/* 记住邮箱勾选框 */}
-              <div className="flex items-center justify-between pt-0.5">
-                <label className="flex items-center gap-1.5 cursor-pointer select-none text-[11px] text-zinc-500 hover:text-zinc-800">
+              {/* 记住邮箱与忘记密码同行展示 */}
+              <div className="flex items-center justify-between pt-0.5 text-[11px]">
+                <label className="flex items-center gap-1.5 cursor-pointer select-none text-zinc-500 hover:text-zinc-800">
                   <input
                     type="checkbox"
                     checked={rememberEmail}
                     onChange={(e) => setRememberEmail(e.target.checked)}
                     className="rounded-sm border-zinc-300 text-zinc-900 focus:ring-0 cursor-pointer"
                   />
-                  <span>{t.rememberEmail}</span>
+                  <span className="text-[10px] sm:text-[11px]">{t.rememberEmail}</span>
                 </label>
+
+                {loginMethod === "password" && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setLoginMethod("otp");
+                      handleSendOtp();
+                    }}
+                    className="text-[10px] sm:text-[11px] text-zinc-500 hover:text-zinc-900 underline cursor-pointer"
+                  >
+                    {t.forgotPassword}
+                  </button>
+                )}
               </div>
 
               {/* 登录主行动按钮 (现代温润深色与微圆角) */}
               <Button
                 type="submit"
                 disabled={loading}
-                className="w-full h-11 text-xs font-medium tracking-wide bg-zinc-900 hover:bg-zinc-800 text-white rounded-lg cursor-pointer mt-2 shadow-xs transition-all active:scale-[0.99]"
+                className="w-full h-10 sm:h-10.5 text-xs font-semibold tracking-wide bg-zinc-900 hover:bg-zinc-800 text-white rounded-lg cursor-pointer mt-1 sm:mt-1.5 shadow-xs transition-all active:scale-[0.99]"
               >
                 {loading ? (
                   <span className="flex items-center gap-2">
@@ -751,7 +747,7 @@ export function AuthCard({ initialMode = "login", onModeChange }: AuthCardProps)
               <OAuthButtons onError={(err) => setErrorMsg(err)} />
 
               {/* 切换到注册 */}
-              <div className="text-center pt-1 text-[11px] text-zinc-500">
+              <div className="text-center pt-0.5 text-[10px] sm:text-[11px] text-zinc-500">
                 {t.noAccountText}{" "}
                 <button
                   type="button"
@@ -770,77 +766,77 @@ export function AuthCard({ initialMode = "login", onModeChange }: AuthCardProps)
               exit={{ opacity: 0, y: -6 }}
               transition={{ duration: 0.2 }}
               onSubmit={handleSubmitRegister}
-              className="space-y-3.5 text-xs"
+              className="space-y-2 sm:space-y-2.5 text-xs"
             >
               {/* 工作邮箱 */}
               <div>
-                <label className="text-zinc-500 uppercase text-[10px] tracking-wider block mb-1.5">
+                <label className="text-zinc-500 uppercase text-[9px] sm:text-[10px] tracking-wider block mb-1">
                   {t.emailLabel} *
                 </label>
                 <div className="relative">
-                  <Mail className="w-4 h-4 absolute left-3 top-3 text-zinc-400" />
+                  <Mail className="w-3.5 h-3.5 absolute left-3 top-2.5 sm:top-3 text-zinc-400" />
                   <input
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder={t.emailPlaceholder}
-                    className="w-full pl-9 pr-3 py-2.5 rounded-lg bg-zinc-50/60 hover:bg-white focus:bg-white border border-zinc-200 focus:outline-none focus:ring-2 focus:ring-zinc-900/5 focus:border-zinc-400 text-xs font-mono transition-all text-zinc-900 placeholder:text-zinc-400"
+                    className="w-full pl-8 sm:pl-9 pr-3 py-1.5 sm:py-2 rounded-lg bg-zinc-50/60 hover:bg-white focus:bg-white border border-zinc-200 focus:outline-none focus:ring-2 focus:ring-zinc-900/5 focus:border-zinc-400 text-xs font-mono transition-all text-zinc-900 placeholder:text-zinc-400"
                     required
                   />
                 </div>
               </div>
 
-              {/* 店铺名称 */}
-              <div>
-                <label className="text-zinc-500 uppercase text-[10px] tracking-wider block mb-1.5">
-                  {t.storeNameLabel} *
-                </label>
-                <div className="relative">
-                  <Store className="w-4 h-4 absolute left-3 top-3 text-zinc-400" />
-                  <input
-                    type="text"
-                    value={storeName}
-                    onChange={(e) => setStoreName(e.target.value)}
-                    placeholder={t.storeNamePlaceholder}
-                    className="w-full pl-9 pr-3 py-2.5 rounded-lg bg-zinc-50/60 hover:bg-white focus:bg-white border border-zinc-200 focus:outline-none focus:ring-2 focus:ring-zinc-900/5 focus:border-zinc-400 text-xs font-mono transition-all text-zinc-900 placeholder:text-zinc-400"
-                    required
-                  />
-                </div>
-              </div>
-
-              {/* 首发市场 */}
-              <div>
-                <label className="text-zinc-500 uppercase text-[10px] tracking-wider block mb-1.5">
-                  {t.marketLabel}
-                </label>
-                <div className="relative">
-                  <Globe className="w-4 h-4 absolute left-3 top-3 text-zinc-400" />
-                  <select
-                    value={targetMarket}
-                    onChange={(e) => setTargetMarket(e.target.value)}
-                    className="w-full pl-9 pr-3 py-2.5 rounded-lg bg-zinc-50/60 hover:bg-white focus:bg-white border border-zinc-200 focus:outline-none focus:ring-2 focus:ring-zinc-900/5 focus:border-zinc-400 text-xs font-mono appearance-none cursor-pointer transition-all text-zinc-900"
-                  >
-                    {marketOptions.map((opt) => (
-                      <option key={opt.value} value={opt.value}>
-                        {opt.label}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-
-              {/* 设置密码 */}
-              <div>
-                <div className="flex items-center justify-between mb-1.5">
-                  <label className="text-zinc-500 uppercase text-[10px] tracking-wider block">
-                    {t.passwordRegisterLabel} *
+              {/* 店铺名称与首发市场 (双列栅格紧凑排布) */}
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <label className="text-zinc-500 uppercase text-[9px] sm:text-[10px] tracking-wider block mb-1 truncate">
+                    {t.storeNameLabel} *
                   </label>
-                  {password.length > 0 && (
-                    <div className="flex items-center gap-1.5 text-[9px]">
-                      <span className="text-zinc-400">{isEn ? "Strength:" : isId ? "Kekuatan:" : "强度:"}</span>
+                  <div className="relative">
+                    <Store className="w-3.5 h-3.5 absolute left-2.5 top-2.5 text-zinc-400" />
+                    <input
+                      type="text"
+                      value={storeName}
+                      onChange={(e) => setStoreName(e.target.value)}
+                      placeholder={t.storeNamePlaceholder}
+                      className="w-full pl-7 sm:pl-8 pr-2 py-1.5 sm:py-2 rounded-lg bg-zinc-50/60 hover:bg-white focus:bg-white border border-zinc-200 focus:outline-none focus:ring-2 focus:ring-zinc-900/5 focus:border-zinc-400 text-xs font-mono transition-all text-zinc-900 placeholder:text-zinc-400"
+                      required
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="text-zinc-500 uppercase text-[9px] sm:text-[10px] tracking-wider block mb-1 truncate">
+                    {t.marketLabel}
+                  </label>
+                  <div className="relative">
+                    <Globe className="w-3.5 h-3.5 absolute left-2.5 top-2.5 text-zinc-400" />
+                    <select
+                      value={targetMarket}
+                      onChange={(e) => setTargetMarket(e.target.value)}
+                      className="w-full pl-7 sm:pl-8 pr-1 py-1.5 sm:py-2 rounded-lg bg-zinc-50/60 hover:bg-white focus:bg-white border border-zinc-200 focus:outline-none focus:ring-2 focus:ring-zinc-900/5 focus:border-zinc-400 text-xs font-mono appearance-none cursor-pointer transition-all text-zinc-900 truncate"
+                    >
+                      {marketOptions.map((opt) => (
+                        <option key={opt.value} value={opt.value}>
+                          {opt.label}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              {/* 设置密码与确认密码 (双列栅格紧凑排布) */}
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <div className="flex items-center justify-between mb-1">
+                    <label className="text-zinc-500 uppercase text-[9px] sm:text-[10px] tracking-wider block truncate">
+                      {t.passwordLabel} *
+                    </label>
+                    {password.length > 0 && (
                       <span
                         className={clsx(
-                          "font-bold",
+                          "text-[9px] font-bold shrink-0",
                           strength.level === "weak"
                             ? "text-rose-600"
                             : strength.level === "medium"
@@ -850,97 +846,96 @@ export function AuthCard({ initialMode = "login", onModeChange }: AuthCardProps)
                       >
                         {isEn ? strength.labelEn : isId ? strength.labelId : strength.labelZh}
                       </span>
-                    </div>
-                  )}
-                </div>
-                <div className="relative">
-                  <Lock className="w-4 h-4 absolute left-3 top-3 text-zinc-400" />
-                  <input
-                    type={showPassword ? "text" : "password"}
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    placeholder={t.pwdPlaceholder}
-                    className="w-full pl-9 pr-9 py-2.5 rounded-lg bg-zinc-50/60 hover:bg-white focus:bg-white border border-zinc-200 focus:outline-none focus:ring-2 focus:ring-zinc-900/5 focus:border-zinc-400 text-xs font-mono transition-all text-zinc-900 placeholder:text-zinc-400"
-                    required
-                    minLength={8}
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-3 text-zinc-400 hover:text-zinc-700 cursor-pointer"
-                    aria-label={showPassword ? "隐藏密码" : "显示密码"}
-                  >
-                    {showPassword ? (
-                      <EyeOff className="w-4 h-4" />
-                    ) : (
-                      <Eye className="w-4 h-4" />
                     )}
-                  </button>
+                  </div>
+                  <div className="relative">
+                    <Lock className="w-3.5 h-3.5 absolute left-2.5 top-2.5 text-zinc-400" />
+                    <input
+                      type={showPassword ? "text" : "password"}
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      placeholder="••••••••"
+                      className="w-full pl-7 sm:pl-8 pr-7 py-1.5 sm:py-2 rounded-lg bg-zinc-50/60 hover:bg-white focus:bg-white border border-zinc-200 focus:outline-none focus:ring-2 focus:ring-zinc-900/5 focus:border-zinc-400 text-xs font-mono transition-all text-zinc-900 placeholder:text-zinc-400"
+                      required
+                      minLength={8}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-2 top-2 text-zinc-400 hover:text-zinc-700 cursor-pointer"
+                      aria-label={showPassword ? "隐藏密码" : "显示密码"}
+                    >
+                      {showPassword ? (
+                        <EyeOff className="w-3.5 h-3.5" />
+                      ) : (
+                        <Eye className="w-3.5 h-3.5" />
+                      )}
+                    </button>
+                  </div>
                 </div>
 
-                {/* 三段式发丝密码强度槽 */}
-                {password.length > 0 && (
-                  <div className="grid grid-cols-3 gap-1 pt-1.5">
-                    <div
-                      className={clsx(
-                        "h-1 rounded-full transition-colors",
-                        strength.level === "weak" || strength.level === "medium" || strength.level === "strong"
-                          ? strength.level === "weak"
-                            ? "bg-rose-500"
-                            : strength.level === "medium"
-                            ? "bg-amber-500"
-                            : "bg-emerald-500"
-                          : "bg-zinc-100"
-                      )}
-                    />
-                    <div
-                      className={clsx(
-                        "h-1 rounded-full transition-colors",
-                        strength.level === "medium" || strength.level === "strong"
-                          ? strength.level === "medium"
-                            ? "bg-amber-500"
-                            : "bg-emerald-500"
-                          : "bg-zinc-100"
-                      )}
-                    />
-                    <div
-                      className={clsx(
-                        "h-1 rounded-full transition-colors",
-                        strength.level === "strong" ? "bg-emerald-500" : "bg-zinc-100"
-                      )}
+                <div>
+                  <label className="text-zinc-500 uppercase text-[9px] sm:text-[10px] tracking-wider block mb-1 truncate">
+                    {t.confirmPasswordLabel} *
+                  </label>
+                  <div className="relative">
+                    <Lock className="w-3.5 h-3.5 absolute left-2.5 top-2.5 text-zinc-400" />
+                    <input
+                      type={showPassword ? "text" : "password"}
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                      placeholder="••••••••"
+                      className="w-full pl-7 sm:pl-8 pr-2 py-1.5 sm:py-2 rounded-lg bg-zinc-50/60 hover:bg-white focus:bg-white border border-zinc-200 focus:outline-none focus:ring-2 focus:ring-zinc-900/5 focus:border-zinc-400 text-xs font-mono transition-all text-zinc-900 placeholder:text-zinc-400"
+                      required
                     />
                   </div>
-                )}
-              </div>
-
-              {/* 确认密码 */}
-              <div>
-                <label className="text-zinc-500 uppercase text-[10px] tracking-wider block mb-1.5">
-                  {t.confirmPasswordLabel} *
-                </label>
-                <div className="relative">
-                  <Lock className="w-4 h-4 absolute left-3 top-3 text-zinc-400" />
-                  <input
-                    type={showPassword ? "text" : "password"}
-                    value={confirmPassword}
-                    onChange={(e) => setConfirmPassword(e.target.value)}
-                    placeholder={t.confirmPwdPlaceholder}
-                    className="w-full pl-9 pr-3 py-2.5 rounded-lg bg-zinc-50/60 hover:bg-white focus:bg-white border border-zinc-200 focus:outline-none focus:ring-2 focus:ring-zinc-900/5 focus:border-zinc-400 text-xs font-mono transition-all text-zinc-900 placeholder:text-zinc-400"
-                    required
-                  />
                 </div>
               </div>
 
+              {/* 三段式发丝密码强度槽 */}
+              {password.length > 0 && (
+                <div className="grid grid-cols-3 gap-1 pt-0.5">
+                  <div
+                    className={clsx(
+                      "h-0.5 sm:h-1 rounded-full transition-colors",
+                      strength.level === "weak" || strength.level === "medium" || strength.level === "strong"
+                        ? strength.level === "weak"
+                          ? "bg-rose-500"
+                          : strength.level === "medium"
+                          ? "bg-amber-500"
+                          : "bg-emerald-500"
+                        : "bg-zinc-100"
+                    )}
+                  />
+                  <div
+                    className={clsx(
+                      "h-0.5 sm:h-1 rounded-full transition-colors",
+                      strength.level === "medium" || strength.level === "strong"
+                        ? strength.level === "medium"
+                          ? "bg-amber-500"
+                          : "bg-emerald-500"
+                        : "bg-zinc-100"
+                    )}
+                  />
+                  <div
+                    className={clsx(
+                      "h-0.5 sm:h-1 rounded-full transition-colors",
+                      strength.level === "strong" ? "bg-emerald-500" : "bg-zinc-100"
+                    )}
+                  />
+                </div>
+              )}
+
               {/* 同意协议 */}
-              <div className="pt-1">
-                <label className="flex items-start gap-2 cursor-pointer select-none">
+              <div className="pt-0.5">
+                <label className="flex items-start gap-1.5 cursor-pointer select-none">
                   <input
                     type="checkbox"
                     checked={agreedTerms}
                     onChange={(e) => setAgreedTerms(e.target.checked)}
                     className="mt-0.5 rounded-sm border-zinc-300 text-zinc-900 focus:ring-0 cursor-pointer"
                   />
-                  <span className="text-[10px] text-zinc-500 leading-tight">
+                  <span className="text-[9px] sm:text-[10px] text-zinc-500 leading-tight">
                     {t.termsAgreeText}
                   </span>
                 </label>
@@ -950,7 +945,7 @@ export function AuthCard({ initialMode = "login", onModeChange }: AuthCardProps)
               <Button
                 type="submit"
                 disabled={loading}
-                className="w-full h-11 text-xs font-medium tracking-wide bg-zinc-900 hover:bg-zinc-800 text-white rounded-lg cursor-pointer mt-3 shadow-xs transition-all active:scale-[0.99]"
+                className="w-full h-10 sm:h-10.5 text-xs font-semibold tracking-wide bg-zinc-900 hover:bg-zinc-800 text-white rounded-lg cursor-pointer mt-1 sm:mt-1.5 shadow-xs transition-all active:scale-[0.99]"
               >
                 {loading ? (
                   <span className="flex items-center gap-2">
@@ -969,7 +964,7 @@ export function AuthCard({ initialMode = "login", onModeChange }: AuthCardProps)
               <OAuthButtons onError={(err) => setErrorMsg(err)} />
 
               {/* 切换到登录 */}
-              <div className="text-center pt-1 text-[11px] text-zinc-500">
+              <div className="text-center pt-0.5 text-[10px] sm:text-[11px] text-zinc-500">
                 {t.hasAccountText}{" "}
                 <button
                   type="button"
@@ -984,12 +979,12 @@ export function AuthCard({ initialMode = "login", onModeChange }: AuthCardProps)
         </AnimatePresence>
 
         {/* 底部保障与声明 */}
-        <div className="pt-4 border-t border-zinc-100 space-y-2 text-[10px] text-zinc-400 text-center">
+        <div className="pt-2 sm:pt-2.5 border-t border-zinc-100 space-y-1 text-[9px] sm:text-[10px] text-zinc-400 text-center">
           <div className="flex items-center justify-center gap-1.5 text-zinc-600">
-            <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
+            <ShieldCheck className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
             <span>{t.securityGuarantee}</span>
           </div>
-          <p className="leading-normal">{t.termsFooter}</p>
+          <p className="leading-tight line-clamp-1 sm:line-clamp-none">{t.termsFooter}</p>
         </div>
       </div>
     </div>

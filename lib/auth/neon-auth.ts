@@ -1,9 +1,9 @@
 /**
  * SolaFlow AI - Neon Auth & OAuth 适配层
- * 对接托管于 Neon Auth 服务的认证端点与第三方 OAuth (Google / GitHub)
+ * 对接托管于 Neon Auth 服务的认证端点与第三方 OAuth (Google)
  */
 
-export type OAuthProvider = "google" | "github" | "microsoft" | "apple";
+export type OAuthProvider = "google";
 
 export interface NeonAuthConfig {
   authUrl: string;

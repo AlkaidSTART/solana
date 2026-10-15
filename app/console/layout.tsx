@@ -29,6 +29,7 @@ import {
 import { AppQueryProvider } from "@/components/providers/query-provider";
 import { useQuery } from "@tanstack/react-query";
 import { tenantApi, authApi } from "@/lib/api";
+import { UserNavDropdown } from "@/components/console/user-nav-dropdown";
 
 function ConsoleLayoutContent({
   children,
@@ -36,7 +37,7 @@ function ConsoleLayoutContent({
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
-  const { stores, currentStoreId, setStoreId, credits, locale, setLocale } =
+  const { stores, currentStoreId, setStoreId, credits, locale, setLocale, userProfile } =
     useAppStore();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -151,6 +152,12 @@ function ConsoleLayoutContent({
             </select>
           </div>
 
+          {/* 用户身份与资产下拉菜单 */}
+          <UserNavDropdown
+            sessionEmail={sessionData?.user?.email}
+            tenantName={tenantData?.name}
+          />
+
           {/* 官网返回入口 */}
           <Link
             href="/"
@@ -204,30 +211,48 @@ function ConsoleLayoutContent({
             })}
           </nav>
 
-          {/* 侧栏底部环境元信息 */}
-          <div className="p-3.5 border-t border-zinc-200 bg-zinc-50/70 text-[10px] font-mono text-zinc-500 space-y-1.5">
-            <div className="flex justify-between">
-              <span>{getI18nText(locale, "meta_tenant")}:</span>
-              <span className="text-zinc-900 font-medium">
-                {tenantData?.name ? `${tenantData.name}` : `SEA_8892 (${getI18nText(locale, "demo_badge")})`}
-              </span>
-            </div>
-            <div className="flex justify-between">
-              <span>{getI18nText(locale, "meta_timezone")}:</span>
-              <span className="text-zinc-900 truncate max-w-[100px]">
-                {tenantData?.timezone ? tenantData.timezone.split("/")[1] || tenantData.timezone : "WIB (UTC+7)"}
-              </span>
-            </div>
-            <div className="flex justify-between">
-              <span>{getI18nText(locale, "meta_network")}:</span>
-              <span className="text-emerald-700 font-bold">Solana Devnet</span>
-            </div>
-            {sessionData?.user && (
-              <div className="flex justify-between pt-1 border-t border-zinc-200/60 text-[9px] text-zinc-400">
-                <span>登录身份:</span>
-                <span className="text-zinc-700 truncate max-w-[110px]">{sessionData.user.email}</span>
+          {/* 侧栏底部环境元信息与用户资产卡片 */}
+          <div className="p-3 border-t border-zinc-200 bg-zinc-50/70 text-[10px] font-mono text-zinc-500 space-y-2">
+            {/* 用户身份简要信息 */}
+            <div className="p-2 rounded-lg bg-white border border-zinc-200/80 shadow-2xs space-y-1.5">
+              <div className="flex items-center justify-between">
+                <span className="font-semibold text-zinc-900 truncate max-w-[110px] text-[11px]">
+                  {userProfile.name}
+                </span>
+                <span className="px-1.5 py-0.2 rounded text-[9px] font-medium bg-emerald-100/70 text-emerald-800 border border-emerald-200">
+                  {userProfile.role}
+                </span>
               </div>
-            )}
+              <p className="text-[10px] text-zinc-500 truncate font-mono">
+                {sessionData?.user?.email || userProfile.email}
+              </p>
+              <div className="flex items-center justify-between pt-1 border-t border-zinc-100 text-[9px]">
+                <span className="text-zinc-400">钱包资产:</span>
+                <span className="text-zinc-700 font-bold truncate max-w-[100px]">
+                  {userProfile.isWalletConnected ? userProfile.solBalance : "未连接"}
+                </span>
+              </div>
+            </div>
+
+            {/* 环境与租户元数据 */}
+            <div className="space-y-1 pt-0.5 text-[9px]">
+              <div className="flex justify-between">
+                <span>{getI18nText(locale, "meta_tenant")}:</span>
+                <span className="text-zinc-800 font-medium">
+                  {tenantData?.name ? `${tenantData.name}` : `SEA_8892 (${getI18nText(locale, "demo_badge")})`}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span>{getI18nText(locale, "meta_timezone")}:</span>
+                <span className="text-zinc-800 truncate max-w-[100px]">
+                  {tenantData?.timezone ? tenantData.timezone.split("/")[1] || tenantData.timezone : "WIB (UTC+7)"}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span>{getI18nText(locale, "meta_network")}:</span>
+                <span className="text-emerald-700 font-bold">Solana Devnet</span>
+              </div>
+            </div>
           </div>
         </aside>
 

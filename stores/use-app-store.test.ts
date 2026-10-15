@@ -11,6 +11,7 @@ import {
   MOCK_KNOWLEDGE_ITEMS,
   MOCK_LEDGER_HISTORY,
   MOCK_TEMPLATES,
+  MOCK_USER_PROFILE,
   createMockOrder,
 } from "@/mock";
 
@@ -28,6 +29,7 @@ describe("useAppStore & mock decoupling", () => {
       workflows: [...MOCK_WORKFLOWS],
       knowledgeItems: [...MOCK_KNOWLEDGE_ITEMS],
       ledgerHistory: [...MOCK_LEDGER_HISTORY],
+      userProfile: { ...MOCK_USER_PROFILE },
     });
   });
 
@@ -197,6 +199,40 @@ describe("useAppStore & mock decoupling", () => {
       expect(latestTx.type).toBe("TOPUP_USDC");
       expect(latestTx.creditsDelta).toBe(5500);
       expect(latestTx.amountUsdc).toBe("50.00 USDC");
+    });
+  });
+
+  describe("User Profile & Wallet Assets Actions", () => {
+    it("loads initial user profile and assets correctly", () => {
+      const state = useAppStore.getState();
+      expect(state.userProfile.name).toBe(MOCK_USER_PROFILE.name);
+      expect(state.userProfile.email).toBe(MOCK_USER_PROFILE.email);
+      expect(state.userProfile.role).toBe("Owner");
+      expect(state.userProfile.walletAddress).toBe(MOCK_USER_PROFILE.walletAddress);
+      expect(state.userProfile.isWalletConnected).toBe(true);
+      expect(state.userProfile.solBalance).toBe("2.450 SOL");
+      expect(state.userProfile.usdcBalance).toBe("350.00 USDC");
+    });
+
+    it("updates user profile via updateUserProfile", () => {
+      useAppStore.getState().updateUserProfile({
+        name: "Elena Tan",
+        email: "elena.tan@solaflow.ai",
+      });
+      const state = useAppStore.getState();
+      expect(state.userProfile.name).toBe("Elena Tan");
+      expect(state.userProfile.email).toBe("elena.tan@solaflow.ai");
+      expect(state.userProfile.role).toBe("Owner");
+    });
+
+    it("toggles wallet connection state via connectWallet and disconnectWallet", () => {
+      useAppStore.getState().disconnectWallet();
+      expect(useAppStore.getState().userProfile.isWalletConnected).toBe(false);
+
+      const newAddress = "9xZZTgCustomAddress1234567890abcdef";
+      useAppStore.getState().connectWallet(newAddress);
+      expect(useAppStore.getState().userProfile.isWalletConnected).toBe(true);
+      expect(useAppStore.getState().userProfile.walletAddress).toBe(newAddress);
     });
   });
 });

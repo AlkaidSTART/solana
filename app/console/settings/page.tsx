@@ -12,13 +12,30 @@ import {
   CheckCircle2,
   XCircle,
   Eye,
+  Coins,
+  Wallet,
+  Copy,
+  Check,
 } from "lucide-react";
 
 import { useQuery, useMutation } from "@tanstack/react-query";
-import { tenantApi, type TenantInfo } from "@/lib/api";
+import { tenantApi, authApi, type TenantInfo } from "@/lib/api";
 
 export default function ConsoleSettingsPage() {
-  const { locale } = useAppStore();
+  const {
+    locale,
+    userProfile,
+    updateUserProfile,
+    connectWallet,
+    disconnectWallet,
+    credits,
+  } = useAppStore();
+
+  const { data: sessionData } = useQuery({
+    queryKey: ["auth-session"],
+    queryFn: () => authApi.getSession(),
+    retry: false,
+  });
 
   // 从后端查询租户配置与系统能力
   const { data: tenant, refetch: refetchTenant } = useQuery({
@@ -39,6 +56,21 @@ export default function ConsoleSettingsPage() {
   const [customTimezone, setCustomTimezone] = useState<string | null>(null);
   const [customCurrency, setCustomCurrency] = useState<string | null>(null);
   const [saveSuccess, setSaveSuccess] = useState(false);
+
+  // 用户个人资料编辑状态
+  const [profileName, setProfileName] = useState(userProfile.name);
+  const [walletCopied, setWalletCopied] = useState(false);
+
+  const handleCopyWallet = async () => {
+    try {
+      await navigator.clipboard.writeText(userProfile.walletAddress);
+      setWalletCopied(true);
+      setTimeout(() => setWalletCopied(false), 2000);
+    } catch {
+      setWalletCopied(true);
+      setTimeout(() => setWalletCopied(false), 2000);
+    }
+  };
 
   const controlGroupEnabled = customControlGroup ?? tenant?.controlGroupEnabled ?? true;
   const windowDays = customWindowDays ?? tenant?.attributionWindowDays ?? 14;
@@ -61,6 +93,7 @@ export default function ConsoleSettingsPage() {
   });
 
   const handleSave = () => {
+    updateUserProfile({ name: profileName });
     updateTenantMutation.mutate({
       timezone: selectedTimezone,
       currency: selectedCurrency,
@@ -97,6 +130,148 @@ export default function ConsoleSettingsPage() {
           <span>{getI18nText(locale, "settings_saved_success")}</span>
         </div>
       )}
+
+      {/* 模块 0: 商户主理人档案与数字资产 (USER PROFILE & ASSETS) */}
+      <div className="space-y-3">
+        <h2 className="text-xs font-mono uppercase tracking-wider font-bold text-[#71717A]">
+          商户主理人档案与数字资产 (PROFILE & ASSETS)
+        </h2>
+        <Card>
+          <CardHeader>
+            <div className="flex items-center justify-between w-full">
+              <div className="flex items-center gap-2">
+                <CardTitle>个人档案与 Web3 钱包设置</CardTitle>
+                <Badge variant="outline">{getI18nText(locale, "demo_badge")}</Badge>
+              </div>
+              <Badge variant="success">已认证</Badge>
+            </div>
+          </CardHeader>
+          <CardContent className="space-y-6 text-xs font-mono">
+            {/* 个人信息编辑区 */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 p-4 bg-[#FAFAFA] border border-[#E4E4E7]">
+              <div>
+                <label className="text-[#71717A] text-[10px] uppercase block mb-1 font-bold">
+                  {getI18nText(locale, "user_name_label")}
+                </label>
+                <input
+                  type="text"
+                  value={profileName}
+                  onChange={(e) => setProfileName(e.target.value)}
+                  className="w-full p-2 bg-white border border-[#E4E4E7] text-[#09090B] font-bold focus:outline-none focus:border-zinc-900"
+                />
+              </div>
+
+              <div>
+                <label className="text-[#71717A] text-[10px] uppercase block mb-1 font-bold">
+                  {getI18nText(locale, "user_email_label")}
+                </label>
+                <input
+                  type="email"
+                  disabled
+                  value={sessionData?.user?.email || userProfile.email}
+                  className="w-full p-2 bg-zinc-100 border border-[#E4E4E7] text-zinc-600 cursor-not-allowed"
+                />
+              </div>
+
+              <div>
+                <label className="text-[#71717A] text-[10px] uppercase block mb-1 font-bold">
+                  {getI18nText(locale, "user_role_label")}
+                </label>
+                <input
+                  type="text"
+                  disabled
+                  value={`${userProfile.role} (店铺所有者)`}
+                  className="w-full p-2 bg-zinc-100 border border-[#E4E4E7] text-zinc-600 cursor-not-allowed"
+                />
+              </div>
+            </div>
+
+            {/* 资产与钱包概览区 */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {/* 平台 AI Credits 资产 */}
+              <div className="p-4 border border-[#E4E4E7] bg-white rounded-lg space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="flex items-center gap-1.5 font-bold text-zinc-900">
+                    <Coins className="w-4 h-4 text-emerald-600" />
+                    {getI18nText(locale, "user_assets_credits")}
+                  </span>
+                  <span className="text-[10px] text-zinc-400">可用点数</span>
+                </div>
+                <div className="text-xl font-bold font-mono text-zinc-900">
+                  {credits.available.toLocaleString()}{" "}
+                  <span className="text-xs text-zinc-400 font-normal">Credits</span>
+                </div>
+                <div className="text-[11px] text-zinc-500 flex justify-between pt-1 border-t border-zinc-100">
+                  <span>预留额度: {credits.reserved}</span>
+                  <span className="text-emerald-700 font-medium">
+                    折合 ≈ ${(credits.available * 0.02).toFixed(2)} USDC
+                  </span>
+                </div>
+              </div>
+
+              {/* Solana Devnet 钱包资产 */}
+              <div className="p-4 border border-[#E4E4E7] bg-white rounded-lg space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="flex items-center gap-1.5 font-bold text-zinc-900">
+                    <Wallet className="w-4 h-4 text-indigo-600" />
+                    {getI18nText(locale, "user_assets_wallet")}
+                  </span>
+                  <Badge variant={userProfile.isWalletConnected ? "success" : "neutral"}>
+                    {userProfile.isWalletConnected
+                      ? getI18nText(locale, "user_wallet_connected")
+                      : getI18nText(locale, "user_wallet_disconnected")}
+                  </Badge>
+                </div>
+
+                {userProfile.isWalletConnected ? (
+                  <>
+                    <div className="flex items-center justify-between pt-1">
+                      <span className="font-bold text-zinc-900 text-sm">
+                        {userProfile.solBalance}
+                      </span>
+                      <span className="font-bold text-indigo-600 text-sm">
+                        {userProfile.usdcBalance}
+                      </span>
+                    </div>
+
+                    <div className="flex items-center justify-between text-[11px] text-zinc-500 pt-1 border-t border-zinc-100">
+                      <div className="flex items-center gap-1.5">
+                        <span className="truncate max-w-[140px]">{userProfile.walletAddress}</span>
+                        <button
+                          type="button"
+                          onClick={handleCopyWallet}
+                          className="text-zinc-500 hover:text-zinc-900 p-0.5"
+                          title={getI18nText(locale, "user_action_copy_address")}
+                        >
+                          {walletCopied ? (
+                            <Check className="w-3.5 h-3.5 text-emerald-600" />
+                          ) : (
+                            <Copy className="w-3.5 h-3.5" />
+                          )}
+                        </button>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => disconnectWallet()}
+                        className="text-zinc-400 hover:text-rose-600 text-[10px] underline"
+                      >
+                        断开钱包
+                      </button>
+                    </div>
+                  </>
+                ) : (
+                  <div className="flex items-center justify-between pt-2">
+                    <span className="text-zinc-400">未连接 Devnet 钱包</span>
+                    <Button size="sm" onClick={() => connectWallet()}>
+                      连接钱包
+                    </Button>
+                  </div>
+                )}
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
 
       {/* 模块 1: 归因口径与 20% 对照组实验配置 (严格对齐 PRD 2.3) */}
       <div className="space-y-3">

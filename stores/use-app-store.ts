@@ -10,6 +10,8 @@ import {
   MOCK_WORKFLOWS,
   MOCK_KNOWLEDGE_ITEMS,
   MOCK_LEDGER_HISTORY,
+  MOCK_USER_PROFILE,
+  type MockUserProfile as UserProfile,
 } from "@/mock";
 
 export type OrderLanguage =
@@ -134,10 +136,14 @@ interface AppState {
   workflows: WorkflowRule[];
   knowledgeItems: KnowledgeItem[];
   ledgerHistory: LedgerTransaction[];
+  userProfile: UserProfile;
 
   // Actions
   setStoreId: (id: string) => void;
   setLocale: (locale: SupportedLocale) => void;
+  updateUserProfile: (profile: Partial<UserProfile>) => void;
+  connectWallet: (address?: string) => void;
+  disconnectWallet: () => void;
   topupCredits: (usdc: number, credits: number, txHash: string) => void;
   toggleHumanTakeover: (conversationId: string) => void;
   sendChatMessage: (conversationId: string, text: string) => void;
@@ -151,6 +157,8 @@ interface AppState {
   addKnowledgeItem: (item: KnowledgeItem) => void;
 }
 
+export type { UserProfile };
+
 export const useAppStore = create<AppState>((set) => ({
   currentStoreId: MOCK_CURRENT_STORE_ID,
   stores: MOCK_STORES,
@@ -162,9 +170,29 @@ export const useAppStore = create<AppState>((set) => ({
   workflows: MOCK_WORKFLOWS,
   knowledgeItems: MOCK_KNOWLEDGE_ITEMS,
   ledgerHistory: MOCK_LEDGER_HISTORY,
+  userProfile: MOCK_USER_PROFILE,
 
   setStoreId: (id) => set({ currentStoreId: id }),
   setLocale: (locale) => set({ locale }),
+  updateUserProfile: (profile) =>
+    set((state) => ({
+      userProfile: { ...state.userProfile, ...profile },
+    })),
+  connectWallet: (customAddress) =>
+    set((state) => ({
+      userProfile: {
+        ...state.userProfile,
+        isWalletConnected: true,
+        walletAddress: customAddress || state.userProfile.walletAddress,
+      },
+    })),
+  disconnectWallet: () =>
+    set((state) => ({
+      userProfile: {
+        ...state.userProfile,
+        isWalletConnected: false,
+      },
+    })),
   topupCredits: (usdc, credits, txHash) =>
     set((state) => {
       const newBalance = state.credits.available + credits;

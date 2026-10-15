@@ -45,18 +45,6 @@ describe("neon-auth - Neon Auth 托管端点与第三方 OAuth 授权集成", ()
     );
   });
 
-  it("能为 GitHub OAuth 正确构建社交登录授权跳转 URL", () => {
-    const authUrl = getOAuthAuthorizationUrl("github", {
-      callbackUrl: "https://solana-neon-ten.vercel.app/auth/callback",
-    });
-
-    const parsed = new URL(authUrl);
-    expect(parsed.searchParams.get("provider")).toBe("github");
-    expect(parsed.searchParams.get("callbackURL")).toBe(
-      "https://solana-neon-ten.vercel.app/auth/callback"
-    );
-  });
-
   it("能精准解析 OAuth 回调成功参数", () => {
     const params = new URLSearchParams("code=oauth_code_123&state=secure_state");
     const result = parseOAuthCallbackParams(params);

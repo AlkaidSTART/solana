@@ -1,5 +1,6 @@
 export const PROTECTED_PREFIXES = ["/console", "/onboarding"] as const;
 export const LOGIN_PATH = "/login";
+export const OAUTH_CALLBACK_PATH = "/auth/callback";
 
 export function isProtectedPath(pathname: string): boolean {
   return PROTECTED_PREFIXES.some(

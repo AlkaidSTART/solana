@@ -319,6 +319,24 @@ describe("i18n Southeast Asia & Singapore Specifications", () => {
       "meta_tenant",
       "meta_timezone",
       "meta_network",
+
+      // User Profile & Assets
+      "user_name_label",
+      "user_email_label",
+      "user_role_label",
+      "user_assets_title",
+      "user_assets_credits",
+      "user_assets_wallet",
+      "user_wallet_address",
+      "user_wallet_connected",
+      "user_wallet_disconnected",
+      "user_wallet_sol_balance",
+      "user_wallet_usdc_balance",
+      "user_profile_edit",
+      "user_action_topup",
+      "user_action_copy_address",
+      "user_copied_address",
+      "user_logout",
     ];
 
     for (const locale of SUPPORTED_LOCALES) {
@@ -369,6 +387,11 @@ describe("i18n Southeast Asia & Singapore Specifications", () => {
     expect(getI18nText("th_TH", "settings_save_btn")).toBe("บันทึกการตั้งค่าส่วนกลาง");
     expect(getI18nText("vi_VN", "orders_drawer_approve")).toBe("Duyệt Giao Hàng");
     expect(getI18nText("fil_PH", "inbox_btn_takeover")).toBe("Kunin ang Pag-uusap");
+
+    // Test user & assets keys
+    expect(getI18nText("zh_CN", "user_assets_title")).toBe("商户数字资产");
+    expect(getI18nText("en_US", "user_wallet_connected")).toBe("Connected");
+    expect(getI18nText("en_SG", "user_assets_credits")).toBe("AI Credits");
 
     // Fallback on unknown locale
     expect(getI18nText("fr_FR" as unknown as SupportedLocale, "nav_overview")).toBe("Dashboard");
