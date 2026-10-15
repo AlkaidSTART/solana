@@ -34,6 +34,10 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      # 改动 Codecov YAML 时用官方校验接口验证；带重试降低外网抖动影响。
+      - name: Validate codecov.yml
+        run: curl --fail-with-body -sS --retry 3 --retry-connrefused --max-time 30 -X POST --data-binary @codecov.yml https://codecov.io/validate
+
       - name: Lint
         run: pnpm lint
 
