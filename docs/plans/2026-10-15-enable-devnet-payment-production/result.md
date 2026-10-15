@@ -83,9 +83,69 @@ https://solana-neon-ten.vercel.app/     ← 多了末尾斜杠
 
 - [ ] MVP 验收：见 plan.md §7。当前完成 §7 第 6 项（表名冲突解除，迁移可幂等重复执行）；第 1~5 项待阶段 2/3/5 与线上复验。
 
+## 阻塞项已修复：创建商户租户一直失败（jsonb 参数读回为字符串，2026-10-15）
+
+**现象**：真实登录打通后，`POST /api/v1/tenants` 返回 `500 {"code":"TENANT_CONFIGURATION_INVALID","message":"Tenant configuration is invalid"}`。库中 `tenants`/`memberships` 均为 0 行（事务整体回滚，无脏数据），`users` 已有 1 行（说明桥接本身正常）。
+
+**定位**：`TENANT_CONFIGURATION_INVALID` 全仓库只有一处 —— `lib/server/services/tenants/service.ts` 的 `toTenantView()`，它对 `record.support_hours` 重新执行 `supportHoursSchema.safeParse`。本地直接调用 `createTenant()` 复现出完全相同的错误，证明与部署无关。
+
+隔离实验（逐层排除）后确认根因在 `postgres` 驱动：
+
+| 取值方式 | 驱动返回 |
+| --- | --- |
+| `SELECT '{}'::jsonb`（字面量） | `object {}` |
+| `SELECT $1::jsonb`（绑定参数） | **`string "{}"`** |
+| 临时表 `INSERT ... VALUES ('{}'::jsonb) RETURNING j`（字面量） | `object {}` |
+| 临时表 `INSERT ... VALUES ($1::jsonb) RETURNING j`（参数） | **`string "{}"`** |
+
+结论：**凡是通过绑定参数写入的 jsonb，读回时驱动给的是 JSON 字符串而非对象**（与表、事务、列均无关）。`createTenant()` 正是「用参数写 `support_hours` → 再校验 `RETURNING` 的值」，于是校验自己成功的写入时必然失败 —— 也就是说**该仓库的「创建商户租户」功能从未可用过**，与本需求引入的改动无关（`components/auth/auth-card.tsx` 的注册按钮此前只是 `setTimeout` 假通过，从未真正走到这个接口，因此一直没暴露）。
+
+**修复**：`lib/server/services/tenants/service.ts` 新增 `normalizeJsonColumn()`，在 `toTenantView()` 解析前把字符串形式的 jsonb 归一化（`JSON.parse`，失败则原样返回），使该边界同时接受对象与 JSON 字符串两种表示。
+
+**验证**：`pnpm exec tsc --noEmit` OK、`pnpm lint` 0 问题、`pnpm exec vitest run` 24 文件 261 用例全绿；修复后经线上 API 重新执行创建租户（见下方端到端记录）。
+
+**同类风险（未处理，仅供后续排查）**：同一驱动特性会影响所有「参数写入 jsonb 后再读回并当作对象使用」的位置，例如 `payment_orders.quote_snapshot`、`payment_candidates.evidence`、`outbox_events.payload`、`audit_events` 的 metadata 等。本次只修复了阻塞本需求的 `support_hours`，其余未逐一验证。
+
+**测试缺口（未完成项）**：未为本 bug 补自动化回归用例。原因：`lib/server/services/tenants/` 下原本没有任何测试文件，且 `createTenant()` 依赖 `lib/server/db/client` 的 `getDatabase()`（读取 `DATABASE_URL`）不便注入隔离数据库；现有 `PGlite` 用法仅覆盖 `lib/server/payments/`。手工复现步骤：以任一合法会话调用 `POST /api/v1/tenants`（body 含 `supportHours: {}`），修复前返回 500 `TENANT_CONFIGURATION_INVALID`，修复后返回 200。
+
+## 线上端到端验收记录（2026-10-15，真实账号，curl）
+
+需求方提供邮箱 `2595006848@qq.com` 配合收信，逐步实测（全部为生产域名 `https://solana-neon-ten.vercel.app` 与生产 Neon 库）：
+
+| 步骤 | 请求 | 实际结果 |
+| --- | --- | --- |
+| 1 | `POST /api/auth/email-otp/send-verification-otp` `{email, type:"sign-in"}` | `200 {"success":true}` ✅（此前因尾斜杠返回 `INVALID_ORIGIN`） |
+| 2 | `POST /api/auth/sign-in/email-otp` `{email, otp}` | `200`，Neon Auth 建号并返回 `user.id=0e6b23b8-…`、`emailVerified:true` ✅ |
+| 3 | `GET /api/auth/get-session` | 返回真实 session ✅ |
+| 4 | `POST /api/v1/auth/neon/session` `{locale:"zh_CN"}` | `200`，本地用户 `74c2bac2-0561-45d9-9b58-675c134215bb`，`Set-Cookie: __Host-solaflow_session` + `__Host-solaflow_csrf` ✅（**T12 通过**） |
+| 5 | `POST /api/v1/tenants` `{name,market:"ID",timezone:"Asia/Jakarta",supportHours:{}}` | 修复 jsonb bug 前 `500 TENANT_CONFIGURATION_INVALID`；修复后 `200`，租户 `11a6358e-f223-4b49-bbed-25373d40b0ff` + Owner membership `fab89ad5-5e3e-42bb-b405-c5453ff82e47` ✅ |
+| 6 | `POST /api/v1/auth/switch-tenant` `{membershipId}` | `200`，会话绑定该 membership ✅ |
+| 7 | `POST /api/v1/payments/session` | `200 {"tenantId":"11a6358e-f223-4b49-bbed-25373d40b0ff"}` ✅（**T6 通过**：绑定登录商户的租户，非随机铸造） |
+| 8 | `POST /api/v1/payments/orders` `{credits:100}` | `200`：订单 `b52ceb20-8b7b-4b56-8d8e-7115b3d1680b`、`status=awaiting_payment`、`2000000` atomic（2.000000 devnet USDC）、mint `4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU`、收款人 `DJAuqiXHRu6BC7eBfHYq1VXyVefj5c7RpXJQjeAKZE8R`、reference `JAadndn61k4YSNBZZU9CLx53HZ8tcQjdBW1P4uvAgMzr`、Solana Pay URL 与 6130 字节 QR data URL ✅ |
+
+库内一致性核对：
+
+- `payment_sessions.tenant_id` = `11a6358e-f223-4b49-bbed-25373d40b0ff`（与该商户租户一致，未铸造随机租户）✅
+- `devnet_payment_orders.tenant_id` = 同一租户 ✅
+- `memberships`：`role=owner`、`status=active` ✅
+- `test_credit_ledger` 为 0 行 ✅（尚未付款，未入账 —— 符合预期）
+
+**T5 已通过**：未登录请求 `POST /api/v1/payments/session`、`GET /api/v1/payments/session`、`POST /api/v1/payments/orders` 均返回 `401 {"error":"Authentication is required"}`。
+
+## 尚未完成（需钱包操作）
+
+**T8/T9/T10 未执行**：真实链上付款需要 devnet 钱包（0.001 SOL 手续费 + devnet USDC）。这必须由需求方在浏览器钱包中完成，我无法代做。
+
+待验证内容：
+- T8：用 devnet 钱包扫上述 QR 或打开 Solana Pay 链接付款 → 页面每 5 秒轮询 `POST /api/v1/payments/orders/{id}` → 应在 finalized 且服务端校验完整后变为 `credited`，且 `test_credit_ledger` 恰好多出一行。
+- T9：同一订单重复回调（重复打开/刷新）不应产生第二次入账。
+- T10：错金额或错 mint 的付款不应增加额度。
+
 ## 未运行/受阻说明
 
-- **阶段 2 阻塞**：OTP 投递需要需求方提供外部 HTTP 端点（`POST`、Bearer 鉴权、JSON `{email, code, locale}`）与 Bearer 令牌。仓库未实现任何投递服务，`OTP_DELIVERY_ENDPOINT` 在本地 `.env` 中也为空值，未提供前无人能登录，支付入口无法验收。
-- **部署未执行**：未获部署授权，且阶段 2 未完成时部署会让支付入口从"503 不可用"变为"需登录但仍不可用"。生产当前仍为 7 天前构建，本次所有代码改动尚未上线。
-- **未在生产库写入测试数据**：阶段 3/5 的验收会在线上库产生真实 `users`/`tenants`/`memberships`/`payment_orders` 行，按 AGENTS.md "测试数据与生产数据隔离" 未擅自造测试商户，待需求方以其真实商户账号完成登录后验证。
-- **E2E 未运行**：`pnpm exec playwright test` 未执行；现有 E2E 用例未覆盖新的登录前置条件，待阶段 5 一并处理。
+- **已解除（原阻塞记录作废）**：原「阶段 2 阻塞：OTP 投递需需求方提供外部 HTTP 端点与 Bearer」不再成立 —— 方案改为 Neon Auth 托管 Email OTP，投递由托管服务负责，无需自建；`OTP_DELIVERY_ENDPOINT`/`lib/server/auth/otp-provider.ts` 不再参与登录链路。
+- **已解除（原记录作废）**：原「部署未执行 / 生产仍为 7 天前构建」不再成立 —— 本次共部署 4 次至生产并别名至 `https://solana-neon-ten.vercel.app`。
+- **已解除（原记录作废）**：原「未在生产库写入测试数据」的顾虑已按需求方明确授权解除 —— 需求方提供邮箱 `2595006848@qq.com` 并要求以其真实商户账号验收；线上库现有 1 个真实租户 `SolaFlow Merchant` 与 1 条 Owner membership，以及 1 张 `awaiting_payment` 状态的 devnet 测试订单（未入账）。
+- **E2E 未运行**：`pnpm exec playwright test` 未执行；现有 E2E 用例未覆盖登录前置条件，待后续补齐。
+- **钱包验收未执行**：T8/T9/T10 需要 devnet 钱包（SOL 手续费 + devnet USDC），必须由需求方在浏览器中完成，我无法代做。手工步骤见上一节。
+- **遗留缺陷（未处理）**：① 预览通配符受信域名 `https://*.alkaidstarts-projects.vercel.app` 未匹配预览主机，原因待查；② `lib/api/auth.ts` 的 `switchTenant()` 发送 `{ tenantId }`，而 `app/api/v1/auth/switch-tenant/route.ts` 实际要求 `{ membershipId }` —— 客户端与服务端字段名不一致，会影响工作台的租户切换；③ 同驱动 jsonb 特性可能影响 `quote_snapshot`/`evidence`/`payload` 等其他 jsonb 读回点，未逐一验证；④ 未为「jsonb 参数读回为字符串」补自动化回归用例。

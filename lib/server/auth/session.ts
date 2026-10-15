@@ -6,11 +6,10 @@ import { getRuntimeConfig } from "@/lib/server/config/env";
 import { hmacSha256Hex } from "@/lib/server/security/digests";
 import { requireRole } from "@/lib/server/auth/roles";
 import { assertCsrf } from "@/lib/server/auth/csrf";
+import { csrfCookieName, sessionCookieName } from "@/lib/auth/session-cookies";
 import type { ActorContext, SessionContext } from "@/lib/server/auth/types";
 import type { ApiRole } from "@/types/api/common";
 
-const SESSION_COOKIE_BASE = "solaflow_session";
-const CSRF_COOKIE_BASE = "solaflow_csrf";
 const DEFAULT_SESSION_MAX_AGE_SECONDS = 60 * 60 * 24 * 30;
 
 interface SessionRow {
@@ -315,14 +314,6 @@ function serializeCookie(
     parts.push("Secure");
   }
   return parts.join("; ");
-}
-
-function sessionCookieName(): string {
-  return process.env.NODE_ENV === "production" ? `__Host-${SESSION_COOKIE_BASE}` : SESSION_COOKIE_BASE;
-}
-
-function csrfCookieName(): string {
-  return process.env.NODE_ENV === "production" ? `__Host-${CSRF_COOKIE_BASE}` : CSRF_COOKIE_BASE;
 }
 
 function readCookie(cookieHeader: string | null, name: string): string | null {
