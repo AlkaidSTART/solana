@@ -7,8 +7,8 @@ import { TelemetrySandbox } from "@/components/landing/telemetry-sandbox";
 import { RoiCalculator } from "@/components/landing/roi-calculator";
 import { SolanaPayModal } from "@/components/billing/solana-pay-modal";
 import { HeroTopoCanvas } from "@/components/landing/topo-mesh";
-import { SeaTopologyGlobe } from "@/components/landing/three-sea-globe";
-import { SolanaSettlementCoin3D } from "@/components/landing/three-solana-coin";
+import { DialectRoutingConsole } from "@/components/landing/dialect-routing-console";
+import { SolanaSettlementConsole } from "@/components/landing/solana-settlement-console";
 import { ThreeOnboardingGateway } from "@/components/landing/three-onboarding-gateway";
 import { Button } from "@/components/ui/button";
 import { GsapEntrance, GsapStagger } from "@/components/ui/gsap-transition";
@@ -18,20 +18,21 @@ import {
   ShieldCheck,
   Zap,
   Coins,
+  Globe,
 } from "lucide-react";
 import { clsx } from "clsx";
 
 type LandingLang = "ZH" | "EN" | "SG" | "ID" | "MY" | "TH" | "VI" | "PH";
 
 const LANDING_LANGS = [
-  { code: "ZH", label: "中文", flag: "🇨🇳" },
-  { code: "EN", label: "EN", flag: "🌐" },
-  { code: "SG", label: "SG (Singlish)", flag: "🇸🇬" },
-  { code: "ID", label: "ID (Bahasa)", flag: "🇮🇩" },
-  { code: "MY", label: "MY (Melayu)", flag: "🇲🇾" },
-  { code: "TH", label: "TH (ไทย)", flag: "🇹🇭" },
-  { code: "VI", label: "VI (Tiếng Việt)", flag: "🇻🇳" },
-  { code: "PH", label: "PH (Filipino)", flag: "🇵🇭" },
+  { code: "ZH", label: "简体中文" },
+  { code: "EN", label: "English" },
+  { code: "SG", label: "English (SG)" },
+  { code: "ID", label: "Bahasa Indonesia" },
+  { code: "MY", label: "Bahasa Melayu" },
+  { code: "TH", label: "ไทย" },
+  { code: "VI", label: "Tiếng Việt" },
+  { code: "PH", label: "Filipino" },
 ] as const;
 
 export default function LandingPage() {
@@ -106,27 +107,28 @@ export default function LandingPage() {
           {/* 右侧：语言切换胶囊与行动链接 */}
           <div className="flex items-center gap-2 sm:gap-4">
             {/* 语言切换器：大屏为药丸组，小屏为下拉选择 */}
-            <div className="hidden xl:inline-flex p-1 border border-zinc-200/80 bg-zinc-100/80 rounded-xl">
+            <div className="hidden xl:inline-flex items-center p-1 border border-zinc-200/80 bg-zinc-100/80 rounded-xl">
+              <Globe className="w-3.5 h-3.5 text-zinc-400 mx-1.5 shrink-0" aria-hidden="true" />
               {LANDING_LANGS.map((l) => (
                 <button
                   key={l.code}
                   onClick={() => setLang(l.code)}
                   className={clsx(
-                    "px-2 py-1 text-xs font-mono font-medium transition-all cursor-pointer rounded-lg flex items-center gap-1",
+                    "px-2 py-1 text-xs font-mono font-medium transition-all cursor-pointer rounded-lg flex items-center",
                     lang === l.code
                       ? "bg-white text-zinc-950 shadow-xs"
                       : "text-zinc-500 hover:text-zinc-900"
                   )}
                   title={l.label}
                 >
-                  <span className="text-[11px]">{l.flag}</span>
                   <span>{l.code}</span>
                 </button>
               ))}
             </div>
 
             {/* 中小屏精简下拉切换 */}
-            <div className="xl:hidden flex items-center border border-zinc-200/80 rounded-lg px-2 py-1 bg-zinc-50 text-xs font-mono">
+            <div className="xl:hidden flex items-center gap-1.5 border border-zinc-200/80 rounded-lg px-2 py-1 bg-zinc-50 text-xs font-mono">
+              <Globe className="w-3.5 h-3.5 text-zinc-500 shrink-0" aria-hidden="true" />
               <select
                 value={lang}
                 onChange={(e) => setLang(e.target.value as LandingLang)}
@@ -135,7 +137,7 @@ export default function LandingPage() {
               >
                 {LANDING_LANGS.map((l) => (
                   <option key={l.code} value={l.code}>
-                    {l.flag} {l.code} - {l.label}
+                    {l.label} ({l.code})
                   </option>
                 ))}
               </select>
@@ -320,9 +322,9 @@ export default function LandingPage() {
                     不仅掌握标准印尼语（Bahasa Indonesia），更精准识别雅加达本土口语缩写（Bahasa Gaul，如 <em>min, ongkir, ga nyasar</em>）与泰语礼貌语气助词（<em>krub/ka</em>）。
                   </p>
 
-                  {/* 3D 东南亚跨境拓扑航线与多语言数据球体微组件 */}
+                  {/* 东南亚跨境多语言与印尼俚语高阶解析视窗 */}
                   <div className="mt-2 p-3 sm:p-4 bg-zinc-50/60 rounded-xl border border-zinc-200/70">
-                    <SeaTopologyGlobe />
+                    <DialectRoutingConsole />
                   </div>
                 </div>
                 <div className="mt-8 pt-5 border-t border-zinc-100 flex items-center justify-between text-xs font-mono text-zinc-500">
@@ -344,9 +346,9 @@ export default function LandingPage() {
                     0 传统跨国信用卡 3% 货币兑换与通道手续费损耗。原生 USDC 充值即时到账，单笔手续费低至 $0.00025。
                   </p>
 
-                  {/* 3D 毫秒级原生结算硬币/棱镜微组件 */}
+                  {/* Solana Pay 毫秒级原生结算引擎与通道对比视窗 */}
                   <div className="mt-2 p-3 sm:p-4 bg-zinc-50/60 rounded-xl border border-zinc-200/70">
-                    <SolanaSettlementCoin3D />
+                    <SolanaSettlementConsole />
                   </div>
                 </div>
                 <div className="mt-8 pt-5 border-t border-zinc-100 flex items-center justify-between text-xs font-mono text-indigo-700 font-semibold">

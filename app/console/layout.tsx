@@ -17,6 +17,7 @@ import {
   Coins,
   Menu,
   X,
+  Globe,
 } from "lucide-react";
 import { clsx } from "clsx";
 import {
@@ -129,23 +130,26 @@ function ConsoleLayoutContent({
           </Link>
 
           {/* 语言选择 */}
-          <select
-            value={locale}
-            onChange={(e) =>
-              setLocale(e.target.value as SupportedLocale)
-            }
-            aria-label="界面语言"
-            className="w-24 sm:w-auto border border-zinc-200 rounded-lg px-2.5 py-1 bg-white text-[11px] font-mono text-zinc-900 focus:outline-none cursor-pointer shadow-2xs"
-          >
-            {SUPPORTED_LOCALES.map((loc) => {
-              const meta = MARKETS[loc];
-              return (
-                <option key={loc} value={loc}>
-                  {meta.flag} {meta.shortLabel} · {meta.nativeLabel}
-                </option>
-              );
-            })}
-          </select>
+          <div className="flex items-center gap-1.5 border border-zinc-200 rounded-lg px-2 py-1 bg-white shadow-2xs">
+            <Globe className="w-3.5 h-3.5 text-zinc-500 shrink-0" />
+            <select
+              value={locale}
+              onChange={(e) =>
+                setLocale(e.target.value as SupportedLocale)
+              }
+              aria-label="界面语言"
+              className="w-24 sm:w-auto bg-transparent text-[11px] font-mono text-zinc-900 focus:outline-none cursor-pointer"
+            >
+              {SUPPORTED_LOCALES.map((loc) => {
+                const meta = MARKETS[loc];
+                return (
+                  <option key={loc} value={loc}>
+                    {meta.nativeLabel} ({meta.shortLabel})
+                  </option>
+                );
+              })}
+            </select>
+          </div>
 
           {/* 官网返回入口 */}
           <Link

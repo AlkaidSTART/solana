@@ -185,10 +185,10 @@ export function AuthCard({ initialMode = "login", onModeChange }: AuthCardProps)
       msgAuthSuccess: isEn ? "Authenticated successfully! Redirecting to workspace..." : isId ? "Autentikasi berhasil! Mengalihkan ke konsol..." : "身份核验通过，正在跳转至工作台...",
       msgDemoSuccess: isEn ? "Demo session verified! Entering console..." : isId ? "Sesi demo terverifikasi! Memasuki konsol..." : "演示商户身份核验通过，正在进入工作台...",
       msgRegisterSuccess: isEn
-        ? "🎉 Account created! 100 trial credits issued. Redirecting to onboarding..."
+        ? "Account created! 100 trial credits issued. Redirecting to onboarding..."
         : isId
-        ? "🎉 Akun berhasil dibuat! Bonus 100 kredit aktif. Menuju panduan..."
-        : "🎉 商户账号注册成功！已发放 100 Credits 试用额度，正在进入 6 步入驻向导...",
+        ? "Akun berhasil dibuat! Bonus 100 kredit aktif. Menuju panduan..."
+        : "商户账号注册成功！已发放 100 Credits 试用额度，正在进入 6 步入驻向导...",
       msgOtpSentDemo: isEn
         ? "Verification code ready (Demo code: 892104)"
         : isId
@@ -209,50 +209,50 @@ export function AuthCard({ initialMode = "login", onModeChange }: AuthCardProps)
     {
       value: "id_ID",
       label: isEn
-        ? "🇮🇩 Indonesia (ID · +62 COD / Recovery focus)"
+        ? "Indonesia (ID · +62 COD / Recovery focus)"
         : isId
-        ? "🇮🇩 Indonesia (ID · +62 COD & Pemulihan)"
-        : "🇮🇩 印度尼西亚 (Indonesia · +62 COD / 催付重点)",
+        ? "Indonesia (ID · +62 COD & Pemulihan)"
+        : "印度尼西亚 (Indonesia · +62 COD / 催付重点)",
     },
     {
       value: "th_TH",
       label: isEn
-        ? "🇹🇭 Thailand (TH · +66)"
+        ? "Thailand (TH · +66)"
         : isId
-        ? "🇹🇭 Thailand (TH · +66)"
-        : "🇹🇭 泰国 (Thailand · +66)",
+        ? "Thailand (TH · +66)"
+        : "泰国 (Thailand · +66)",
     },
     {
       value: "en_SG",
       label: isEn
-        ? "🇸🇬 Singapore / SEA English (SG · +65)"
+        ? "Singapore / SEA English (SG · +65)"
         : isId
-        ? "🇸🇬 Singapura / Bahasa Inggris (SG · +65)"
-        : "🇸🇬 新加坡 / 东南亚英文区 (Singapore · +65)",
+        ? "Singapura / Bahasa Inggris (SG · +65)"
+        : "新加坡 / 东南亚英文区 (Singapore · +65)",
     },
     {
       value: "ms_MY",
       label: isEn
-        ? "🇲🇾 Malaysia (MY · +60)"
+        ? "Malaysia (MY · +60)"
         : isId
-        ? "🇲🇾 Malaysia (MY · +60)"
-        : "🇲🇾 马来西亚 (Malaysia · +60)",
+        ? "Malaysia (MY · +60)"
+        : "马来西亚 (Malaysia · +60)",
     },
     {
       value: "vi_VN",
       label: isEn
-        ? "🇻🇳 Vietnam (VN · +84)"
+        ? "Vietnam (VN · +84)"
         : isId
-        ? "🇻🇳 Vietnam (VN · +84)"
-        : "🇻🇳 越南 (Vietnam · +84)",
+        ? "Vietnam (VN · +84)"
+        : "越南 (Vietnam · +84)",
     },
     {
       value: "fil_PH",
       label: isEn
-        ? "🇵🇭 Philippines (PH · +63)"
+        ? "Philippines (PH · +63)"
         : isId
-        ? "🇵🇭 Filipina (PH · +63)"
-        : "🇵🇭 菲律宾 (Philippines · +63)",
+        ? "Filipina (PH · +63)"
+        : "菲律宾 (Philippines · +63)",
     },
   ];
 

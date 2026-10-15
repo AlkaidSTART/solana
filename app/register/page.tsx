@@ -59,9 +59,9 @@ export default function RegisterPage() {
               className="bg-transparent text-zinc-900 font-mono text-xs focus:outline-none cursor-pointer"
               aria-label="选择语言"
             >
-              <option value="zh_CN">🇨🇳 简体中文</option>
-              <option value="en_US">🌐 English</option>
-              <option value="id_ID">🇮🇩 Bahasa Indonesia</option>
+              <option value="zh_CN">简体中文</option>
+              <option value="en_US">English</option>
+              <option value="id_ID">Bahasa Indonesia</option>
             </select>
           </div>
 
