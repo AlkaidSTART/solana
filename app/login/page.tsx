@@ -48,19 +48,19 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-white text-zinc-950 font-sans flex flex-col justify-between selection:bg-zinc-950 selection:text-white">
+    <div className="min-h-screen bg-zinc-50/40 text-zinc-900 font-sans flex flex-col justify-between selection:bg-zinc-900 selection:text-white">
       {/* 顶部高定极简商户导航 */}
-      <header className="h-16 border-b border-zinc-200/90 px-4 sm:px-8 flex items-center justify-between bg-white/90 backdrop-blur-md sticky top-0 z-30">
+      <header className="h-16 border-b border-zinc-200/80 px-4 sm:px-8 flex items-center justify-between bg-white/80 backdrop-blur-md sticky top-0 z-30">
         <div className="flex items-center gap-4">
           <Link href="/" className="flex items-center gap-2 group cursor-pointer">
-            <span className="font-sans text-base font-extrabold tracking-tight text-zinc-950">
+            <span className="font-sans text-base font-extrabold tracking-tight text-zinc-900">
               SolaFlow
             </span>
-            <span className="text-[10px] font-mono font-bold uppercase px-1.5 py-0.5 bg-zinc-950 text-white">
+            <span className="text-[10px] font-mono font-bold uppercase px-1.5 py-0.5 rounded-sm bg-zinc-900 text-white">
               AI
             </span>
           </Link>
-          <div className="hidden md:flex items-center gap-2 text-xs font-mono text-zinc-500 border-l border-zinc-200 pl-4">
+          <div className="hidden md:flex items-center gap-2 text-xs font-mono text-zinc-500 border-l border-zinc-200/80 pl-4">
             <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 inline-block" />
             <span>{t.tagline}</span>
           </div>
@@ -69,12 +69,12 @@ export default function LoginPage() {
         {/* 顶部右侧：多语言切换与快捷返回 */}
         <div className="flex items-center gap-3 sm:gap-5">
           {/* 国际化语言选择器 */}
-          <div className="flex items-center gap-1.5 border border-zinc-200 px-2 py-1 text-xs font-mono bg-zinc-50 hover:bg-zinc-100/70 transition-colors">
-            <Globe className="w-3.5 h-3.5 text-zinc-500" />
+          <div className="flex items-center gap-1.5 border border-zinc-200/80 px-2.5 py-1 text-xs font-sans rounded-md bg-white hover:bg-zinc-50 transition-colors shadow-2xs">
+            <Globe className="w-3.5 h-3.5 text-zinc-400" />
             <select
               value={locale}
               onChange={(e) => setLocale(e.target.value as SupportedLocale)}
-              className="bg-transparent text-zinc-900 font-mono text-xs focus:outline-none cursor-pointer"
+              className="bg-transparent text-zinc-800 font-sans text-xs focus:outline-none cursor-pointer"
               aria-label={t.selectLanguage}
             >
               <option value="zh_CN">简体中文</option>
@@ -85,7 +85,7 @@ export default function LoginPage() {
 
           <Link
             href="/"
-            className="text-xs font-mono text-zinc-600 hover:text-zinc-950 flex items-center gap-1.5 transition-colors group cursor-pointer"
+            className="text-xs font-sans text-zinc-600 hover:text-zinc-900 flex items-center gap-1.5 transition-colors group cursor-pointer"
           >
             <ArrowLeft className="w-3.5 h-3.5 transition-transform group-hover:-translate-x-0.5" />
             <span className="hidden sm:inline font-medium">{t.backHome}</span>
@@ -97,12 +97,12 @@ export default function LoginPage() {
       <main className="flex-1 flex w-full">
         <div className="w-full grid grid-cols-1 lg:grid-cols-12 min-h-[calc(100vh-8rem)]">
           {/* 左侧：出海商业实时遥测展厅 (桌面端 >=1024px 显示) */}
-          <section className="hidden lg:block lg:col-span-6 xl:col-span-7 bg-zinc-950 h-full">
+          <section className="hidden lg:block lg:col-span-6 xl:col-span-7 bg-zinc-50/70 h-full">
             <AuthShowcase />
           </section>
 
           {/* 右侧：高保真鉴权交互中心 */}
-          <section className="col-span-1 lg:col-span-6 xl:col-span-5 flex flex-col justify-center items-center p-4 sm:p-8 xl:p-12 bg-white relative">
+          <section className="col-span-1 lg:col-span-6 xl:col-span-5 flex flex-col justify-center items-center p-4 sm:p-8 xl:p-12 bg-white/70 relative">
             {/* 极轻微发丝网格底纹衬托质感 */}
             <div
               className="absolute inset-0 opacity-[0.025] pointer-events-none"
@@ -114,10 +114,10 @@ export default function LoginPage() {
             />
 
             {/* 移动端顶部轻量业务标头 (<1024px 显示) */}
-            <div className="lg:hidden w-full max-w-md mb-4 p-3.5 border border-zinc-200/90 bg-zinc-50/80 font-mono space-y-2">
+            <div className="lg:hidden w-full max-w-md mb-4 p-3.5 border border-zinc-200/80 rounded-xl bg-white/90 font-sans space-y-2 shadow-2xs">
               <div className="flex items-center justify-between text-[10px]">
-                <span className="text-zinc-500 uppercase tracking-wider">SOLAFLOW OS</span>
-                <span className="inline-flex items-center gap-1 text-emerald-700 font-semibold">
+                <span className="text-zinc-400 font-mono uppercase tracking-wider">SOLAFLOW OS</span>
+                <span className="inline-flex items-center gap-1 text-emerald-700 font-semibold font-mono">
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
                   {t.baaDirect}
                 </span>
@@ -127,20 +127,20 @@ export default function LoginPage() {
               </p>
               
               {/* 移动端轻量展开指标 */}
-              <div className="pt-1 border-t border-zinc-200/60">
+              <div className="pt-1 border-t border-zinc-100">
                 <button
                   type="button"
                   onClick={() => setMobileTelemetryOpen(!mobileTelemetryOpen)}
-                  className="text-[10px] text-zinc-500 hover:text-zinc-900 underline flex items-center gap-1 cursor-pointer"
+                  className="text-[10px] text-zinc-500 hover:text-zinc-900 underline flex items-center gap-1 cursor-pointer font-sans"
                 >
                   <span>{mobileTelemetryOpen ? t.mobileHideMetrics : t.mobileViewMetrics}</span>
                 </button>
                 {mobileTelemetryOpen && (
-                  <div className="mt-2 grid grid-cols-3 gap-1.5 text-[10px] bg-white p-2 border border-zinc-200 animate-in fade-in">
+                  <div className="mt-2 grid grid-cols-3 gap-1.5 text-[10px] font-mono bg-zinc-50 p-2 rounded-lg border border-zinc-200/70 animate-in fade-in">
                     <div className="text-center">
                       <span className="font-bold text-zinc-900 block">{t.recoveryMetric}</span>
                     </div>
-                    <div className="text-center border-x border-zinc-100">
+                    <div className="text-center border-x border-zinc-200/60">
                       <span className="font-bold text-emerald-700 block">{t.codMetric}</span>
                     </div>
                     <div className="text-center">
@@ -155,7 +155,7 @@ export default function LoginPage() {
             <div className="w-full max-w-md relative z-10 my-auto py-4">
               <Suspense
                 fallback={
-                  <div className="w-full h-96 border border-zinc-200 bg-white p-8 flex items-center justify-center text-xs font-mono text-zinc-400">
+                  <div className="w-full h-96 rounded-2xl border border-zinc-200/80 bg-white/90 p-8 flex items-center justify-center text-xs font-mono text-zinc-400">
                     {t.loading}
                   </div>
                 }
@@ -168,16 +168,16 @@ export default function LoginPage() {
       </main>
 
       {/* 底部版权与合规规范 */}
-      <footer className="h-14 border-t border-zinc-200/90 px-4 sm:px-8 flex flex-col sm:flex-row items-center justify-between text-[11px] font-mono text-zinc-500 gap-2 sm:gap-0 py-2 sm:py-0 bg-white">
+      <footer className="h-14 border-t border-zinc-200/80 px-4 sm:px-8 flex flex-col sm:flex-row items-center justify-between text-[11px] font-sans text-zinc-400 gap-2 sm:gap-0 py-2 sm:py-0 bg-white/70 backdrop-blur-xs">
         <span>{t.copyright}</span>
-        <div className="flex items-center gap-3 sm:gap-4 text-zinc-600">
+        <div className="flex items-center gap-3 sm:gap-4 text-zinc-500">
           <span className="flex items-center gap-1">
             <Shield className="w-3 h-3 text-emerald-600" />
             <span>{t.compliance}</span>
           </span>
           <span>•</span>
           <span className="flex items-center gap-1">
-            <Sparkles className="w-3 h-3 text-zinc-700" />
+            <Sparkles className="w-3 h-3 text-zinc-500" />
             <span>{t.settlement}</span>
           </span>
         </div>

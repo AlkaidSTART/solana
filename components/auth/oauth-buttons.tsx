@@ -46,11 +46,11 @@ export function OAuthButtons({ className, onError }: OAuthButtonsProps) {
   };
 
   return (
-    <div className={clsx("space-y-3 font-mono", className)}>
+    <div className={clsx("space-y-3 font-sans", className)}>
       {/* 分割线 */}
       <div className="relative flex items-center justify-center my-3">
         <div className="absolute inset-0 flex items-center">
-          <div className="w-full border-t border-zinc-200" />
+          <div className="w-full border-t border-zinc-100" />
         </div>
         <span className="relative bg-white px-3 text-[10px] uppercase tracking-wider text-zinc-400">
           {t.divider}
@@ -58,13 +58,13 @@ export function OAuthButtons({ className, onError }: OAuthButtonsProps) {
       </div>
 
       {/* 按钮网格 */}
-      <div className="grid grid-cols-2 gap-2">
+      <div className="grid grid-cols-2 gap-2.5">
         {/* Google 登录 */}
         <button
           type="button"
           onClick={() => handleOAuth("google")}
           disabled={activeProvider !== null}
-          className="h-10 px-3 border border-zinc-200 hover:border-zinc-950 bg-white hover:bg-zinc-50/80 text-zinc-800 text-xs font-mono flex items-center justify-center gap-2 cursor-pointer transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          className="h-10 px-3 border border-zinc-200/80 hover:border-zinc-300 rounded-lg bg-zinc-50/40 hover:bg-zinc-50 text-zinc-700 text-xs font-medium flex items-center justify-center gap-2 cursor-pointer transition-all shadow-2xs disabled:opacity-50 disabled:cursor-not-allowed"
           title={t.google}
         >
           {activeProvider === "google" ? (
@@ -97,7 +97,7 @@ export function OAuthButtons({ className, onError }: OAuthButtonsProps) {
           type="button"
           onClick={() => handleOAuth("github")}
           disabled={activeProvider !== null}
-          className="h-10 px-3 border border-zinc-200 hover:border-zinc-950 bg-white hover:bg-zinc-50/80 text-zinc-800 text-xs font-mono flex items-center justify-center gap-2 cursor-pointer transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          className="h-10 px-3 border border-zinc-200/80 hover:border-zinc-300 rounded-lg bg-zinc-50/40 hover:bg-zinc-50 text-zinc-700 text-xs font-medium flex items-center justify-center gap-2 cursor-pointer transition-all shadow-2xs disabled:opacity-50 disabled:cursor-not-allowed"
           title={t.github}
         >
           {activeProvider === "github" ? (
