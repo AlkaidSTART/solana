@@ -36,34 +36,50 @@
   - 测试 T11：线上 `GET /api/auth/ok` → `{"ok":true}` ✅；`GET /api/auth/get-session` → `null`（无会话，符合预期）✅；`POST /api/auth/email-otp/send-verification-otp` → **阻塞**，见下。
   - 验证：`pnpm exec tsc --noEmit` OK、`pnpm lint` 0 问题、`pnpm exec vitest run` 24 文件 261 用例全绿。
 
-- [ ] 阶段 7：Neon Auth 身份 → 本地会话桥接。未实现，等待阶段 6 的域名白名单解除后一并完成与验证。
+- [x] 阶段 7：Neon Auth 身份 → 本地会话桥接。
+  - 交付内容：`lib/server/services/auth/neon-bridge.ts`（`issueSessionForNeonIdentity`：按 `email_hash` upsert 本地 `users` 行 → 读取其 active 租户 membership → 调用既有 `issueSessionInTransaction` 下发本地 session + CSRF cookie；签名密钥用 `isUsableKey` 类型守卫收窄而非非空断言；**恰好一个** active membership 时直接绑定该租户，多个则留空交由既有 `switch-tenant` 选择，服务端绝不猜测租户）、`app/api/v1/auth/neon/session/route.ts`（`neonAuth().getSession()` 取身份，无 Neon 会话则 401）、`lib/api/auth.ts` 新增 `establishNeonSession(locale)`。
+  - 设计：不替换本地会话体系，Neon Auth 只负责身份，租户/RBAC/计费仍以本地 `sessions` 为唯一权威（与 AGENTS.md「认证会话决定租户」一致）。
+  - 测试 T12：`tsc` 通过（含 `data?.user?.email` 形状校验）、`lint` 0 问题、`vitest run` 24 文件 261 用例全绿。线上端到端仍未验证（见阻塞项）。
 
-- [ ] 阶段 8：登录界面改造与假通道清除。未实现，需需求方确认是否移除演示通道。
+- [x] 阶段 8：登录界面改造与假通道清除。
+  - 交付内容：新增 `lib/auth/client.ts`（`createAuthClient()`）；`components/auth/auth-card.tsx` 的 OTP 发送改 `authClient.emailOtp.sendVerificationOtp`、OTP 校验改 `authClient.signIn.emailOtp`、密码登录改 `authClient.signIn.email`、注册改 `authClient.signUp.email`，成功后均调用 `establishNeonSession` 再跳转；`components/auth/oauth-buttons.tsx` 改 `authClient.signIn.social`（带绝对 `callbackURL`，此前手拼 URL 缺 Origin 处理）；`app/auth/callback/page.tsx` 的假成功动画改为真实调用 `establishNeonSession` 并把失败原因展示出来。
+  - **已移除的假通道**：硬编码演示码 `892104` 及其放行分支、`msgOtpSentDemo`/`msgDemoSuccess`/`msgDemoLoaded` 文案、"填入演示账号"按钮与 `handleFillDemo`、"一键以演示商户身份直接进入控制台"按钮、密码与注册的 `setTimeout` 假通过、`challengeId` 状态。随之删除 `MOCK_DEMO_LOGIN_CREDENTIALS`（`mock/auth.ts` 整个文件、`mock/index.ts` 与 `mock/mock.test.ts` 的引用）—— 该常量已无任何产品代码使用。
+  - 补充发现：`vitest.config.mts` 的 `include` 仅覆盖 `{lib,stores,components}/**/*.test.{ts,tsx}`，故 `mock/mock.test.ts` 与 `app/**` 下的测试从未被执行（261 的用例数与改动前后一致即源于此）。
+  - 测试 T13：`pnpm exec vitest run` 24 文件 261 用例全绿、`pnpm lint` 0 问题、`pnpm exec next typegen && pnpm exec tsc --noEmit` OK、`pnpm build` exit 0。真实验证码收信与错误码拒绝的浏览器验收未执行（见阻塞项）。
 
 - [ ] 阶段 9：线上端到端复验。未执行。
 
 - [ ] MVP 验收：见 plan.md §7。已完成 §7 第 6 项（表名冲突解除，迁移可幂等重复执行）与线上 API 鉴权收紧；第 1~5 项待阶段 7/8/9。
 
-## 阻塞项：Neon Auth 受信域名未添加（2026-10-15 新增）
+## 阻塞项已解除：Neon Auth 受信域名的末尾斜杠（2026-10-15 已修复）
 
 **现象**：`POST /api/auth/email-otp/send-verification-otp` 返回 `{"message":"Invalid origin","code":"INVALID_ORIGIN"}`。
 
-**定位**：对照实测（同一请求分别打到线上代理与 Neon Auth 直连端点 `https://ep-falling-sky-b5fgcy67.neonauth.c-7.us-east-2.aws.neon.tech/neondb/auth/...`）：
+**定位过程**：对照实测（同一请求分别打到线上代理与 Neon Auth 直连端点）显示带**任意** `Origin` 均为 `INVALID_ORIGIN`、不带 `Origin` 为 `success`，据此判断是受信域名未匹配。经 Neon API `GET /projects/{id}/branches/{id}/auth/domains` 查得白名单里**实际已存在**该域名，但值为：
+
+```
+https://solana-neon-ten.vercel.app/     ← 多了末尾斜杠
+```
+
+浏览器 `Origin` 头永远是 `https://solana-neon-ten.vercel.app`（RFC 中 Origin 不含路径，故不带尾斜杠），因此条目无法匹配。Neon 官方文档《Configure trusted domains》明确要求「include the protocol and omit trailing slashes」。
+
+**根因**：**一个末尾斜杠**。与代码、Vercel 环境变量、数据库均无关。
+
+**修复**：经 Neon API 操作该项目的 production 分支
+- 项目 `wild-unit-87312534`（endpoint `ep-falling-sky-b5fgcy67`，与 `DATABASE_URL`/`NEON_AUTH_URL` 一致），分支 `br-delicate-star-b5jxykoc`。
+- `POST /auth/domains`（body 需 `{"domain": "...", "auth_provider": "better_auth"}`）新增 `https://solana-neon-ten.vercel.app` 与 `https://*.alkaidstarts-projects.vercel.app`。
+- `DELETE /auth/domains`（body 需 `{"auth_provider":"better_auth","domains":[{"domain":"..."}]}`）删除带尾斜杠的旧条目。
+
+**修复后实测**：
 
 | 请求 | 结果 |
 | --- | --- |
-| 带 `Origin: https://solana-neon-ten.vercel.app` | `INVALID_ORIGIN` |
-| 带 `Origin: https://evil.example` | `INVALID_ORIGIN` |
-| 不带 `Origin` | `{"success":true}` |
+| 线上代理，`Origin: https://solana-neon-ten.vercel.app` | `{"success":true}` ✅ |
+| Neon Auth 直连，同上 Origin | `{"success":true}` ✅ |
+| 线上代理，`Origin: https://evil.example` | `INVALID_ORIGIN` ✅（白名单仍生效） |
+| 线上代理，`Origin: https://solana-abc123-alkaidstarts-projects.vercel.app` | `INVALID_ORIGIN` ⚠️ 通配符未匹配该预览主机（不影响生产；遗留待查） |
 
-结论：`https://solana-neon-ten.vercel.app` **不在 Neon Auth 的受信域名白名单内**。浏览器一定发送 `Origin`，因此线上发 OTP 必然失败。这不是代码或 Vercel 环境变量问题。
-
-**解除方式**（官方文档《Configure trusted domains》给出 Console／CLI／API 三种）：
-- Console：**Auth → Configuration → Domains**，填入 `https://solana-neon-ten.vercel.app`（含协议、无尾部斜杠）。
-- API：`POST https://console.neon.tech/api/v2/projects/{project_id}/branches/{branch_id}/auth/domains`，需要 `NEON_API_KEY`；本机未安装 `neon`/`neonctl`，`.env` 中亦无 `NEON_API_KEY`。
-- 预览环境可另加通配符条目（如 `https://*.alkaidstarts-projects.vercel.app`）。
-
-**需要需求方提供**：Neon API Key（我可用 API 直接添加），或自行在 Console 添加该域名。此阻塞未解除前，阶段 7/8/9 无法端到端验证。
+**遗留**：预览通配符 `https://*.alkaidstarts-projects.vercel.app` 未匹配任意预览主机，原因待查（可能该 API 版本的通配符语义不同）。生产域名已可用，不影响本需求验收。
 
 - [ ] MVP 验收：见 plan.md §7。当前完成 §7 第 6 项（表名冲突解除，迁移可幂等重复执行）；第 1~5 项待阶段 2/3/5 与线上复验。
 

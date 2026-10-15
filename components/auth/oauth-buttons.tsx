@@ -3,7 +3,8 @@
 import React, { useState } from "react";
 import { clsx } from "clsx";
 import { RotateCw } from "lucide-react";
-import { initiateOAuthSignIn, type OAuthProvider } from "@/lib/auth/neon-auth";
+import type { OAuthProvider } from "@/lib/auth/neon-auth";
+import { authClient } from "@/lib/auth/client";
 import { useAppStore } from "@/stores/use-app-store";
 
 interface OAuthButtonsProps {
@@ -27,7 +28,11 @@ export function OAuthButtons({ className, onError }: OAuthButtonsProps) {
   const handleOAuth = async (provider: OAuthProvider) => {
     setActiveProvider(provider);
     try {
-      await initiateOAuthSignIn(provider);
+      const { error } = await authClient.signIn.social({
+        provider,
+        callbackURL: `${window.location.origin}/auth/callback`,
+      });
+      if (error) throw new Error(error.message);
     } catch (err: unknown) {
       setActiveProvider(null);
       const message =

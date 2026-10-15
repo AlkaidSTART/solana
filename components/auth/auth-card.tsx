@@ -12,17 +12,15 @@ import {
   EyeOff,
   CheckCircle2,
   AlertCircle,
-  Sparkles,
   ShieldCheck,
   RotateCw,
-  Zap,
 } from "lucide-react";
 import { clsx } from "clsx";
 import { motion, AnimatePresence } from "motion/react";
 import { Button } from "@/components/ui/button";
-import { MOCK_DEMO_LOGIN_CREDENTIALS } from "@/mock";
 import { useAppStore } from "@/stores/use-app-store";
 import { authApi } from "@/lib/api";
+import { authClient } from "@/lib/auth/client";
 import {
   validateEmail,
   calculatePasswordStrength,
@@ -68,7 +66,6 @@ export function AuthCard({ initialMode = "login", onModeChange }: AuthCardProps)
   const [agreedTerms, setAgreedTerms] = useState(true);
   const [showPassword, setShowPassword] = useState(false);
 
-  const [challengeId, setChallengeId] = useState<string | null>(null);
   const [otpSent, setOtpSent] = useState(false);
   const [countdown, setCountdown] = useState(0);
   const [loading, setLoading] = useState(false);
@@ -147,12 +144,6 @@ export function AuthCard({ initialMode = "login", onModeChange }: AuthCardProps)
         : "立即注册并进入入驻向导",
       verifying: isEn ? "Verifying identity..." : isId ? "Memverifikasi identitas..." : "身份核验中...",
       creatingAccount: isEn ? "Creating account..." : isId ? "Membuat akun..." : "创建账号中...",
-      quickDemoBtn: isEn
-        ? "Instant Demo Access (Explore console directly)"
-        : isId
-        ? "Akses Demo Cepat (Langsung jelajahi konsol)"
-        : "一键以演示商户身份直接进入控制台",
-      fillDemoBadge: isEn ? "Fill Demo" : isId ? "Isi Demo" : "填入演示账号",
       noAccountText: isEn ? "Don't have an account?" : isId ? "Belum punya akun?" : "还没有商户账号？",
       registerFreeCta: isEn ? "Register free (+100 Credits)" : isId ? "Daftar gratis (+100 Kredit)" : "免费注册（送 100 Credits）",
       hasAccountText: isEn ? "Already have an account?" : isId ? "Sudah punya akun?" : "已有商户账号？",
@@ -183,24 +174,13 @@ export function AuthCard({ initialMode = "login", onModeChange }: AuthCardProps)
       errMustAgreeTerms: isEn ? "You must agree to the merchant terms." : isId ? "Anda harus menyetujui ketentuan merchant." : "请勾选同意出海商户服务条款与 Meta 协议。",
       errLoginFailed: isEn ? "Authentication failed, please try again." : isId ? "Verifikasi gagal, silakan coba lagi." : "登录核验失败，请重试",
       msgAuthSuccess: isEn ? "Authenticated successfully! Redirecting to workspace..." : isId ? "Autentikasi berhasil! Mengalihkan ke konsol..." : "身份核验通过，正在跳转至工作台...",
-      msgDemoSuccess: isEn ? "Demo session verified! Entering console..." : isId ? "Sesi demo terverifikasi! Memasuki konsol..." : "演示商户身份核验通过，正在进入工作台...",
       msgRegisterSuccess: isEn
         ? "Account created! 100 trial credits issued. Redirecting to onboarding..."
         : isId
         ? "Akun berhasil dibuat! Bonus 100 kredit aktif. Menuju panduan..."
         : "商户账号注册成功！已发放 100 Credits 试用额度，正在进入 6 步入驻向导...",
-      msgOtpSentDemo: isEn
-        ? "Verification code ready (Demo code: 892104)"
-        : isId
-        ? "Kode verifikasi siap (Kode demo: 892104)"
-        : "动态验证码已就绪（演示测试码：892104）",
       msgOtpSentReal: (em: string) =>
         isEn ? `Verification code sent to ${em}.` : isId ? `Kode verifikasi dikirim ke ${em}.` : `动态验证码已发送至 ${em}。`,
-      msgDemoLoaded: isEn
-        ? "Demo credentials loaded (merchant@crossborder-shop.com / 892104)"
-        : isId
-        ? "Kredensial demo terisi (merchant@crossborder-shop.com / 892104)"
-        : "已快速载入演示商户账号与验证码凭据",
     }),
     [isEn, isId]
   );
@@ -272,6 +252,11 @@ export function AuthCard({ initialMode = "login", onModeChange }: AuthCardProps)
     [rememberEmail]
   );
 
+  // Establish the repository session from the identity Neon Auth already verified.
+  const establishSession = useCallback(async () => {
+    await authApi.establishNeonSession(locale);
+  }, [locale]);
+
   // 执行 OTP 登录核验（供手动提交和 6 位自动提交复用）
   const executeOtpVerification = useCallback(
     async (codeToVerify: string) => {
@@ -289,33 +274,24 @@ export function AuthCard({ initialMode = "login", onModeChange }: AuthCardProps)
       persistRememberedEmail(email);
 
       try {
-        if (challengeId) {
-          await authApi.verifyOtp({ challengeId, code: codeToVerify });
-        }
+        const { error } = await authClient.signIn.emailOtp({ email, otp: codeToVerify });
+        if (error) throw new Error(error.message || t.errLoginFailed);
+        await establishSession();
         setSuccessMsg(t.msgAuthSuccess);
         setTimeout(() => {
           router.push("/console");
         }, 400);
       } catch (err: unknown) {
-        // 若处于离线沙盒或使用演示账号，给予平滑通过
-        if (email === MOCK_DEMO_LOGIN_CREDENTIALS.email || codeToVerify === "892104") {
-          setSuccessMsg(t.msgDemoSuccess);
-          setTimeout(() => {
-            router.push("/console");
-          }, 400);
-        } else {
-          const message = err instanceof Error ? err.message : t.errLoginFailed;
-          setErrorMsg(message);
-        }
+        setErrorMsg(err instanceof Error ? err.message : t.errLoginFailed);
       } finally {
         setLoading(false);
         isAutoSubmittingRef.current = false;
       }
     },
-    [email, challengeId, loading, router, persistRememberedEmail, t]
+    [email, loading, router, persistRememberedEmail, t, establishSession]
   );
 
-  // 发送验证码（对接真实后端 /api/v1/auth/otp/request）
+  // 发送验证码（交接给 Neon Auth 托管投递）
   const handleSendOtp = async () => {
     setErrorMsg(null);
     if (!validateEmail(email)) {
@@ -325,34 +301,19 @@ export function AuthCard({ initialMode = "login", onModeChange }: AuthCardProps)
 
     setLoading(true);
     try {
-      const res = await authApi.requestOtp({ email, locale });
-      setChallengeId(res.challengeId);
-      setOtpSent(true);
-      setCountdown(res.retryAfterSeconds || 60);
-      setSuccessMsg(t.msgOtpSentReal(email));
-    } catch {
-      // 在本地开发或无 OTP 投递服务器环境下，优雅回退至演示模式
+      const { error } = await authClient.emailOtp.sendVerificationOtp({ email, type: "sign-in" });
+      if (error) throw new Error(error.message || t.errLoginFailed);
       setOtpSent(true);
       setCountdown(60);
-      setSuccessMsg(t.msgOtpSentDemo);
+      setSuccessMsg(t.msgOtpSentReal(email));
+    } catch (err: unknown) {
+      setErrorMsg(err instanceof Error ? err.message : t.errLoginFailed);
     } finally {
       setLoading(false);
       setTimeout(() => {
         otpInputsRef.current[0]?.focus();
       }, 100);
     }
-  };
-
-  // 一键填入演示凭据并触发聚焦
-  const handleFillDemo = () => {
-    setErrorMsg(null);
-    setEmail(MOCK_DEMO_LOGIN_CREDENTIALS.email);
-    setOtpSent(true);
-    const demoCode = [...MOCK_DEMO_LOGIN_CREDENTIALS.code];
-    setOtpCode(demoCode);
-    setPassword("DemoMerchant2026!");
-    setStoreName("Jakarta Trends Hub");
-    setSuccessMsg(t.msgDemoLoaded);
   };
 
   // 处理 6 位 OTP 输入（带 6 位填满自动提交）
@@ -428,17 +389,23 @@ export function AuthCard({ initialMode = "login", onModeChange }: AuthCardProps)
       setLoading(true);
       persistRememberedEmail(email);
 
-      setTimeout(() => {
-        setLoading(false);
+      try {
+        const { error } = await authClient.signIn.email({ email, password });
+        if (error) throw new Error(error.message || t.errLoginFailed);
+        await establishSession();
         setSuccessMsg(t.msgAuthSuccess);
         setTimeout(() => {
           router.push("/console");
         }, 400);
-      }, 500);
+      } catch (err: unknown) {
+        setErrorMsg(err instanceof Error ? err.message : t.errLoginFailed);
+      } finally {
+        setLoading(false);
+      }
     }
   };
 
-  const handleSubmitRegister = (e: React.FormEvent) => {
+  const handleSubmitRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMsg(null);
 
@@ -466,13 +433,19 @@ export function AuthCard({ initialMode = "login", onModeChange }: AuthCardProps)
     setLoading(true);
     persistRememberedEmail(email);
 
-    setTimeout(() => {
-      setLoading(false);
+    try {
+      const { error } = await authClient.signUp.email({ email, password, name: storeName.trim() });
+      if (error) throw new Error(error.message || t.errLoginFailed);
+      await establishSession();
       setSuccessMsg(t.msgRegisterSuccess);
       setTimeout(() => {
         router.push("/onboarding");
       }, 700);
-    }, 700);
+    } catch (err: unknown) {
+      setErrorMsg(err instanceof Error ? err.message : t.errLoginFailed);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const strength = calculatePasswordStrength(password);
@@ -481,21 +454,12 @@ export function AuthCard({ initialMode = "login", onModeChange }: AuthCardProps)
     <div className="w-full max-w-[460px] mx-auto font-mono">
       {/* 质感认证卡片容器 */}
       <div className="border border-zinc-200/90 bg-white shadow-[0_4px_24px_-4px_rgba(0,0,0,0.06)] p-6 sm:p-8 space-y-6 relative transition-all">
-        {/* 顶部微 HUD 与快速填入 */}
+        {/* 顶部微 HUD */}
         <div className="space-y-2">
           <div className="flex items-center justify-between">
             <span className="text-[10px] tracking-wider uppercase text-zinc-400">
               {t.badge}
             </span>
-            <button
-              type="button"
-              onClick={handleFillDemo}
-              className="px-2 py-0.5 text-[10px] text-zinc-700 hover:text-zinc-950 bg-zinc-100 hover:bg-zinc-200/80 border border-zinc-200/80 flex items-center gap-1 cursor-pointer transition-colors active:scale-95"
-              title="一键自动填充测试账号与验证码"
-            >
-              <Sparkles className="w-3 h-3 text-zinc-800" />
-              <span>{t.fillDemoBadge}</span>
-            </button>
           </div>
 
           <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-zinc-950">
@@ -786,25 +750,6 @@ export function AuthCard({ initialMode = "login", onModeChange }: AuthCardProps)
 
               {/* 第三方 OAuth 登录 */}
               <OAuthButtons onError={(err) => setErrorMsg(err)} />
-
-              {/* 快速演示通道 */}
-              <div className="pt-2">
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => {
-                    setLoading(true);
-                    setTimeout(() => {
-                      setLoading(false);
-                      router.push("/console");
-                    }, 300);
-                  }}
-                  className="w-full h-10 text-xs border-zinc-200/90 hover:bg-zinc-50 rounded-none text-zinc-800 cursor-pointer flex items-center justify-center gap-1.5 transition-colors"
-                >
-                  <Zap className="w-3.5 h-3.5 text-amber-600" />
-                  <span>{t.quickDemoBtn}</span>
-                </Button>
-              </div>
 
               {/* 切换到注册 */}
               <div className="text-center pt-1 text-[11px] text-zinc-500">

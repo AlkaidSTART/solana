@@ -9,7 +9,6 @@ import {
   MOCK_SEA_NODES,
   MOCK_SEA_ROUTES,
   DEFAULT_ONBOARDING_DRAFT,
-  MOCK_DEMO_LOGIN_CREDENTIALS,
   MOCK_STORE_RUNTIMES,
   MOCK_WABA_ACCOUNT_INFO,
   MOCK_STORE_FORM_PRESETS,
@@ -72,11 +71,6 @@ describe("Frontend Mock Datasets Decoupling", () => {
     expect(DEFAULT_ONBOARDING_DRAFT.selectedPlatform).toBe("woocommerce");
     expect(DEFAULT_ONBOARDING_DRAFT.storeUrl).toContain("tokosepatu.co.id");
     expect(DEFAULT_ONBOARDING_DRAFT.testPhone).toContain("+62");
-  });
-
-  it("provides demo merchant login credentials", () => {
-    expect(MOCK_DEMO_LOGIN_CREDENTIALS.email).toBe("merchant@crossborder-shop.com");
-    expect(MOCK_DEMO_LOGIN_CREDENTIALS.code.length).toBe(6);
   });
 
   it("provides store runtimes, WABA account details and presets", () => {

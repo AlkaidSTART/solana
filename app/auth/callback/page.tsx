@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { RotateCw, CheckCircle2, AlertCircle, ArrowRight, ShieldCheck } from "lucide-react";
 import { parseOAuthCallbackParams } from "@/lib/auth/neon-auth";
+import { authApi } from "@/lib/api";
 import { useAppStore } from "@/stores/use-app-store";
 
 function CallbackContent() {
@@ -20,6 +21,7 @@ function CallbackContent() {
   const [status, setStatus] = useState<"processing" | "success" | "error">(() =>
     initialParams.error ? "error" : "processing"
   );
+  const [bridgeError, setBridgeError] = useState<string | null>(null);
   const errorMessage = initialParams.error
     ? initialParams.errorDescription ||
       initialParams.error ||
@@ -28,22 +30,38 @@ function CallbackContent() {
         : isId
         ? "Otorisasi OAuth gagal. Silakan coba lagi."
         : "第三方授权失败，请重试。")
-    : null;
+    : bridgeError;
 
   useEffect(() => {
     if (status !== "processing") return;
+    let cancelled = false;
 
-    // 凭据核验与跳转
-    const timer = setTimeout(() => {
-      setStatus("success");
-      const redirectTimer = setTimeout(() => {
-        router.push("/console");
-      }, 600);
-      return () => clearTimeout(redirectTimer);
-    }, 800);
+    // The identity is verified by Neon Auth; this only exchanges it for the repository session.
+    void (async () => {
+      try {
+        await authApi.establishNeonSession(locale);
+        if (cancelled) return;
+        setStatus("success");
+        setTimeout(() => router.push("/console"), 600);
+      } catch (err: unknown) {
+        if (cancelled) return;
+        setBridgeError(
+          err instanceof Error
+            ? err.message
+            : isEn
+            ? "Signing in failed. Please try again."
+            : isId
+            ? "Gagal masuk. Silakan coba lagi."
+            : "登录会话建立失败，请重试。"
+        );
+        setStatus("error");
+      }
+    })();
 
-    return () => clearTimeout(timer);
-  }, [status, router]);
+    return () => {
+      cancelled = true;
+    };
+  }, [status, router, locale, isEn, isId]);
 
   return (
     <div className="w-full max-w-[420px] mx-auto border border-zinc-200 bg-white p-8 space-y-6 shadow-[0_4px_24px_-4px_rgba(0,0,0,0.06)] font-mono text-center">
