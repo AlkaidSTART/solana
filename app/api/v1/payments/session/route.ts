@@ -5,6 +5,6 @@ export async function POST(request: Request) {
   return paymentResponse(async () => ({ tenantId: await createLocalSession(request) }));
 }
 
-export async function GET() {
-  return paymentResponse(async () => ({ tenantId: await tenantSession() }));
+export async function GET(request: Request) {
+  return paymentResponse(async () => ({ tenantId: await tenantSession(request) }));
 }

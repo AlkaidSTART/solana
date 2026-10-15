@@ -1,0 +1,70 @@
+name: CI
+
+on:
+  push:
+    branches: [main, dev-m]
+  pull_request:
+    branches: [main, dev-m]
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  checks:
+    name: Lint, typecheck & test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      # 版本从 package.json 的 packageManager 字段读取（pnpm@11.17.0）。
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v6
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      # 改动 Codecov YAML 时用官方校验接口验证；带重试降低外网抖动影响。
+      - name: Validate codecov.yml
+        run: curl --fail-with-body -sS --retry 3 --retry-connrefused --max-time 30 -X POST --data-binary @codecov.yml https://codecov.io/validate
+
+      - name: Lint
+        run: pnpm lint
+
+      - name: Typecheck
+        run: pnpm exec next typegen && pnpm exec tsc --noEmit
+
+      - name: Test with coverage
+        run: pnpm test:ci
+
+      # 两个上传步骤都用 !cancelled()，测试失败时也要产出覆盖率与失败测试数据。
+      - name: Upload coverage to Codecov
+        if: ${{ !cancelled() }}
+        uses: codecov/codecov-action@v7
+        with:
+          files: ./coverage/lcov.info
+          flags: unit
+          # public 仓库可不配置 token 走 tokenless 上传；配置后自动使用。
+          token: ${{ secrets.CODECOV_TOKEN }}
+          fail_ci_if_error: true
+
+      # Test Analytics：Failed tests dashboard 与 PR 失败测试评论的数据来源。
+      - name: Upload test results to Codecov
+        if: ${{ !cancelled() }}
+        uses: codecov/codecov-action@v7
+        with:
+          report_type: test_results
+          files: ./test-results/junit.xml
+          flags: unit
+          token: ${{ secrets.CODECOV_TOKEN }}
+          fail_ci_if_error: true

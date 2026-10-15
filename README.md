@@ -193,7 +193,7 @@ types/
 
 ### 5.1 环境要求
 
-- **Node.js**：`>= 20.18.0`（推荐使用 LTS 版本）
+- **Node.js**：`>= 22.9.0`（推荐使用 LTS 版本；`pnpm payments:db` / `pnpm payments:worker` 依赖 `--env-file-if-exists`）
 - **包管理器**：固定使用 `pnpm@11.17.0`（仓库严格维护 `pnpm-lock.yaml`，禁止混用 npm/yarn）
 
 ### 5.2 快速运行
@@ -206,8 +206,9 @@ cd solana
 # 2. 安装依赖（遵循严格锁文件）
 pnpm install --frozen-lockfile
 
-# 3. 复制环境变量配置
-cp .env .env.local
+# 3. 准备本机环境变量（.env 已提供 dev 安全默认值，只需填机密与本机覆盖项）
+cp .env.example .env.local
+# 然后编辑 .env.local，填入 DATABASE_URL、签名密钥等真实值
 
 # 4. 启动本地开发服务
 pnpm dev
@@ -217,24 +218,19 @@ pnpm dev
 
 ### 5.3 环境变量参考
 
-本地开发与构建可参考根目录 `.env` 或配置 `.env.local`：
+环境变量分三层，键位说明与占位符以 **[`.env.example`](./.env.example)** 为准：
 
-```ini
-# 应用基础环境
-NODE_ENV=development
-PAYMENT_APP_ORIGIN=http://localhost:3000
+| 文件 | 用途 | 是否提交 |
+| --- | --- | --- |
+| `.env` | 非机密、对所有环境安全的默认值 | 是（禁止写入真实凭证） |
+| `.env.local` | 机密与本机覆盖项，优先级高于 `.env` | 否 |
+| `.env.example` | 占位符模板，新人从这里开始 | 是 |
 
-# Solana 支付配置 (首发测试使用 Devnet)
-PAYMENTS_DEVNET_ENABLED=true
-PAYMENTS_ALLOW_LOCAL_SESSION=true
-SOLANA_RPC_URL=https://api.devnet.solana.com
-SOLANA_RECIPIENT=DJAuqiXHRu6BC7eBfHYq1VXyVefj5c7RpXJQjeAKZE8R
+Next.js 按 `.env.local` → `.env` 顺序加载（后者覆盖前者）。`pnpm payments:db` 与 `pnpm payments:worker` 用 `--env-file-if-exists` 加载同样的两个文件，需 Node ≥ 22.9.0。
 
-# 目标数据库配置 (开发环境 PostgreSQL)
-DATABASE_URL=postgres://postgres:postgres123@localhost:5433/solaflow_dev
-```
+> 💳 **Devnet 支付入口**：`/console/billing` 仅对已登录并已绑定商户租户的账户开放，未登录访客会被拒绝。该入口只写 `test_credit_ledger`，不产生正式权益；主网正式计费保持关闭。本地跑 devnet 需在 `.env.local` 中设 `PAYMENTS_DEVNET_ENABLED=true` 并提供 `SOLANA_RECIPIENT`。
 
-> 🔒 **安全守则**：私钥、WhatsApp Access Token、数据库密码等敏感密钥严禁写入客户端暴露的变量，严禁提交到公共代码仓库。
+> 🔒 **安全守则**：私钥、WhatsApp Access Token、数据库密码等敏感密钥严禁写入客户端暴露的变量，严禁提交到公共代码仓库；`.env` 会被提交，任何真实凭证只能写在 `.env.local` 或部署平台。
 
 ### 5.4 质量验证与构建命令
 

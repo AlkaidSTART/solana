@@ -31,7 +31,10 @@ yarn-error.log*
 .pnpm-debug.log*
 
 # env files (can opt-in for committing if needed)
+# .env 只放非机密默认值，.env.example 只放占位符，两者可提交；.env.local 始终忽略。
 .env*
+!.env
+!.env.example
 
 # vercel
 .vercel
@@ -44,3 +47,4 @@ next-env.d.ts
 /test-results/
 /playwright-report/
 /.commandcode/
+/docs/

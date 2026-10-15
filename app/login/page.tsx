@@ -3,11 +3,10 @@
 import React, { Suspense } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { ArrowLeft, Globe, Shield, Sparkles } from "lucide-react";
+import { ArrowLeft, Globe, Shield, Sparkles, Lock, Radio } from "lucide-react";
 import { AuthCard } from "@/components/auth/auth-card";
-import { AuthShowcase } from "@/components/auth/auth-showcase";
 import { useAppStore } from "@/stores/use-app-store";
-import type { SupportedLocale } from "@/lib/i18n";
+import { getI18nText, SUPPORTED_LOCALES, MARKETS, type SupportedLocale } from "@/lib/i18n";
 
 function LoginContent() {
   const searchParams = useSearchParams();
@@ -18,168 +17,131 @@ function LoginContent() {
 
 export default function LoginPage() {
   const { locale, setLocale } = useAppStore();
-  const [mobileTelemetryOpen, setMobileTelemetryOpen] = React.useState(false);
-
-  const isEn = locale === "en_US";
-  const isId = locale === "id_ID";
 
   const t = {
-    tagline: isEn
-      ? "Autonomous WhatsApp Order Assistant for Southeast Asia"
-      : isId
-      ? "Asisten Pesanan WhatsApp Otonom Asia Tenggara"
-      : "东南亚跨境电商 WhatsApp 订单自动化与 COD 防损引擎",
-    backHome: isEn ? "Back to Home" : isId ? "Kembali ke Beranda" : "返回官网",
-    copyright: isEn
-      ? "SolaFlow AI © 2026 · Southeast Asian Cross-border Commerce Infrastructure"
-      : isId
-      ? "SolaFlow AI © 2026 · Infrastruktur E-commerce Lintas Batas Asia Tenggara"
-      : "SolaFlow AI © 2026 · 东南亚出海跨境电商自动化基础设施",
-    compliance: isEn ? "Meta BAA Compliant" : isId ? "Kepatuhan Meta BAA" : "Meta BAA 商业数据合规",
-    settlement: isEn ? "Solana Pay Settlement" : isId ? "Settlement Solana Pay" : "Solana Pay USDC 即时结算",
-    baaDirect: isEn ? "Meta BAA Direct" : isId ? "Meta BAA Terhubung" : "Meta BAA 直连",
-    loading: isEn ? "Loading..." : isId ? "Memuat..." : "加载中...",
-    selectLanguage: isEn ? "Select Language" : isId ? "Pilih Bahasa" : "选择语言",
-    mobileViewMetrics: isEn ? "View Telemetry Highlights" : isId ? "Lihat Sorotan Metrik" : "查看出海核心遥测指标",
-    mobileHideMetrics: isEn ? "Hide Telemetry Highlights" : isId ? "Sembunyikan Metrik" : "收起出海核心指标",
-    recoveryMetric: isEn ? "+18.4% Cart Recovery" : isId ? "+18.4% Pemulihan Keranjang" : "+18.4% 弃购挽回率",
-    codMetric: isEn ? "-6.2% COD Return Loss" : isId ? "-6.2% Retur COD" : "-6.2% COD 拒签损耗",
-    settlementMetric: isEn ? "400ms Solana Settlement" : isId ? "400ms Settlement Solana" : "400ms Solana 结算",
+    tagline: getI18nText(locale, "auth_tagline"),
+    statusLive: getI18nText(locale, "auth_status_live"),
+    backHome: getI18nText(locale, "auth_back_home"),
+    copyright: getI18nText(locale, "auth_copyright"),
+    compliance: getI18nText(locale, "auth_compliance"),
+    settlement: getI18nText(locale, "auth_settlement"),
+    encryption: getI18nText(locale, "auth_encryption"),
+    loading: getI18nText(locale, "auth_loading"),
+    selectLanguage: getI18nText(locale, "auth_select_language"),
   };
 
   return (
-    <div className="min-h-screen bg-white text-zinc-950 font-sans flex flex-col justify-between selection:bg-zinc-950 selection:text-white">
+    <div className="h-dvh max-h-dvh overflow-hidden bg-zinc-50/50 text-zinc-900 font-sans flex flex-col justify-between selection:bg-zinc-900 selection:text-white relative">
+      {/* 极简发丝建筑几何点阵网格 */}
+      <div
+        className="absolute inset-0 pointer-events-none opacity-[0.035]"
+        style={{
+          backgroundImage:
+            "linear-gradient(#000000 1px, transparent 1px), linear-gradient(90deg, #000000 1px, transparent 1px)",
+          backgroundSize: "32px 32px",
+        }}
+      />
+
+      {/* 居中环境柔和渐变微光圈 (营造 Linear / Stripe 级通透奢华感) */}
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[720px] h-[520px] max-w-full bg-gradient-to-tr from-emerald-100/35 via-zinc-100/40 to-teal-100/25 rounded-full blur-3xl pointer-events-none -z-10" />
+
       {/* 顶部高定极简商户导航 */}
-      <header className="h-16 border-b border-zinc-200/90 px-4 sm:px-8 flex items-center justify-between bg-white/90 backdrop-blur-md sticky top-0 z-30">
-        <div className="flex items-center gap-4">
-          <Link href="/" className="flex items-center gap-2 group cursor-pointer">
-            <span className="font-sans text-base font-extrabold tracking-tight text-zinc-950">
+      <header className="h-13 sm:h-14 shrink-0 border-b border-zinc-200/80 px-4 sm:px-8 flex items-center justify-between bg-white/75 backdrop-blur-md z-30">
+        <div className="flex items-center gap-3 sm:gap-4">
+          <Link href="/" className="flex items-center gap-1.5 sm:gap-2 group cursor-pointer">
+            <span className="font-sans text-base font-extrabold tracking-tight text-zinc-900">
               SolaFlow
             </span>
-            <span className="text-[10px] font-mono font-bold uppercase px-1.5 py-0.5 bg-zinc-950 text-white">
+            <span className="text-[10px] font-mono font-bold uppercase px-1.5 py-0.5 rounded-sm bg-zinc-900 text-white tracking-wide">
               AI
             </span>
           </Link>
-          <div className="hidden md:flex items-center gap-2 text-xs font-mono text-zinc-500 border-l border-zinc-200 pl-4">
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 inline-block" />
-            <span>{t.tagline}</span>
+
+          <div className="hidden sm:flex items-center gap-2 text-xs font-mono text-zinc-500 border-l border-zinc-200/80 pl-3 sm:pl-4">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 inline-block animate-pulse" />
+            <span className="text-[11px] font-medium tracking-tight text-zinc-600">
+              {t.statusLive}
+            </span>
           </div>
         </div>
 
-        {/* 顶部右侧：多语言切换与快捷返回 */}
-        <div className="flex items-center gap-3 sm:gap-5">
+        {/* 顶部右侧：矢量多语言切换与快捷返回 */}
+        <div className="flex items-center gap-2.5 sm:gap-4">
           {/* 国际化语言选择器 */}
-          <div className="flex items-center gap-1.5 border border-zinc-200 px-2 py-1 text-xs font-mono bg-zinc-50 hover:bg-zinc-100/70 transition-colors">
-            <Globe className="w-3.5 h-3.5 text-zinc-500" />
+          <div className="flex items-center gap-1.5 border border-zinc-200/80 px-2.5 py-1 text-xs font-sans rounded-md bg-white hover:bg-zinc-50 transition-colors shadow-2xs">
+            <Globe className="w-3.5 h-3.5 text-zinc-400 shrink-0" />
             <select
               value={locale}
               onChange={(e) => setLocale(e.target.value as SupportedLocale)}
-              className="bg-transparent text-zinc-900 font-mono text-xs focus:outline-none cursor-pointer"
+              className="bg-transparent text-zinc-800 font-sans text-xs focus:outline-none cursor-pointer"
               aria-label={t.selectLanguage}
             >
-              <option value="zh_CN">简体中文</option>
-              <option value="en_US">English</option>
-              <option value="id_ID">Bahasa Indonesia</option>
+              {SUPPORTED_LOCALES.map((loc) => {
+                const m = MARKETS[loc];
+                return (
+                  <option key={loc} value={loc}>
+                    {m.flag} {m.nativeLabel} ({m.shortLabel})
+                  </option>
+                );
+              })}
             </select>
           </div>
 
           <Link
             href="/"
-            className="text-xs font-mono text-zinc-600 hover:text-zinc-950 flex items-center gap-1.5 transition-colors group cursor-pointer"
+            className="text-xs font-sans text-zinc-600 hover:text-zinc-900 flex items-center gap-1 transition-colors group cursor-pointer"
           >
-            <ArrowLeft className="w-3.5 h-3.5 transition-transform group-hover:-translate-x-0.5" />
+            <ArrowLeft className="w-3.5 h-3.5 transition-transform group-hover:-translate-x-0.5 shrink-0" />
             <span className="hidden sm:inline font-medium">{t.backHome}</span>
           </Link>
         </div>
       </header>
 
-      {/* 核心分屏主体 */}
-      <main className="flex-1 flex w-full">
-        <div className="w-full grid grid-cols-1 lg:grid-cols-12 min-h-[calc(100vh-8rem)]">
-          {/* 左侧：出海商业实时遥测展厅 (桌面端 >=1024px 显示) */}
-          <section className="hidden lg:block lg:col-span-6 xl:col-span-7 bg-zinc-950 h-full">
-            <AuthShowcase />
-          </section>
-
-          {/* 右侧：高保真鉴权交互中心 */}
-          <section className="col-span-1 lg:col-span-6 xl:col-span-5 flex flex-col justify-center items-center p-4 sm:p-8 xl:p-12 bg-white relative">
-            {/* 极轻微发丝网格底纹衬托质感 */}
-            <div
-              className="absolute inset-0 opacity-[0.025] pointer-events-none"
-              style={{
-                backgroundImage:
-                  "linear-gradient(#000000 1px, transparent 1px), linear-gradient(90deg, #000000 1px, transparent 1px)",
-                backgroundSize: "24px 24px",
-              }}
-            />
-
-            {/* 移动端顶部轻量业务标头 (<1024px 显示) */}
-            <div className="lg:hidden w-full max-w-md mb-4 p-3.5 border border-zinc-200/90 bg-zinc-50/80 font-mono space-y-2">
-              <div className="flex items-center justify-between text-[10px]">
-                <span className="text-zinc-500 uppercase tracking-wider">SOLAFLOW OS</span>
-                <span className="inline-flex items-center gap-1 text-emerald-700 font-semibold">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                  {t.baaDirect}
-                </span>
+      {/* 核心居中聚焦舞台 */}
+      <main className="flex-1 min-h-0 flex flex-col items-center justify-center px-4 py-4 sm:py-6 relative z-10 overflow-y-auto">
+        <div className="w-full max-w-[440px] my-auto flex flex-col items-center relative z-10">
+          <Suspense
+            fallback={
+              <div className="w-full h-80 rounded-2xl border border-zinc-200/80 bg-white/95 p-8 flex items-center justify-center text-xs font-mono text-zinc-400 shadow-sm">
+                {t.loading}
               </div>
-              <p className="text-xs text-zinc-700 font-medium leading-snug">
-                {t.tagline}
-              </p>
-              
-              {/* 移动端轻量展开指标 */}
-              <div className="pt-1 border-t border-zinc-200/60">
-                <button
-                  type="button"
-                  onClick={() => setMobileTelemetryOpen(!mobileTelemetryOpen)}
-                  className="text-[10px] text-zinc-500 hover:text-zinc-900 underline flex items-center gap-1 cursor-pointer"
-                >
-                  <span>{mobileTelemetryOpen ? t.mobileHideMetrics : t.mobileViewMetrics}</span>
-                </button>
-                {mobileTelemetryOpen && (
-                  <div className="mt-2 grid grid-cols-3 gap-1.5 text-[10px] bg-white p-2 border border-zinc-200 animate-in fade-in">
-                    <div className="text-center">
-                      <span className="font-bold text-zinc-900 block">{t.recoveryMetric}</span>
-                    </div>
-                    <div className="text-center border-x border-zinc-100">
-                      <span className="font-bold text-emerald-700 block">{t.codMetric}</span>
-                    </div>
-                    <div className="text-center">
-                      <span className="font-bold text-zinc-900 block">{t.settlementMetric}</span>
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
+            }
+          >
+            <LoginContent />
+          </Suspense>
 
-            {/* 居中认证卡片 */}
-            <div className="w-full max-w-md relative z-10 my-auto py-4">
-              <Suspense
-                fallback={
-                  <div className="w-full h-96 border border-zinc-200 bg-white p-8 flex items-center justify-center text-xs font-mono text-zinc-400">
-                    {t.loading}
-                  </div>
-                }
-              >
-                <LoginContent />
-              </Suspense>
-            </div>
-          </section>
+          {/* 卡片底部企业信誉背书条 (精简高信任) */}
+          <div className="mt-4 sm:mt-5 flex flex-wrap items-center justify-center gap-x-3.5 gap-y-1.5 text-[10px] sm:text-[11px] font-mono text-zinc-500 select-none px-2 text-center">
+            <span className="inline-flex items-center gap-1.5">
+              <Shield className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+              <span>{t.compliance}</span>
+            </span>
+            <span className="text-zinc-300 hidden sm:inline">•</span>
+            <span className="inline-flex items-center gap-1.5">
+              <Sparkles className="w-3.5 h-3.5 text-zinc-500 shrink-0" />
+              <span>{t.settlement}</span>
+            </span>
+            <span className="text-zinc-300 hidden sm:inline">•</span>
+            <span className="inline-flex items-center gap-1.5">
+              <Lock className="w-3.5 h-3.5 text-zinc-400 shrink-0" />
+              <span>{t.encryption}</span>
+            </span>
+          </div>
         </div>
       </main>
 
-      {/* 底部版权与合规规范 */}
-      <footer className="h-14 border-t border-zinc-200/90 px-4 sm:px-8 flex flex-col sm:flex-row items-center justify-between text-[11px] font-mono text-zinc-500 gap-2 sm:gap-0 py-2 sm:py-0 bg-white">
-        <span>{t.copyright}</span>
-        <div className="flex items-center gap-3 sm:gap-4 text-zinc-600">
-          <span className="flex items-center gap-1">
-            <Shield className="w-3 h-3 text-emerald-600" />
-            <span>{t.compliance}</span>
+      {/* 底部版权与东南亚低延迟节点 */}
+      <footer className="h-9 sm:h-10 shrink-0 border-t border-zinc-200/80 px-4 sm:px-8 flex items-center justify-between text-[10px] sm:text-[11px] font-mono text-zinc-400 bg-white/70 backdrop-blur-xs z-30">
+        <span className="truncate max-w-[55%] sm:max-w-none">{t.copyright}</span>
+        <div className="flex items-center gap-2 sm:gap-3 text-zinc-500 shrink-0">
+          <span className="hidden md:inline-flex items-center gap-1 text-emerald-700 font-medium">
+            <Radio className="w-3 h-3 text-emerald-600 animate-pulse" />
+            <span>CGK · 8ms</span>
           </span>
-          <span>•</span>
-          <span className="flex items-center gap-1">
-            <Sparkles className="w-3 h-3 text-zinc-700" />
-            <span>{t.settlement}</span>
-          </span>
+          <span className="hidden md:inline text-zinc-300">•</span>
+          <span className="hidden md:inline">BKK · 14ms</span>
+          <span className="hidden md:inline text-zinc-300">•</span>
+          <span className="inline">SIN · 2ms</span>
         </div>
       </footer>
     </div>

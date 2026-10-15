@@ -24,10 +24,10 @@ export const GET = withApiHandler(async (request, context, route: RouteParameter
   return ok(context, await listMessages(actor, conversationId, parsed.data));
 });
 
-export const POST = withApiHandler(async (request, _context, route: RouteParameters) => {
+export const POST = withApiHandler(async (request, context, route: RouteParameters) => {
   const actor = await requireWriteActor(request, ["Owner", "Admin", "Agent"]);
   const { conversationId } = await route.params;
   const input = await parseJson(request, createHumanMessageSchema, 8 * 1024);
   requireHeader(request, "Idempotency-Key");
-  return createHumanMessage(actor, conversationId, input);
+  return createHumanMessage(actor, conversationId, input, context);
 });

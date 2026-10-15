@@ -232,8 +232,21 @@ async function updateTenantVersion(
   return rows[0] ?? null;
 }
 
+// The postgres driver hands back a JSON string rather than a parsed object when the value was
+// written through a bound parameter, so a jsonb column is read as either shape at this boundary.
+function normalizeJsonColumn(value: unknown): unknown {
+  if (typeof value !== "string") {
+    return value;
+  }
+  try {
+    return JSON.parse(value);
+  } catch {
+    return value;
+  }
+}
+
 function toTenantView(record: TenantRecord): TenantView {
-  const supportHours = supportHoursSchema.safeParse(record.support_hours);
+  const supportHours = supportHoursSchema.safeParse(normalizeJsonColumn(record.support_hours));
   if (!supportHours.success) {
     throw new ApiError(500, "TENANT_CONFIGURATION_INVALID", "Tenant configuration is invalid");
   }

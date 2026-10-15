@@ -8,6 +8,4 @@ export * from "./ledger";
 export * from "./analytics";
 export * from "./landing";
 export * from "./onboarding";
-export * from "./auth";
-
-
+export * from "./user";

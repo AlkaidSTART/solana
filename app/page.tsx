@@ -12,6 +12,8 @@ import { SolanaSettlementConsole } from "@/components/landing/solana-settlement-
 import { ThreeOnboardingGateway } from "@/components/landing/three-onboarding-gateway";
 import { Button } from "@/components/ui/button";
 import { GsapEntrance, GsapStagger } from "@/components/ui/gsap-transition";
+import { motion, AnimatePresence } from "motion/react";
+import { transitions } from "@/lib/animations/motion-transitions";
 import {
   ArrowRight,
   Sparkles,
@@ -21,6 +23,9 @@ import {
   Globe,
 } from "lucide-react";
 import { clsx } from "clsx";
+
+import { useAppStore } from "@/stores/use-app-store";
+import { getI18nText, type SupportedLocale } from "@/lib/i18n";
 
 type LandingLang = "ZH" | "EN" | "SG" | "ID" | "MY" | "TH" | "VI" | "PH";
 
@@ -35,54 +40,36 @@ const LANDING_LANGS = [
   { code: "PH", label: "Filipino" },
 ] as const;
 
+const LOCALE_TO_CODE: Record<SupportedLocale, LandingLang> = {
+  zh_CN: "ZH",
+  en_US: "EN",
+  en_SG: "SG",
+  id_ID: "ID",
+  ms_MY: "MY",
+  th_TH: "TH",
+  vi_VN: "VI",
+  fil_PH: "PH",
+};
+
+const CODE_TO_LOCALE: Record<LandingLang, SupportedLocale> = {
+  ZH: "zh_CN",
+  EN: "en_US",
+  SG: "en_SG",
+  ID: "id_ID",
+  MY: "ms_MY",
+  TH: "th_TH",
+  VI: "vi_VN",
+  PH: "fil_PH",
+};
+
 export default function LandingPage() {
-  const [lang, setLang] = useState<LandingLang>("ZH");
+  const { locale, setLocale } = useAppStore();
+  const lang = LOCALE_TO_CODE[locale] || "ZH";
+  const setLang = (code: LandingLang) => setLocale(CODE_TO_LOCALE[code]);
   const [payModalOpen, setPayModalOpen] = useState(false);
 
-  const heroTitles: Record<LandingLang, { headline: string; subhead: string }> = {
-    ZH: {
-      headline: "Autonomous WhatsApp Agents.\nSettled on Solana.",
-      subhead:
-        "专为东南亚跨境电商打造：待支付订单 15 分钟温和挽回，印尼 COD 订单发货前智能地标核验。官方 WhatsApp 商业 API 直连，USDC 零汇损即时结算。",
-    },
-    EN: {
-      headline: "Autonomous WhatsApp Agents.\nSettled on Solana.",
-      subhead:
-        "Engineered for Southeast Asian cross-border e-commerce: 15-minute abandoned cart recovery and pre-dispatch COD address verification. Official WhatsApp API with instant USDC settlement.",
-    },
-    SG: {
-      headline: "Autonomous WhatsApp Agents.\nSettled on Solana.",
-      subhead:
-        "Built for SG & Southeast Asian cross-border sellers: 15-minute gentle cart recovery and pre-delivery COD landmark verification lah. Official WhatsApp Cloud API with zero-slippage USDC settlement.",
-    },
-    ID: {
-      headline: "Asisten Pesanan WhatsApp Otonom.\nSelesai di Solana.",
-      subhead:
-        "Solusi cerdas e-commerce Asia Tenggara: pemulihan keranjang belanja 15 menit dan verifikasi alamat COD pra-pengiriman. Terhubung ke API resmi WhatsApp dengan settlement USDC instan.",
-    },
-    MY: {
-      headline: "Ejen Pesanan WhatsApp Autonomi.\nSelesai di Solana.",
-      subhead:
-        "Khas untuk e-dagang rentas sempadan Asia Tenggara: pemulihan troli terbiar 15 minit & pengesahan COD sebelum pos laju. API rasmi WhatsApp dengan penyelesaian USDC segera.",
-    },
-    TH: {
-      headline: "ระบบผู้ช่วยคำสั่งซื้อ WhatsApp อัตโนมัติ\nชำระเงินบน Solana",
-      subhead:
-        "ออกแบบมาเพื่ออีคอมเมิร์ซเอเชียตะวันออกเฉียงใต้: กู้คืนตะกร้าสินค้าใน 15 นาที และยืนยันที่อยู่ COD ก่อนจัดส่ง เชื่อมต่อ WhatsApp Business API ทางการ พร้อมชำระเงิน USDC ทันที",
-    },
-    VI: {
-      headline: "Trợ Lý Đơn Hàng WhatsApp Tự Động.\nThanh Toán Trên Solana.",
-      subhead:
-        "Thiết kế riêng cho thương mại điện tử Đông Nam Á: thu hồi giỏ hàng bỏ quên sau 15 phút, xác minh địa chỉ giao COD trước khi gửi hàng. Kết nối trực tiếp WhatsApp Cloud API, tất toán USDC không trượt giá.",
-    },
-    PH: {
-      headline: "Awtomatikong WhatsApp Order Assistant.\nSettled sa Solana.",
-      subhead:
-        "Ginawa para sa e-commerce sa Southeast Asia: 15-minutong pagbawi ng abandoned cart at beripikasyon ng landmark sa COD bago i-dispatch po. Opisyal na WhatsApp API na may instant settlement gamit ang USDC.",
-    },
-  };
-
-  const t = heroTitles[lang];
+  const headline = getI18nText(locale, "hero_headline");
+  const subhead = getI18nText(locale, "hero_subhead");
 
   return (
     <div className="min-h-screen bg-white text-zinc-950 font-sans selection:bg-zinc-900 selection:text-white relative">
@@ -107,20 +94,28 @@ export default function LandingPage() {
           {/* 右侧：语言切换胶囊与行动链接 */}
           <div className="flex items-center gap-2 sm:gap-4">
             {/* 语言切换器：大屏为药丸组，小屏为下拉选择 */}
-            <div className="hidden xl:inline-flex items-center p-1 border border-zinc-200/80 bg-zinc-100/80 rounded-xl">
+            {/* 语言切换器：大屏为药丸组 (Motion.dev layoutId 弹簧滑块)，小屏为下拉选择 */}
+            <div className="hidden xl:inline-flex items-center p-1 border border-zinc-200/80 bg-zinc-100/80 rounded-xl select-none">
               <Globe className="w-3.5 h-3.5 text-zinc-400 mx-1.5 shrink-0" aria-hidden="true" />
               {LANDING_LANGS.map((l) => (
                 <button
                   key={l.code}
                   onClick={() => setLang(l.code)}
                   className={clsx(
-                    "px-2 py-1 text-xs font-mono font-medium transition-all cursor-pointer rounded-lg flex items-center",
+                    "relative px-2 py-1 text-xs font-mono font-medium transition-colors cursor-pointer rounded-lg flex items-center z-10",
                     lang === l.code
-                      ? "bg-white text-zinc-950 shadow-xs"
+                      ? "text-zinc-950 font-semibold"
                       : "text-zinc-500 hover:text-zinc-900"
                   )}
                   title={l.label}
                 >
+                  {lang === l.code && (
+                    <motion.div
+                      layoutId="landing-lang-indicator"
+                      transition={transitions.springTab}
+                      className="absolute inset-0 bg-white shadow-xs rounded-lg -z-10"
+                    />
+                  )}
                   <span>{l.code}</span>
                 </button>
               ))}
@@ -154,13 +149,13 @@ export default function LandingPage() {
 
             <Link href="/console">
               <Button variant="outline" size="sm" className="rounded-xl border-zinc-200 text-xs">
-                商户工作台
+                {getI18nText(locale, "landing_nav_console")}
               </Button>
             </Link>
 
             <Link href="/onboarding">
               <Button size="sm" className="rounded-xl bg-zinc-900 text-white hover:bg-zinc-800 text-xs px-3.5">
-                免费接入
+                {getI18nText(locale, "landing_nav_onboard")}
               </Button>
             </Link>
           </div>
@@ -179,31 +174,39 @@ export default function LandingPage() {
           </div>
 
           <div className="max-w-7xl mx-auto px-4 sm:px-8 relative z-10 text-center">
-            {/* GSAP 进场与语言切换平滑过渡 */}
-            <GsapEntrance triggerKey={lang} direction="up" distance={16} duration={0.38}>
-              {/* 极简超大标题 */}
-              <h1 className="text-4xl sm:text-6xl lg:text-7xl font-sans font-bold tracking-tight text-zinc-950 leading-[1.08] max-w-4xl mx-auto whitespace-pre-line text-balance">
-                {t.headline}
-              </h1>
+            {/* 多语言标题组平滑过渡 (AnimatePresence mode="wait") */}
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={lang}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -8 }}
+                transition={transitions.entrance}
+              >
+                {/* 极简超大标题 */}
+                <h1 className="text-4xl sm:text-6xl lg:text-7xl font-sans font-bold tracking-tight text-zinc-950 leading-[1.08] max-w-4xl mx-auto whitespace-pre-line text-balance">
+                  {headline}
+                </h1>
 
-              {/* 优雅呼吸感副标 */}
-              <p className="text-base sm:text-lg lg:text-xl text-zinc-600 font-sans leading-relaxed max-w-2xl mx-auto pt-6 text-balance">
-                {t.subhead}
-              </p>
-            </GsapEntrance>
+                {/* 优雅呼吸感副标 */}
+                <p className="text-base sm:text-lg lg:text-xl text-zinc-600 font-sans leading-relaxed max-w-2xl mx-auto pt-6 text-balance">
+                  {subhead}
+                </p>
+              </motion.div>
+            </AnimatePresence>
 
             {/* 行动召唤按钮组 (GSAP 进场) */}
             <GsapEntrance direction="up" distance={12} delay={0.12} duration={0.35}>
               <div className="flex flex-wrap items-center justify-center gap-3.5 pt-8 sm:pt-10">
                 <Link href="/onboarding">
                   <Button size="lg" className="h-12 px-7 text-xs bg-zinc-900 text-white hover:bg-zinc-800 rounded-xl shadow-sm">
-                    免费接入 (Claim 100 Credits)
+                    {getI18nText(locale, "landing_hero_claim_badge")}
                     <ArrowRight className="w-4 h-4 ml-2" />
                   </Button>
                 </Link>
                 <a href="#sandbox">
                   <Button variant="outline" size="lg" className="h-12 px-6 text-xs rounded-xl border-zinc-200 text-zinc-700 hover:bg-zinc-50 hover:text-zinc-900">
-                    体验交互沙盒
+                    {getI18nText(locale, "landing_hero_sandbox_btn")}
                   </Button>
                 </a>
                 <Button
@@ -212,7 +215,7 @@ export default function LandingPage() {
                   onClick={() => setPayModalOpen(true)}
                   className="h-12 px-5 text-xs text-zinc-600 hover:text-zinc-950"
                 >
-                  Solana Pay 体验 →
+                  {getI18nText(locale, "landing_hero_solana_pay_btn")}
                 </Button>
               </div>
             </GsapEntrance>
@@ -239,7 +242,7 @@ export default function LandingPage() {
                     +18.4%
                   </div>
                   <div className="text-xs font-mono text-zinc-500 mt-1.5 uppercase">
-                    待支付弃购挽回率
+                    {getI18nText(locale, "landing_metric_recovery")}
                   </div>
                 </div>
 
@@ -248,7 +251,7 @@ export default function LandingPage() {
                     -6.2%
                   </div>
                   <div className="text-xs font-mono text-zinc-500 mt-1.5 uppercase">
-                    COD 拒签退运损失
+                    {getI18nText(locale, "landing_metric_cod")}
                   </div>
                 </div>
 
@@ -257,7 +260,7 @@ export default function LandingPage() {
                     &lt; 3.2s
                   </div>
                   <div className="text-xs font-mono text-zinc-500 mt-1.5 uppercase">
-                    夜间买家平均响应
+                    {getI18nText(locale, "landing_metric_response")}
                   </div>
                 </div>
 
@@ -266,7 +269,7 @@ export default function LandingPage() {
                     $0.00025
                   </div>
                   <div className="text-xs font-mono text-zinc-500 mt-1.5 uppercase">
-                    链上单笔结算手续费
+                    {getI18nText(locale, "landing_metric_gas")}
                   </div>
                 </div>
               </GsapStagger>
@@ -279,13 +282,13 @@ export default function LandingPage() {
           <div className="max-w-7xl mx-auto space-y-10 sm:space-y-12">
             <div className="max-w-2xl space-y-3">
               <div className="text-xs font-mono text-emerald-600 font-semibold uppercase tracking-wider">
-                02 · INTERACTIVE WORKFLOW SIMULATOR
+                {getI18nText(locale, "landing_sec2_badge")}
               </div>
               <h2 className="text-2xl sm:text-4xl font-sans font-bold tracking-tight text-zinc-950">
-                出海业务交互演练台
+                {getI18nText(locale, "landing_sec2_title")}
               </h2>
               <p className="text-sm sm:text-base text-zinc-600 font-sans leading-relaxed">
-                点击切换 4 大出海真实场景，体验东南亚本土多语言原声解析、COD 发货前地标校准与订单全流程实时流转。
+                {getI18nText(locale, "landing_sec2_desc")}
               </p>
             </div>
 
@@ -298,13 +301,13 @@ export default function LandingPage() {
           <div className="max-w-7xl mx-auto space-y-12 sm:space-y-14">
             <div className="max-w-2xl space-y-3">
               <div className="text-xs font-mono text-indigo-600 font-semibold uppercase tracking-wider">
-                03 · ENTERPRISE CAPABILITIES & INFRASTRUCTURE
+                {getI18nText(locale, "landing_sec3_badge")}
               </div>
               <h2 className="text-2xl sm:text-4xl font-sans font-bold tracking-tight text-zinc-950">
-                5 大企业级核心能力与业务基建
+                {getI18nText(locale, "landing_sec3_title")}
               </h2>
               <p className="text-sm sm:text-base text-zinc-600 font-sans leading-relaxed">
-                专为东南亚多国跨境生态打造的高可用自动化服务矩阵与企业级基础设施。
+                {getI18nText(locale, "landing_sec3_desc")}
               </p>
             </div>
 
@@ -313,13 +316,13 @@ export default function LandingPage() {
               <div className="md:col-span-7 p-7 sm:p-9 border border-zinc-200/80 rounded-2xl bg-white flex flex-col justify-between hover:border-zinc-400/80 transition-all shadow-xs">
                 <div>
                   <div className="text-xs font-mono text-emerald-700 font-semibold mb-4">
-                    01 · NLP & DIALECT
+                    {getI18nText(locale, "landing_card1_tag")}
                   </div>
                   <h3 className="text-xl sm:text-2xl font-sans font-bold text-zinc-950 tracking-tight mb-3">
-                    东南亚多语言与印尼俚语深度解析
+                    {getI18nText(locale, "landing_card1_title")}
                   </h3>
                   <p className="text-sm sm:text-base text-zinc-600 leading-relaxed font-sans mb-6">
-                    不仅掌握标准印尼语（Bahasa Indonesia），更精准识别雅加达本土口语缩写（Bahasa Gaul，如 <em>min, ongkir, ga nyasar</em>）与泰语礼貌语气助词（<em>krub/ka</em>）。
+                    {getI18nText(locale, "landing_card1_desc")}
                   </p>
 
                   {/* 东南亚跨境多语言与印尼俚语高阶解析视窗 */}
@@ -328,8 +331,8 @@ export default function LandingPage() {
                   </div>
                 </div>
                 <div className="mt-8 pt-5 border-t border-zinc-100 flex items-center justify-between text-xs font-mono text-zinc-500">
-                  <span className="text-emerald-700 font-medium">印尼语 • 泰语 • 英语 • 越南语</span>
-                  <span className="font-semibold text-zinc-900">99.8% 意图分类率</span>
+                  <span className="text-emerald-700 font-medium">{getI18nText(locale, "landing_card1_footer_left")}</span>
+                  <span className="font-semibold text-zinc-900">{getI18nText(locale, "landing_card1_footer_right")}</span>
                 </div>
               </div>
 
@@ -337,13 +340,13 @@ export default function LandingPage() {
               <div className="md:col-span-5 p-7 sm:p-9 border border-zinc-200/80 rounded-2xl bg-white flex flex-col justify-between hover:border-zinc-400/80 transition-all shadow-xs">
                 <div>
                   <div className="text-xs font-mono text-indigo-700 font-semibold mb-4">
-                    02 · SOLANA PAY
+                    {getI18nText(locale, "landing_card2_tag")}
                   </div>
                   <h3 className="text-xl sm:text-2xl font-sans font-bold text-zinc-950 tracking-tight mb-3">
-                    Solana Pay 毫秒级原生结算
+                    {getI18nText(locale, "landing_card2_title")}
                   </h3>
                   <p className="text-sm sm:text-base text-zinc-600 leading-relaxed font-sans mb-6">
-                    0 传统跨国信用卡 3% 货币兑换与通道手续费损耗。原生 USDC 充值即时到账，单笔手续费低至 $0.00025。
+                    {getI18nText(locale, "landing_card2_desc")}
                   </p>
 
                   {/* Solana Pay 毫秒级原生结算引擎与通道对比视窗 */}
@@ -361,17 +364,17 @@ export default function LandingPage() {
               <div className="md:col-span-4 p-7 sm:p-8 border border-zinc-200/80 rounded-2xl bg-white hover:border-zinc-400/80 transition-all shadow-xs flex flex-col justify-between">
                 <div>
                   <div className="text-xs font-mono text-zinc-500 mb-4 font-semibold">
-                    03 · STORE WEBHOOK
+                    {getI18nText(locale, "landing_card3_tag")}
                   </div>
                   <h3 className="text-lg font-sans font-bold text-zinc-950 tracking-tight mb-2">
-                    全渠道电商店铺秒级直连
+                    {getI18nText(locale, "landing_card3_title")}
                   </h3>
                   <p className="text-sm text-zinc-600 leading-relaxed font-sans">
-                    WooCommerce 与 Shopify 官方 Webhook 150ms 极速接入，自动同步订单变动与买家地址。
+                    {getI18nText(locale, "landing_card3_desc")}
                   </p>
                 </div>
                 <div className="mt-6 pt-4 border-t border-zinc-100 text-xs font-mono text-zinc-500">
-                  <span>Webhook 150ms 接入</span>
+                  <span>{getI18nText(locale, "landing_card3_footer")}</span>
                 </div>
               </div>
 
@@ -379,17 +382,17 @@ export default function LandingPage() {
               <div className="md:col-span-4 p-7 sm:p-8 border border-zinc-200/80 rounded-2xl bg-white hover:border-zinc-400/80 transition-all shadow-xs flex flex-col justify-between">
                 <div>
                   <div className="text-xs font-mono text-zinc-500 mb-4 font-semibold">
-                    04 · COD SHIELD
+                    {getI18nText(locale, "landing_card4_tag")}
                   </div>
                   <h3 className="text-lg font-sans font-bold text-zinc-950 tracking-tight mb-2">
-                    COD 拒签发货前防护盾
+                    {getI18nText(locale, "landing_card4_title")}
                   </h3>
                   <p className="text-sm text-zinc-600 leading-relaxed font-sans">
-                    结合历史高拒签热力图与空号探测，发货前一键要求补充真实地标，大幅截流往返物流亏损。
+                    {getI18nText(locale, "landing_card4_desc")}
                   </p>
                 </div>
                 <div className="mt-6 pt-4 border-t border-zinc-100 text-xs font-mono text-zinc-500">
-                  <span>截流 6.2% 运费损耗</span>
+                  <span>{getI18nText(locale, "landing_card4_footer")}</span>
                 </div>
               </div>
 
@@ -397,17 +400,17 @@ export default function LandingPage() {
               <div className="md:col-span-4 p-7 sm:p-8 border border-zinc-200/80 rounded-2xl bg-white hover:border-zinc-400/80 transition-all shadow-xs flex flex-col justify-between">
                 <div>
                   <div className="text-xs font-mono text-zinc-500 mb-4 font-semibold">
-                    05 · HUMAN TAKEOVER
+                    {getI18nText(locale, "landing_card5_tag")}
                   </div>
                   <h3 className="text-lg font-sans font-bold text-zinc-950 tracking-tight mb-2">
-                    人机协同无感接管工作台
+                    {getI18nText(locale, "landing_card5_title")}
                   </h3>
                   <p className="text-sm text-zinc-600 leading-relaxed font-sans">
-                    买家情绪波动或议价纠纷时自动暂停 AI 规则，零延迟平滑转交商户人工坐席，保障买家信任。
+                    {getI18nText(locale, "landing_card5_desc")}
                   </p>
                 </div>
                 <div className="mt-6 pt-4 border-t border-zinc-100 text-xs font-mono text-zinc-500">
-                  <span>平滑转交零延迟</span>
+                  <span>{getI18nText(locale, "landing_card5_footer")}</span>
                 </div>
               </div>
             </div>
@@ -419,13 +422,13 @@ export default function LandingPage() {
           <div className="max-w-7xl mx-auto space-y-10 sm:space-y-12">
             <div className="max-w-2xl space-y-3">
               <div className="text-xs font-mono text-emerald-600 font-semibold uppercase tracking-wider">
-                04 · PROFIT RECOVERY MODEL
+                {getI18nText(locale, "landing_sec4_badge")}
               </div>
               <h2 className="text-2xl sm:text-4xl font-sans font-bold tracking-tight text-zinc-950">
-                跨境出海 ROI 动态利润计算器
+                {getI18nText(locale, "landing_sec4_title")}
               </h2>
               <p className="text-sm sm:text-base text-zinc-600 font-sans leading-relaxed">
-                基于月订单量与平均客单价，实时测算挽回未支付 GMV 与减少的 COD 物流损耗。
+                {getI18nText(locale, "landing_sec4_desc")}
               </p>
             </div>
 
@@ -442,15 +445,15 @@ export default function LandingPage() {
             {/* 标头区域 */}
             <div className="max-w-3xl mx-auto space-y-4">
               <div className="inline-flex items-center gap-2 text-xs font-mono text-zinc-400 border border-zinc-800 px-3.5 py-1.5 rounded-full bg-zinc-900/60 shadow-2xs">
-                <span>CLAIM YOUR ONBOARDING CREDITS · 6 STEPS WIZARD</span>
+                <span>{getI18nText(locale, "landing_sec5_badge")}</span>
               </div>
 
               <h2 className="text-3xl sm:text-5xl lg:text-6xl font-sans font-bold tracking-tight text-white leading-tight">
-                立即接入您的首个出海店铺
+                {getI18nText(locale, "landing_sec5_title")}
               </h2>
 
               <p className="text-sm sm:text-base text-zinc-400 font-sans max-w-xl mx-auto leading-relaxed">
-                完成 6 步商户初始化向导，即刻获得 100 免费 Credits 体验额度，无需绑定信用卡，零门槛开启东南亚跨境智能订单自动化。
+                {getI18nText(locale, "landing_sec5_desc")}
               </p>
             </div>
 
@@ -462,20 +465,20 @@ export default function LandingPage() {
               <div className="pt-2 border-t border-zinc-800/60 grid grid-cols-1 sm:grid-cols-3 gap-3 text-left">
                 <div className="p-3 bg-zinc-950/60 border border-zinc-800/70 rounded-xl">
                   <div className="text-[10px] font-mono text-emerald-400 font-bold mb-1">STEP 01</div>
-                  <div className="text-xs font-bold text-white">店铺免密授权</div>
-                  <div className="text-[11px] text-zinc-400 font-sans mt-0.5">Shopify / WooCommerce Webhook 秒级直连</div>
+                  <div className="text-xs font-bold text-white">{getI18nText(locale, "landing_sec5_step1_title")}</div>
+                  <div className="text-[11px] text-zinc-400 font-sans mt-0.5">{getI18nText(locale, "landing_sec5_step1_desc")}</div>
                 </div>
 
                 <div className="p-3 bg-zinc-950/60 border border-zinc-800/70 rounded-xl">
                   <div className="text-[10px] font-mono text-emerald-400 font-bold mb-1">STEP 02</div>
-                  <div className="text-xs font-bold text-white">绑定 WhatsApp</div>
-                  <div className="text-[11px] text-zinc-400 font-sans mt-0.5">官方 WABA 号码接入，下发获批本地化模板</div>
+                  <div className="text-xs font-bold text-white">{getI18nText(locale, "landing_sec5_step2_title")}</div>
+                  <div className="text-[11px] text-zinc-400 font-sans mt-0.5">{getI18nText(locale, "landing_sec5_step2_desc")}</div>
                 </div>
 
                 <div className="p-3 bg-zinc-950/60 border border-zinc-800/70 rounded-xl">
                   <div className="text-[10px] font-mono text-emerald-400 font-bold mb-1">STEP 03</div>
-                  <div className="text-xs font-bold text-white">激活 100 额度</div>
-                  <div className="text-[11px] text-zinc-400 font-sans mt-0.5">首批 100 笔订单免密测试，实时自动挽回与核验</div>
+                  <div className="text-xs font-bold text-white">{getI18nText(locale, "landing_sec5_step3_title")}</div>
+                  <div className="text-[11px] text-zinc-400 font-sans mt-0.5">{getI18nText(locale, "landing_sec5_step3_desc")}</div>
                 </div>
               </div>
             </div>
@@ -484,7 +487,7 @@ export default function LandingPage() {
             <div className="flex flex-wrap items-center justify-center gap-4 pt-2">
               <Link href="/onboarding">
                 <Button size="lg" className="h-12 px-8 text-xs bg-white text-zinc-950 hover:bg-zinc-200 font-medium rounded-xl shadow-sm">
-                  立即免费接入 (Claim 100 Credits)
+                  {getI18nText(locale, "landing_sec5_btn_claim")}
                   <ArrowRight className="w-4 h-4 ml-2" />
                 </Button>
               </Link>
@@ -494,7 +497,7 @@ export default function LandingPage() {
                 onClick={() => setPayModalOpen(true)}
                 className="h-12 px-8 text-xs border-zinc-800 bg-zinc-900/50 hover:bg-zinc-800 text-zinc-200 rounded-xl"
               >
-                Solana Pay Devnet 充值体验
+                {getI18nText(locale, "landing_sec5_btn_pay")}
               </Button>
             </div>
 
@@ -504,9 +507,9 @@ export default function LandingPage() {
                 <div className="w-7 h-7 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center">
                   <Sparkles className="w-3.5 h-3.5 text-emerald-400" />
                 </div>
-                <div className="text-xs font-bold text-white">100 Credits 赠送</div>
+                <div className="text-xs font-bold text-white">{getI18nText(locale, "landing_sec5_trust1_title")}</div>
                 <div className="text-[11px] text-zinc-400 font-sans leading-relaxed">
-                  无需预充值或绑定信用卡，即可完整跑通东南亚多语言唤回真实流程。
+                  {getI18nText(locale, "landing_sec5_trust1_desc")}
                 </div>
               </div>
 
@@ -514,9 +517,9 @@ export default function LandingPage() {
                 <div className="w-7 h-7 rounded-lg bg-zinc-800 flex items-center justify-center">
                   <Zap className="w-3.5 h-3.5 text-zinc-200" />
                 </div>
-                <div className="text-xs font-bold text-white">3 分钟零代码接入</div>
+                <div className="text-xs font-bold text-white">{getI18nText(locale, "landing_sec5_trust2_title")}</div>
                 <div className="text-[11px] text-zinc-400 font-sans leading-relaxed">
-                  标准化 Webhook 接入，订单状态与物流信息 150ms 内极速双向同步。
+                  {getI18nText(locale, "landing_sec5_trust2_desc")}
                 </div>
               </div>
 
@@ -524,9 +527,9 @@ export default function LandingPage() {
                 <div className="w-7 h-7 rounded-lg bg-zinc-800 flex items-center justify-center">
                   <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
                 </div>
-                <div className="text-xs font-bold text-white">Meta 官方 BAA 合规</div>
+                <div className="text-xs font-bold text-white">{getI18nText(locale, "landing_sec5_trust3_title")}</div>
                 <div className="text-[11px] text-zinc-400 font-sans leading-relaxed">
-                  通过 Meta Cloud API 官方合规链路传输，数据脱敏，杜绝第三方外挂封号风险。
+                  {getI18nText(locale, "landing_sec5_trust3_desc")}
                 </div>
               </div>
 
@@ -534,9 +537,9 @@ export default function LandingPage() {
                 <div className="w-7 h-7 rounded-lg bg-zinc-800 flex items-center justify-center">
                   <Coins className="w-3.5 h-3.5 text-zinc-200" />
                 </div>
-                <div className="text-xs font-bold text-white">USDC 毫秒原生结算</div>
+                <div className="text-xs font-bold text-white">{getI18nText(locale, "landing_sec5_trust4_title")}</div>
                 <div className="text-[11px] text-zinc-400 font-sans leading-relaxed">
-                  后续充值支持 Solana Pay，0 传统信用卡 3% 汇兑损耗，单笔手续费仅 $0.00025。
+                  {getI18nText(locale, "landing_sec5_trust4_desc")}
                 </div>
               </div>
             </div>
@@ -549,8 +552,7 @@ export default function LandingPage() {
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between text-xs font-mono text-zinc-500 gap-4">
           <div className="flex flex-wrap items-center gap-3">
             <span className="font-bold text-zinc-950 font-sans">SolaFlow AI</span>
-            <span>• Meta BAA & GDPR Compliant</span>
-            <span>• Southeast Asia E-Commerce Platform</span>
+            <span>• {getI18nText(locale, "landing_footer_text")}</span>
           </div>
           <div>
             <span>Markets: ID • TH • VN • PH • MY • SG · Copyright © 2026</span>

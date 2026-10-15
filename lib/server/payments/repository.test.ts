@@ -23,7 +23,7 @@ beforeAll(async () => {
   await engine.exec(schema);
   await engine.exec(schema);
 });
-beforeEach(async () => { await engine.exec("TRUNCATE payment_candidates,payment_transfers,test_credit_ledger,payment_orders CASCADE"); });
+beforeEach(async () => { await engine.exec("TRUNCATE devnet_payment_candidates,payment_transfers,test_credit_ledger,devnet_payment_orders CASCADE"); });
 afterAll(() => engine.close());
 
 describe("PostgreSQL settlement", () => {
@@ -77,7 +77,7 @@ describe("PostgreSQL settlement", () => {
     await repository.record(order.id, testSignature, "confirmed");
     expect(await repository.delete(order.id, tenant)).toBe(true);
     expect(await repository.get(order.id, tenant)).toBeNull();
-    expect((await db.query("SELECT * FROM payment_candidates WHERE order_id=$1", [order.id])).rows).toHaveLength(0);
+    expect((await db.query("SELECT * FROM devnet_payment_candidates WHERE order_id=$1", [order.id])).rows).toHaveLength(0);
     expect(await repository.delete(order.id, tenant)).toBe(false);
   });
   it("forbids deleting credited or confirmed orders to preserve financial records", async () => {
@@ -134,7 +134,7 @@ describe("reconciliation", () => {
     chain.transaction = async (id) => id === testSignature ? transactionFixture() : {};
     await reconcile(order, chain, repository);
     expect((await repository.billing(tenant)).availableCredits).toBe(100);
-    expect((await db.query("SELECT * FROM payment_candidates")).rows).toHaveLength(101);
+    expect((await db.query("SELECT * FROM devnet_payment_candidates")).rows).toHaveLength(101);
   });
   it("fails closed on network or RPC failures", async () => {
     const order = await repository.create(orderFixture(), randomUUID());

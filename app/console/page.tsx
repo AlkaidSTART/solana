@@ -16,7 +16,12 @@ import {
   Sparkles,
 } from "lucide-react";
 import { Tabs } from "@/components/ui/tabs";
-import { GsapEntrance, GsapStagger } from "@/components/ui/gsap-transition";
+import { GsapEntrance } from "@/components/ui/gsap-transition";
+import {
+  MotionEntrance,
+  MotionStagger,
+  MotionStaggerItem,
+} from "@/components/ui/motion-transition";
 import {
   MOCK_CONTROL_GROUP_METRICS,
   MOCK_OVERVIEW_SUMMARY_STATS,
@@ -24,7 +29,8 @@ import {
 import { useOnboardingStore } from "@/stores/use-onboarding-store";
 import type { OrderItem } from "@/stores/use-app-store";
 import { useQuery } from "@tanstack/react-query";
-import { billingApi, ordersApi, tenantApi, type ApiOrderRecord } from "@/lib/api";
+import { billingApi, ordersApi, tenantApi, authApi, type ApiOrderRecord } from "@/lib/api";
+import { UserAssetsBanner } from "@/components/console/user-assets-banner";
 
 export default function ConsoleOverviewPage() {
   const { credits, orders, conversations, locale, currentStoreId } = useAppStore();
@@ -47,6 +53,12 @@ export default function ConsoleOverviewPage() {
   const { data: tenant } = useQuery({
     queryKey: ["tenant"],
     queryFn: () => tenantApi.getTenant(),
+    retry: false,
+  });
+
+  const { data: sessionData } = useQuery({
+    queryKey: ["auth-session"],
+    queryFn: () => authApi.getSession(),
     retry: false,
   });
 
@@ -226,15 +238,20 @@ export default function ConsoleOverviewPage() {
         </div>
       </div>
 
-      {/* ROW 1: 四大核心高密指标卡片 (GSAP 级联交错出现) */}
-      <GsapStagger
-        selector=".stat-card-cell"
-        stagger={0.06}
-        distance={14}
-        duration={0.35}
+      {/* 商户主理人身份与核心数字资产看板 */}
+      <MotionEntrance direction="up" distance={10} delay={0.03} duration={0.25}>
+        <UserAssetsBanner
+          sessionEmail={sessionData?.user?.email}
+          tenantName={tenant?.name}
+        />
+      </MotionEntrance>
+
+      {/* ROW 1: 四大核心高密指标卡片 (Motion 级联交错出现) */}
+      <MotionStagger
+        staggerDelay={0.05}
         className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4"
       >
-        <div className="stat-card-cell h-full">
+        <MotionStaggerItem className="h-full">
           <StatCard
             label={`${getI18nText(locale, "orders_tab_pending")} (${pendingOrders.length})`}
             value={MOCK_OVERVIEW_SUMMARY_STATS.pendingOrdersDefaultCount}
@@ -242,8 +259,8 @@ export default function ConsoleOverviewPage() {
             trend={{ text: getI18nText(locale, "overview_stat_today"), warning: true }}
             indicator={<Badge variant="warning">{getI18nText(locale, "status_pending")}</Badge>}
           />
-        </div>
-        <div className="stat-card-cell h-full">
+        </MotionStaggerItem>
+        <MotionStaggerItem className="h-full">
           <StatCard
             label={getI18nText(locale, "overview_stat_human_queue")}
             value={pendingTakeovers.length}
@@ -251,8 +268,8 @@ export default function ConsoleOverviewPage() {
             trend={{ text: getI18nText(locale, "overview_stat_meta_window"), positive: true }}
             indicator={<Badge variant="danger">{getI18nText(locale, "status_warning")}</Badge>}
           />
-        </div>
-        <div className="stat-card-cell h-full">
+        </MotionStaggerItem>
+        <MotionStaggerItem className="h-full">
           <StatCard
             label={getI18nText(locale, "overview_stat_credits")}
             value={effectiveAvailableCredits.toLocaleString()}
@@ -260,8 +277,8 @@ export default function ConsoleOverviewPage() {
             trend={{ text: getI18nText(locale, "overview_stat_messages_est"), positive: true }}
             indicator={<Badge variant="success">{getI18nText(locale, "status_normal")}</Badge>}
           />
-        </div>
-        <div className="stat-card-cell h-full">
+        </MotionStaggerItem>
+        <MotionStaggerItem className="h-full">
           <StatCard
             label={getI18nText(locale, "overview_stat_recovered")}
             value={MOCK_OVERVIEW_SUMMARY_STATS.recoveredGmvDefaultAmount}
@@ -269,11 +286,11 @@ export default function ConsoleOverviewPage() {
             trend={{ text: getI18nText(locale, "overview_stat_lift"), positive: true }}
             indicator={<TrendingUp className="w-3.5 h-3.5 text-[#059669]" />}
           />
-        </div>
-      </GsapStagger>
+        </MotionStaggerItem>
+      </MotionStagger>
 
-      {/* ROW 2: 真实催付增量效果分析 — 20% 对照组差异模型 (GSAP 平滑进场) */}
-      <GsapEntrance direction="up" distance={16} delay={0.12} duration={0.36}>
+      {/* ROW 2: 真实催付增量效果分析 — 20% 对照组差异模型 (Motion 平滑进场) */}
+      <MotionEntrance direction="up" distance={12} delay={0.1} duration={0.28}>
       <Card>
         <CardHeader>
           <div className="flex flex-col sm:flex-row sm:items-center justify-between w-full gap-2">
@@ -374,18 +391,15 @@ export default function ConsoleOverviewPage() {
           </div>
         </CardContent>
       </Card>
-      </GsapEntrance>
+      </MotionEntrance>
 
-      {/* ROW 3: 紧急待办与高危事件队列 (GSAP 级联交错出现) */}
-      <GsapStagger
-        selector=".queue-card-cell"
-        stagger={0.08}
-        delay={0.18}
-        distance={16}
+      {/* ROW 3: 紧急待办与高危事件队列 (Motion 级联交错出现) */}
+      <MotionStagger
+        staggerDelay={0.06}
         className="grid grid-cols-1 lg:grid-cols-2 gap-6"
       >
         {/* 卡片 A: 待人工接管会话 */}
-        <div className="queue-card-cell h-full">
+        <MotionStaggerItem className="h-full">
           <Card className="h-full">
             <CardHeader>
               <div className="flex items-center justify-between w-full">
@@ -429,10 +443,10 @@ export default function ConsoleOverviewPage() {
               ))}
             </CardContent>
           </Card>
-        </div>
+        </MotionStaggerItem>
 
         {/* 卡片 B: 待处理订单列表 */}
-        <div className="queue-card-cell h-full">
+        <MotionStaggerItem className="h-full">
           <Card className="h-full">
             <CardHeader>
               <div className="flex items-center justify-between w-full">
@@ -473,8 +487,8 @@ export default function ConsoleOverviewPage() {
               ))}
             </CardContent>
           </Card>
-        </div>
-      </GsapStagger>
+        </MotionStaggerItem>
+      </MotionStagger>
     </GsapEntrance>
   );
 }

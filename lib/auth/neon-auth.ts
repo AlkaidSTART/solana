@@ -1,9 +1,9 @@
 /**
  * SolaFlow AI - Neon Auth & OAuth 适配层
- * 对接托管于 Neon Auth 服务的认证端点与第三方 OAuth (Google / GitHub)
+ * 对接托管于 Neon Auth 服务的认证端点与第三方 OAuth (Google)
  */
 
-export type OAuthProvider = "google" | "github" | "microsoft" | "apple";
+export type OAuthProvider = "google";
 
 export interface NeonAuthConfig {
   authUrl: string;
@@ -20,15 +20,12 @@ export interface OAuthUserInfo {
 
 /**
  * 获取当前环境配置的 Neon Auth 端点基础 URL
- * 优先读取 NEXT_PUBLIC_NEON_AUTH_URL，兼容 VITE_NEON_AUTH_URL 与 NEON_AUTH_URL
+ * 优先读取 NEXT_PUBLIC_NEON_AUTH_URL，兼容 NEON_AUTH_URL
  */
 export function getNeonAuthUrl(): string {
   if (typeof process !== "undefined" && process.env) {
     if (process.env.NEXT_PUBLIC_NEON_AUTH_URL) {
       return process.env.NEXT_PUBLIC_NEON_AUTH_URL;
-    }
-    if (process.env.VITE_NEON_AUTH_URL) {
-      return process.env.VITE_NEON_AUTH_URL;
     }
     if (process.env.NEON_AUTH_URL) {
       return process.env.NEON_AUTH_URL;

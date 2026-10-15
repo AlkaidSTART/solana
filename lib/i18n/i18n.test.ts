@@ -319,6 +319,72 @@ describe("i18n Southeast Asia & Singapore Specifications", () => {
       "meta_tenant",
       "meta_timezone",
       "meta_network",
+
+      // User Profile & Assets
+      "user_name_label",
+      "user_email_label",
+      "user_role_label",
+      "user_assets_title",
+      "user_assets_credits",
+      "user_assets_wallet",
+      "user_wallet_address",
+      "user_wallet_connected",
+      "user_wallet_disconnected",
+      "user_wallet_sol_balance",
+      "user_wallet_usdc_balance",
+      "user_profile_edit",
+      "user_action_topup",
+      "user_action_copy_address",
+      "user_copied_address",
+      "user_logout",
+
+      // Landing
+      "landing_nav_console",
+      "landing_nav_onboard",
+      "landing_hero_claim_badge",
+      "landing_metric_recovery",
+      "landing_sec2_title",
+      "landing_sec3_title",
+      "landing_card1_title",
+      "landing_card2_title",
+      "landing_sec5_title",
+
+      // Auth
+      "auth_tagline",
+      "auth_status_live",
+      "auth_back_home",
+      "auth_title_login",
+      "auth_title_register",
+      "auth_email_label",
+      "auth_password_label",
+
+      // Onboarding
+      "onboard_step1_label",
+      "onboard_step2_label",
+      "onboard_step3_label",
+      "onboard_step4_label",
+      "onboard_step5_label",
+      "onboard_step6_label",
+      "onboard_title",
+      "onboard_btn_back",
+      "onboard_btn_next",
+      "onboard_btn_finish",
+
+      // Billing
+      "billing_devnet_title",
+      "billing_devnet_desc",
+      "billing_notice",
+      "billing_server_credits",
+      "billing_buy_title",
+      "billing_create_quote_btn",
+      "billing_orders_title",
+      "billing_qr_modal_title",
+
+      // Console & User Assets
+      "console_wallet_connect_btn",
+      "console_wallet_disconnect_btn",
+      "console_profile_title",
+      "console_capabilities_title",
     ];
 
     for (const locale of SUPPORTED_LOCALES) {
@@ -369,6 +435,11 @@ describe("i18n Southeast Asia & Singapore Specifications", () => {
     expect(getI18nText("th_TH", "settings_save_btn")).toBe("บันทึกการตั้งค่าส่วนกลาง");
     expect(getI18nText("vi_VN", "orders_drawer_approve")).toBe("Duyệt Giao Hàng");
     expect(getI18nText("fil_PH", "inbox_btn_takeover")).toBe("Kunin ang Pag-uusap");
+
+    // Test user & assets keys
+    expect(getI18nText("zh_CN", "user_assets_title")).toBe("商户数字资产");
+    expect(getI18nText("en_US", "user_wallet_connected")).toBe("Connected");
+    expect(getI18nText("en_SG", "user_assets_credits")).toBe("AI Credits");
 
     // Fallback on unknown locale
     expect(getI18nText("fr_FR" as unknown as SupportedLocale, "nav_overview")).toBe("Dashboard");

@@ -15,5 +15,16 @@ export default defineConfig({
     environment: "node",
     include: ["{lib,stores,components}/**/*.test.{ts,tsx}"],
     testTimeout: 30000,
+    coverage: {
+      provider: "v8",
+      reporter: ["text", "lcov"],
+      reportsDirectory: "./coverage",
+      include: [
+        "lib/**/*.{ts,tsx}",
+        "stores/**/*.{ts,tsx}",
+        "components/**/*.{ts,tsx}",
+      ],
+      exclude: ["**/*.test.{ts,tsx}", "**/*.d.ts"],
+    },
   },
 });

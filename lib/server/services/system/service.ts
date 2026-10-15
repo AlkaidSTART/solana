@@ -93,7 +93,7 @@ export async function getCapabilitiesSnapshot(): Promise<CapabilitiesSnapshot> {
       verified: false,
     }),
     whatsapp: projectCapability({
-      implemented: false,
+      implemented: true,
       configured: config.whatsapp === "configured",
       verified: false,
     }),

@@ -10,11 +10,15 @@
     "lint": "eslint",
     "test": "vitest run",
     "test:unit": "vitest run",
+    "test:coverage": "vitest run --coverage",
+    "test:ci": "vitest run --coverage --reporter=default --reporter=junit --outputFile.junit=./test-results/junit.xml",
     "test:e2e": "playwright test",
-    "payments:db": "node --env-file=.env --import tsx scripts/payment-db.ts",
-    "payments:worker": "node --conditions=react-server --env-file=.env --import tsx scripts/payment-worker.ts"
+    "payments:db": "node --env-file-if-exists=.env --env-file-if-exists=.env.local --import tsx scripts/payment-db.ts",
+    "payments:worker": "node --conditions=react-server --env-file-if-exists=.env --env-file-if-exists=.env.local --import tsx scripts/payment-worker.ts",
+    "whatsapp:worker": "node --conditions=react-server --env-file-if-exists=.env --env-file-if-exists=.env.local --import tsx scripts/whatsapp-worker.ts"
   },
   "dependencies": {
+    "@neondatabase/auth": "0.6.0-beta",
     "@solana-program/system": "0.15.0",
     "@solana-program/token": "^0.17.0",
     "@solana/kit": "8.4.0",
@@ -50,6 +54,7 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "@types/three": "^0.186.0",
+    "@vitest/coverage-v8": "^4.1.11",
     "eslint": "^9",
     "eslint-config-next": "16.3.8",
     "tailwindcss": "^4",

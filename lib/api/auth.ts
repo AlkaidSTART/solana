@@ -66,6 +66,14 @@ export const authApi = {
     });
   },
 
+  /** Exchanges an already verified Neon Auth identity for this repository's own session. */
+  async establishNeonSession(locale: string): Promise<OtpVerifyResult> {
+    return apiFetch<OtpVerifyResult>("auth/neon/session", {
+      method: "POST",
+      body: { locale },
+    });
+  },
+
   async switchTenant(tenantId: string): Promise<{ activeMembership: AuthMembership }> {
     return apiFetch<{ activeMembership: AuthMembership }>("auth/switch-tenant", {
       method: "POST",

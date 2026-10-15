@@ -1,15 +1,34 @@
+"use client";
+
 import * as React from "react";
 import { clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
+import { motion, useReducedMotion, type HTMLMotionProps } from "motion/react";
+import { transitions } from "@/lib/animations/motion-transitions";
 
 export interface ButtonProps
-  extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+  extends Omit<HTMLMotionProps<"button">, "children"> {
   variant?: "primary" | "secondary" | "outline" | "ghost" | "danger";
   size?: "sm" | "md" | "lg" | "icon";
+  children?: React.ReactNode;
 }
 
 export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ className, variant = "primary", size = "md", children, disabled, ...props }, ref) => {
+  (
+    {
+      className,
+      variant = "primary",
+      size = "md",
+      children,
+      disabled,
+      whileTap,
+      transition,
+      ...props
+    },
+    ref
+  ) => {
+    const shouldReduceMotion = useReducedMotion();
+
     const baseStyles =
       "inline-flex items-center justify-center font-mono text-xs uppercase tracking-wider transition-colors duration-150 select-none cursor-pointer disabled:cursor-not-allowed disabled:opacity-40 focus-visible:outline-2 focus-visible:outline-[#09090B] focus-visible:outline-offset-2";
 
@@ -33,17 +52,24 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       icon: "h-9 w-9 p-0",
     };
 
+    const tapAnimation =
+      disabled || shouldReduceMotion
+        ? undefined
+        : whileTap || { scale: 0.98 };
+
     return (
-      <button
+      <motion.button
         ref={ref}
         disabled={disabled}
+        whileTap={tapAnimation}
+        transition={transition || transitions.springPress}
         className={twMerge(
           clsx(baseStyles, variantStyles[variant], sizeStyles[size], className)
         )}
         {...props}
       >
         {children}
-      </button>
+      </motion.button>
     );
   }
 );

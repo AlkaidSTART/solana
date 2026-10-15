@@ -12,6 +12,7 @@ import {
   Plus,
   Clock,
   CheckCircle2,
+  AlertTriangle,
   Send,
 } from "lucide-react";
 import { useAppStore } from "@/stores/use-app-store";
@@ -31,11 +32,12 @@ import { storesApi, channelsApi, type StoreItem } from "@/lib/api";
 export default function ConsoleStoresPage() {
   const queryClient = useQueryClient();
   const { locale } = useAppStore();
-  const [pingStatus, setPingStatus] = useState<"idle" | "testing" | "success">("idle");
+  const [pingStatus, setPingStatus] = useState<"idle" | "testing" | "queued" | "failed">("idle");
   const [selectedTemplate, setSelectedTemplate] = useState<TemplateItem | null>(null);
   const [testDrawerOpen, setTestDrawerOpen] = useState(false);
   const [testPhone, setTestPhone] = useState(MOCK_STORE_FORM_PRESETS.testPhone);
-  const [testResult, setTestResult] = useState<string | null>(null);
+  const [testTemplateId, setTestTemplateId] = useState("");
+  const [testResult, setTestResult] = useState<{ tone: "queued" | "error"; text: string } | null>(null);
 
   // 绑定新店铺模态框
   const [bindStoreModalOpen, setBindStoreModalOpen] = useState(false);
@@ -74,21 +76,32 @@ export default function ConsoleStoresPage() {
     retry: false,
   });
 
+  const activeChannelId = apiChannelsData?.[0]?.id;
+
+  const { data: apiTemplatesData } = useQuery({
+    queryKey: ["channel-templates", activeChannelId],
+    queryFn: () => channelsApi.listTemplates(activeChannelId as string, { status: "approved" }),
+    enabled: Boolean(activeChannelId),
+    retry: false,
+  });
+
+  const approvedTemplates = apiTemplatesData ?? [];
+  const selectedTestTemplateId = testTemplateId || approvedTemplates[0]?.id || "";
+
   // 连通性测试 Mutation
   const pingMutation = useMutation({
     mutationFn: async () => {
       setPingStatus("testing");
-      const channelId = apiChannelsData?.[0]?.id;
-      if (channelId) {
-        await channelsApi.verifyChannel(channelId);
+      if (!activeChannelId) {
+        throw new Error("尚未绑定 WhatsApp 渠道");
       }
+      await channelsApi.verifyChannel(activeChannelId);
     },
     onSuccess: () => {
-      setPingStatus("success");
+      setPingStatus("queued");
     },
     onError: () => {
-      // 优雅降级在离线沙盒模式下的探测成功
-      setPingStatus("success");
+      setPingStatus("failed");
     },
   });
 
@@ -100,19 +113,28 @@ export default function ConsoleStoresPage() {
   const sendTestMsgMutation = useMutation({
     mutationFn: async () => {
       setTestResult(null);
-      const channelId = apiChannelsData?.[0]?.id;
-      if (channelId) {
-        await channelsApi.sendTestMessage(channelId, {
-          templateId: "00000000-0000-0000-0000-000000000001",
-          testRecipient: testPhone.startsWith("+") ? testPhone : `+${testPhone}`,
-        });
+      if (!activeChannelId) {
+        throw new Error("尚未绑定 WhatsApp 渠道");
       }
+      if (!selectedTestTemplateId) {
+        throw new Error("没有已批准的模板，请先同步并等待模板获批");
+      }
+      return channelsApi.sendTestMessage(activeChannelId, {
+        templateId: selectedTestTemplateId,
+        testRecipient: testPhone.startsWith("+") ? testPhone : `+${testPhone}`,
+      });
     },
-    onSuccess: () => {
-      setTestResult("消息成功通过 Meta Cloud API 下发！响应延迟 138ms · Message ID: wamid.HBgMOTEyMzgx");
+    onSuccess: (result) => {
+      setTestResult({
+        tone: "queued",
+        text: `测试消息已提交（任务 ${result.operationId}），等待 WhatsApp 送达回执确认。`,
+      });
     },
-    onError: () => {
-      setTestResult("消息成功通过 Meta Cloud API 下发 (沙盒模式)！响应延迟 138ms · Message ID: wamid.HBgMOTEyMzgx");
+    onError: (error) => {
+      setTestResult({
+        tone: "error",
+        text: `测试消息未提交：${error instanceof Error ? error.message : "请求失败"}`,
+      });
     },
   });
 
@@ -285,8 +307,10 @@ export default function ConsoleStoresPage() {
               <div className="text-xs font-mono text-zinc-500 flex items-center gap-2">
                 <Clock className="w-4 h-4 text-emerald-600" />
                 <span>
-                  {pingStatus === "success"
-                    ? "Webhook 探测成功: HTTP 200 OK • 响应延迟 148ms"
+                  {pingStatus === "queued"
+                    ? "渠道校验任务已提交，结果以渠道状态与校验证据为准"
+                    : pingStatus === "failed"
+                    ? "渠道校验任务提交失败，请检查渠道配置后重试"
                     : `Webhook 订阅正常监听中 (Token 有效期剩余 ${MOCK_WABA_ACCOUNT_INFO.tokenDaysLeft} 天)`}
                 </span>
               </div>
@@ -438,10 +462,21 @@ export default function ConsoleStoresPage() {
             <label className="text-zinc-500 uppercase text-[10px] block mb-1 font-bold">
               {getI18nText(locale, "stores_drawer_ping_template")}
             </label>
-            <select className="w-full p-2.5 border border-zinc-200 rounded-lg text-xs font-mono bg-white focus:outline-none cursor-pointer">
-              <option>abandoned_cart_recovery_id</option>
-              <option>cod_address_verify_id</option>
-              <option>abandoned_cart_recovery_th</option>
+            <select
+              value={selectedTestTemplateId}
+              onChange={(e) => setTestTemplateId(e.target.value)}
+              disabled={approvedTemplates.length === 0}
+              className="w-full p-2.5 border border-zinc-200 rounded-lg text-xs font-mono bg-white focus:outline-none cursor-pointer disabled:bg-zinc-50 disabled:cursor-not-allowed"
+            >
+              {approvedTemplates.length === 0 ? (
+                <option value="">{getI18nText(locale, "overview_tab_empty")}</option>
+              ) : (
+                approvedTemplates.map((template) => (
+                  <option key={template.id} value={template.id}>
+                    {template.name} ({template.locale})
+                  </option>
+                ))
+              )}
             </select>
           </div>
 
@@ -450,9 +485,20 @@ export default function ConsoleStoresPage() {
           </div>
 
           {testResult && (
-            <div className="p-3 bg-emerald-50 rounded-lg border border-emerald-200 text-[11px] text-emerald-900 flex items-center gap-2">
-              <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
-              <span>{testResult}</span>
+            <div
+              className={clsx(
+                "p-3 rounded-lg border text-[11px] flex items-center gap-2",
+                testResult.tone === "queued"
+                  ? "bg-emerald-50 border-emerald-200 text-emerald-900"
+                  : "bg-red-50 border-red-200 text-red-900"
+              )}
+            >
+              {testResult.tone === "queued" ? (
+                <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+              ) : (
+                <AlertTriangle className="w-4 h-4 text-red-600 shrink-0" />
+              )}
+              <span>{testResult.text}</span>
             </div>
           )}
 
