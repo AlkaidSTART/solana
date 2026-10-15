@@ -33,6 +33,9 @@ describe("UserAssetsBanner Component", () => {
     // 验证 Solana Devnet 钱包资产
     expect(html).toContain("2.450 SOL");
     expect(html).toContain("350.00 USDC");
+    // 验证默认头像采用 lucide-react 的 User 图标
+    expect(html).toContain("lucide-user");
+    expect(html).not.toContain("AR");
     // 验证 GMV 挽回资产
     expect(html).toContain("$14,250");
   });
