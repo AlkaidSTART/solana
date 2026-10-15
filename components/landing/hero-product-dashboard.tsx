@@ -11,114 +11,11 @@ import {
   Globe2,
 } from "lucide-react";
 import { clsx } from "clsx";
-
-interface FeedOrder {
-  id: string;
-  orderNumber: string;
-  buyerName: string;
-  location: string;
-  amount: string;
-  currency: string;
-  type: "COD_VERIFIED" | "RECOVERED" | "AUTO_INQUIRY";
-  typeLabel: string;
-  timeAgo: string;
-  riskScore: number;
-  botDialogue: {
-    buyerText: string;
-    buyerTime: string;
-    botText: string;
-    botTime: string;
-    actionBadge: string;
-    erpSyncedText: string;
-  };
-}
-
-const LIVE_ORDERS: FeedOrder[] = [
-  {
-    id: "ord_1",
-    orderNumber: "ORD-ID-9821",
-    buyerName: "Rizky Firmansyah",
-    location: "雅加达南区 (Jakarta Selatan)",
-    amount: "Rp 349.000",
-    currency: "IDR",
-    type: "COD_VERIFIED",
-    typeLabel: "COD 发货前核验",
-    timeAgo: "1 分钟前",
-    riskScore: 6,
-    botDialogue: {
-      buyerText: "Halo min, tolong di paket tulis depan Alfamart seberang masjid ya min, biar kurir ga nyasar.",
-      buyerTime: "14:08 WIB",
-      botText: "Siap Kak Rizky! Alamat sudah kami lengkapi dengan patokan Alfamart. Paket segera dikirim sore ini ya!",
-      botTime: "14:08 WIB",
-      actionBadge: "地标自动校准 · J&T 物流面单同步",
-      erpSyncedText: "WooCommerce #9821 状态变更: 发货就绪 (COD Verified)",
-    },
-  },
-  {
-    id: "ord_2",
-    orderNumber: "ORD-TH-4412",
-    buyerName: "Somchai Prasert",
-    location: "曼谷 (Bangkok)",
-    amount: "฿ 1,250",
-    currency: "THB",
-    type: "RECOVERED",
-    typeLabel: "15 分钟弃购挽回",
-    timeAgo: "3 分钟前",
-    riskScore: 2,
-    botDialogue: {
-      buyerText: "สวัสดีครับ มีโค้ดส่วนลดค่าส่งไหมครับ กำลังจะชำระเงิน",
-      buyerTime: "14:05 ICT",
-      botText: "สวัสดีครับคุณ Somchai! มอบส่วนลดพิเศษ 10% ให้ทันที กดลิงก์นี้เพื่อชำระเงินได้เลยครับ ขอบคุณครับ",
-      botTime: "14:05 ICT",
-      actionBadge: "动态结账优惠券已发放 · PromptPay 扫码支付",
-      erpSyncedText: "Shopify #TH-4412 补付成功: GMV 已挽回 (US$ 36.80)",
-    },
-  },
-  {
-    id: "ord_3",
-    orderNumber: "ORD-VN-3108",
-    buyerName: "Nguyen Van Minh",
-    location: "胡志明市 (Ho Chi Minh)",
-    amount: "₫ 850.000",
-    currency: "VND",
-    type: "AUTO_INQUIRY",
-    typeLabel: "夜间智能咨询应答",
-    timeAgo: "8 分钟前",
-    riskScore: 4,
-    botDialogue: {
-      buyerText: "Shop ơi mẫu này size 42 còn hàng không ạ? Giao HCMC mấy ngày nhận được?",
-      buyerTime: "02:14 ICT",
-      botText: "Dạ chào bạn! Size 42 hiện còn 3 đôi tại kho. Giao HCMC hoả tốc 1-2 ngày là nhận được ạ!",
-      botTime: "02:14 ICT",
-      actionBadge: "02:14 夜间 1.8s 毫秒应答 · 转化促成",
-      erpSyncedText: "库存锁定就绪 · 避免夜间买家跳失流失",
-    },
-  },
-  {
-    id: "ord_4",
-    orderNumber: "ORD-SG-1092",
-    buyerName: "Marcus Tan",
-    location: "新加坡 (Jurong West)",
-    amount: "S$ 148.00",
-    currency: "SGD",
-    type: "RECOVERED",
-    typeLabel: "Singlish 极速召回",
-    timeAgo: "刚刚",
-    riskScore: 2,
-    botDialogue: {
-      buyerText: "Hi can PayNow anot? Need size 10 chopped before checkout leh.",
-      buyerTime: "15:28 SGT",
-      botText: "No problem Marcus! Size 10 chopped for you already, PayNow dynamic QR attached lah!",
-      botTime: "15:28 SGT",
-      actionBadge: "PayNow QR + Singlish 亲和召回 · USDC 瞬时入账",
-      erpSyncedText: "Shopify SG #1092 已支付 (S$ 148.00) · NinjaVan 门到门配送",
-    },
-  },
-];
+import { MOCK_LANDING_FEED_ORDERS } from "@/mock";
 
 export const HeroProductDashboard: React.FC = () => {
   const [selectedId, setSelectedId] = useState<string>("ord_1");
-  const currentOrder = LIVE_ORDERS.find((o) => o.id === selectedId) || LIVE_ORDERS[0];
+  const currentOrder = MOCK_LANDING_FEED_ORDERS.find((o) => o.id === selectedId) || MOCK_LANDING_FEED_ORDERS[0];
 
   return (
     <div className="w-full bg-white border border-zinc-200/90 rounded-2xl shadow-xl shadow-zinc-950/[0.04] overflow-hidden text-left transition-all">
@@ -162,7 +59,7 @@ export const HeroProductDashboard: React.FC = () => {
             </div>
 
             <div className="space-y-2.5">
-              {LIVE_ORDERS.map((item) => {
+              {MOCK_LANDING_FEED_ORDERS.map((item) => {
                 const isSelected = item.id === selectedId;
                 return (
                   <button

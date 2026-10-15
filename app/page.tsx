@@ -7,81 +7,78 @@ import { TelemetrySandbox } from "@/components/landing/telemetry-sandbox";
 import { RoiCalculator } from "@/components/landing/roi-calculator";
 import { SolanaPayModal } from "@/components/billing/solana-pay-modal";
 import { HeroTopoCanvas } from "@/components/landing/topo-mesh";
-import { SeaTopologyGlobe } from "@/components/landing/three-sea-globe";
-import { SolanaSettlementCoin3D } from "@/components/landing/three-solana-coin";
+import { DialectRoutingConsole } from "@/components/landing/dialect-routing-console";
+import { SolanaSettlementConsole } from "@/components/landing/solana-settlement-console";
+import { ThreeOnboardingGateway } from "@/components/landing/three-onboarding-gateway";
 import { Button } from "@/components/ui/button";
 import { GsapEntrance, GsapStagger } from "@/components/ui/gsap-transition";
 import {
   ArrowRight,
   Sparkles,
+  ShieldCheck,
+  Zap,
+  Coins,
+  Globe,
 } from "lucide-react";
 import { clsx } from "clsx";
 
 type LandingLang = "ZH" | "EN" | "SG" | "ID" | "MY" | "TH" | "VI" | "PH";
 
 const LANDING_LANGS = [
-  { code: "ZH", label: "中文", flag: "🇨🇳" },
-  { code: "EN", label: "EN", flag: "🌐" },
-  { code: "SG", label: "SG (Singlish)", flag: "🇸🇬" },
-  { code: "ID", label: "ID (Bahasa)", flag: "🇮🇩" },
-  { code: "MY", label: "MY (Melayu)", flag: "🇲🇾" },
-  { code: "TH", label: "TH (ไทย)", flag: "🇹🇭" },
-  { code: "VI", label: "VI (Tiếng Việt)", flag: "🇻🇳" },
-  { code: "PH", label: "PH (Filipino)", flag: "🇵🇭" },
+  { code: "ZH", label: "简体中文" },
+  { code: "EN", label: "English" },
+  { code: "SG", label: "English (SG)" },
+  { code: "ID", label: "Bahasa Indonesia" },
+  { code: "MY", label: "Bahasa Melayu" },
+  { code: "TH", label: "ไทย" },
+  { code: "VI", label: "Tiếng Việt" },
+  { code: "PH", label: "Filipino" },
 ] as const;
 
 export default function LandingPage() {
   const [lang, setLang] = useState<LandingLang>("ZH");
   const [payModalOpen, setPayModalOpen] = useState(false);
 
-  const heroTitles: Record<LandingLang, { headline: string; subhead: string; badge: string }> = {
+  const heroTitles: Record<LandingLang, { headline: string; subhead: string }> = {
     ZH: {
       headline: "Autonomous WhatsApp Agents.\nSettled on Solana.",
       subhead:
         "专为东南亚跨境电商打造：待支付订单 15 分钟温和挽回，印尼 COD 订单发货前智能地标核验。官方 WhatsApp 商业 API 直连，USDC 零汇损即时结算。",
-      badge: "2026 东南亚电商 AI · 新加坡 / 印尼 / 大马 / 泰国 / 越南 / 菲律宾",
     },
     EN: {
       headline: "Autonomous WhatsApp Agents.\nSettled on Solana.",
       subhead:
         "Engineered for Southeast Asian cross-border e-commerce: 15-minute abandoned cart recovery and pre-dispatch COD address verification. Official WhatsApp API with instant USDC settlement.",
-      badge: "2026 SOUTHEAST ASIA COMMERCE AI · SOLANA PAY",
     },
     SG: {
       headline: "Autonomous WhatsApp Agents.\nSettled on Solana.",
       subhead:
         "Built for SG & Southeast Asian cross-border sellers: 15-minute gentle cart recovery and pre-delivery COD landmark verification lah. Official WhatsApp Cloud API with zero-slippage USDC settlement.",
-      badge: "SINGAPORE & SEA HUB · FAST PAYNOW & SOLANA USDC SETTLEMENT",
     },
     ID: {
       headline: "Asisten Pesanan WhatsApp Otonom.\nSelesai di Solana.",
       subhead:
         "Solusi cerdas e-commerce Asia Tenggara: pemulihan keranjang belanja 15 menit dan verifikasi alamat COD pra-pengiriman. Terhubung ke API resmi WhatsApp dengan settlement USDC instan.",
-      badge: "AI E-COMMERCE ASIA TENGGARA 2026 · SOLANA PAY",
     },
     MY: {
       headline: "Ejen Pesanan WhatsApp Autonomi.\nSelesai di Solana.",
       subhead:
         "Khas untuk e-dagang rentas sempadan Asia Tenggara: pemulihan troli terbiar 15 minit & pengesahan COD sebelum pos laju. API rasmi WhatsApp dengan penyelesaian USDC segera.",
-      badge: "AI E-DAGANG ASIA TENGGARA · MALAYSIA & REGIONAL",
     },
     TH: {
       headline: "ระบบผู้ช่วยคำสั่งซื้อ WhatsApp อัตโนมัติ\nชำระเงินบน Solana",
       subhead:
         "ออกแบบมาเพื่ออีคอมเมิร์ซเอเชียตะวันออกเฉียงใต้: กู้คืนตะกร้าสินค้าใน 15 นาที และยืนยันที่อยู่ COD ก่อนจัดส่ง เชื่อมต่อ WhatsApp Business API ทางการ พร้อมชำระเงิน USDC ทันที",
-      badge: "AI อีคอมเมิร์ซเอเชียตะวันออกเฉียงใต้ 2026 · SOLANA PAY",
     },
     VI: {
       headline: "Trợ Lý Đơn Hàng WhatsApp Tự Động.\nThanh Toán Trên Solana.",
       subhead:
         "Thiết kế riêng cho thương mại điện tử Đông Nam Á: thu hồi giỏ hàng bỏ quên sau 15 phút, xác minh địa chỉ giao COD trước khi gửi hàng. Kết nối trực tiếp WhatsApp Cloud API, tất toán USDC không trượt giá.",
-      badge: "AI THƯƠNG MẠI ĐIỆN TỬ ĐÔNG NAM Á 2026 · SOLANA PAY",
     },
     PH: {
       headline: "Awtomatikong WhatsApp Order Assistant.\nSettled sa Solana.",
       subhead:
         "Ginawa para sa e-commerce sa Southeast Asia: 15-minutong pagbawi ng abandoned cart at beripikasyon ng landmark sa COD bago i-dispatch po. Opisyal na WhatsApp API na may instant settlement gamit ang USDC.",
-      badge: "SOUTHEAST ASIA COMMERCE AI 2026 · PILIPINAS & REGIONAL",
     },
   };
 
@@ -110,27 +107,28 @@ export default function LandingPage() {
           {/* 右侧：语言切换胶囊与行动链接 */}
           <div className="flex items-center gap-2 sm:gap-4">
             {/* 语言切换器：大屏为药丸组，小屏为下拉选择 */}
-            <div className="hidden xl:inline-flex p-1 border border-zinc-200/80 bg-zinc-100/80 rounded-xl">
+            <div className="hidden xl:inline-flex items-center p-1 border border-zinc-200/80 bg-zinc-100/80 rounded-xl">
+              <Globe className="w-3.5 h-3.5 text-zinc-400 mx-1.5 shrink-0" aria-hidden="true" />
               {LANDING_LANGS.map((l) => (
                 <button
                   key={l.code}
                   onClick={() => setLang(l.code)}
                   className={clsx(
-                    "px-2 py-1 text-xs font-mono font-medium transition-all cursor-pointer rounded-lg flex items-center gap-1",
+                    "px-2 py-1 text-xs font-mono font-medium transition-all cursor-pointer rounded-lg flex items-center",
                     lang === l.code
                       ? "bg-white text-zinc-950 shadow-xs"
                       : "text-zinc-500 hover:text-zinc-900"
                   )}
                   title={l.label}
                 >
-                  <span className="text-[11px]">{l.flag}</span>
                   <span>{l.code}</span>
                 </button>
               ))}
             </div>
 
             {/* 中小屏精简下拉切换 */}
-            <div className="xl:hidden flex items-center border border-zinc-200/80 rounded-lg px-2 py-1 bg-zinc-50 text-xs font-mono">
+            <div className="xl:hidden flex items-center gap-1.5 border border-zinc-200/80 rounded-lg px-2 py-1 bg-zinc-50 text-xs font-mono">
+              <Globe className="w-3.5 h-3.5 text-zinc-500 shrink-0" aria-hidden="true" />
               <select
                 value={lang}
                 onChange={(e) => setLang(e.target.value as LandingLang)}
@@ -139,7 +137,7 @@ export default function LandingPage() {
               >
                 {LANDING_LANGS.map((l) => (
                   <option key={l.code} value={l.code}>
-                    {l.flag} {l.code} - {l.label}
+                    {l.label} ({l.code})
                   </option>
                 ))}
               </select>
@@ -183,11 +181,6 @@ export default function LandingPage() {
           <div className="max-w-7xl mx-auto px-4 sm:px-8 relative z-10 text-center">
             {/* GSAP 进场与语言切换平滑过渡 */}
             <GsapEntrance triggerKey={lang} direction="up" distance={16} duration={0.38}>
-              {/* 顶部微胶囊标签 */}
-              <div className="inline-flex items-center gap-2 text-xs font-mono text-zinc-600 border border-zinc-200/80 px-3.5 py-1.5 bg-zinc-50/80 rounded-full mb-6 shadow-2xs">
-                <span>{t.badge}</span>
-              </div>
-
               {/* 极简超大标题 */}
               <h1 className="text-4xl sm:text-6xl lg:text-7xl font-sans font-bold tracking-tight text-zinc-950 leading-[1.08] max-w-4xl mx-auto whitespace-pre-line text-balance">
                 {t.headline}
@@ -329,9 +322,9 @@ export default function LandingPage() {
                     不仅掌握标准印尼语（Bahasa Indonesia），更精准识别雅加达本土口语缩写（Bahasa Gaul，如 <em>min, ongkir, ga nyasar</em>）与泰语礼貌语气助词（<em>krub/ka</em>）。
                   </p>
 
-                  {/* 3D 东南亚跨境拓扑航线与多语言数据球体微组件 */}
+                  {/* 东南亚跨境多语言与印尼俚语高阶解析视窗 */}
                   <div className="mt-2 p-3 sm:p-4 bg-zinc-50/60 rounded-xl border border-zinc-200/70">
-                    <SeaTopologyGlobe />
+                    <DialectRoutingConsole />
                   </div>
                 </div>
                 <div className="mt-8 pt-5 border-t border-zinc-100 flex items-center justify-between text-xs font-mono text-zinc-500">
@@ -353,9 +346,9 @@ export default function LandingPage() {
                     0 传统跨国信用卡 3% 货币兑换与通道手续费损耗。原生 USDC 充值即时到账，单笔手续费低至 $0.00025。
                   </p>
 
-                  {/* 3D 毫秒级原生结算硬币/棱镜微组件 */}
+                  {/* Solana Pay 毫秒级原生结算引擎与通道对比视窗 */}
                   <div className="mt-2 p-3 sm:p-4 bg-zinc-50/60 rounded-xl border border-zinc-200/70">
-                    <SolanaSettlementCoin3D />
+                    <SolanaSettlementConsole />
                   </div>
                 </div>
                 <div className="mt-8 pt-5 border-t border-zinc-100 flex items-center justify-between text-xs font-mono text-indigo-700 font-semibold">
@@ -445,21 +438,50 @@ export default function LandingPage() {
           {/* 细腻环境背景光 */}
           <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(ellipse_60%_50%_at_50%_0%,rgba(16,185,129,0.12),rgba(9,9,11,0))]" />
 
-          <div className="max-w-3xl mx-auto text-center space-y-6 relative z-10">
-            <div className="inline-flex items-center gap-2 text-xs font-mono text-zinc-400 border border-zinc-800 px-3 py-1 rounded-full bg-zinc-900/60">
-              <Sparkles className="w-3.5 h-3.5 text-emerald-400" />
-              <span>CLAIM YOUR ONBOARDING CREDITS</span>
+          <div className="max-w-5xl mx-auto text-center space-y-10 sm:space-y-12 relative z-10">
+            {/* 标头区域 */}
+            <div className="max-w-3xl mx-auto space-y-4">
+              <div className="inline-flex items-center gap-2 text-xs font-mono text-zinc-400 border border-zinc-800 px-3.5 py-1.5 rounded-full bg-zinc-900/60 shadow-2xs">
+                <span>CLAIM YOUR ONBOARDING CREDITS · 6 STEPS WIZARD</span>
+              </div>
+
+              <h2 className="text-3xl sm:text-5xl lg:text-6xl font-sans font-bold tracking-tight text-white leading-tight">
+                立即接入您的首个出海店铺
+              </h2>
+
+              <p className="text-sm sm:text-base text-zinc-400 font-sans max-w-xl mx-auto leading-relaxed">
+                完成 6 步商户初始化向导，即刻获得 100 免费 Credits 体验额度，无需绑定信用卡，零门槛开启东南亚跨境智能订单自动化。
+              </p>
             </div>
 
-            <h2 className="text-3xl sm:text-5xl font-sans font-bold tracking-tight text-white leading-tight">
-              立即接入您的首个出海店铺
-            </h2>
+            {/* 3D 接入传送门视窗与极速流线 */}
+            <div className="max-w-3xl mx-auto p-4 sm:p-6 bg-zinc-900/40 border border-zinc-800/80 rounded-2xl backdrop-blur-xs space-y-5">
+              <ThreeOnboardingGateway />
 
-            <p className="text-sm sm:text-base text-zinc-400 font-sans max-w-xl mx-auto leading-relaxed">
-              完成 6 步商户初始化向导，即刻获得 100 免费 Credits 体验额度，无需绑定信用卡。
-            </p>
+              {/* 3 步极速开通向导流线 */}
+              <div className="pt-2 border-t border-zinc-800/60 grid grid-cols-1 sm:grid-cols-3 gap-3 text-left">
+                <div className="p-3 bg-zinc-950/60 border border-zinc-800/70 rounded-xl">
+                  <div className="text-[10px] font-mono text-emerald-400 font-bold mb-1">STEP 01</div>
+                  <div className="text-xs font-bold text-white">店铺免密授权</div>
+                  <div className="text-[11px] text-zinc-400 font-sans mt-0.5">Shopify / WooCommerce Webhook 秒级直连</div>
+                </div>
 
-            <div className="flex flex-wrap items-center justify-center gap-4 pt-6">
+                <div className="p-3 bg-zinc-950/60 border border-zinc-800/70 rounded-xl">
+                  <div className="text-[10px] font-mono text-emerald-400 font-bold mb-1">STEP 02</div>
+                  <div className="text-xs font-bold text-white">绑定 WhatsApp</div>
+                  <div className="text-[11px] text-zinc-400 font-sans mt-0.5">官方 WABA 号码接入，下发获批本地化模板</div>
+                </div>
+
+                <div className="p-3 bg-zinc-950/60 border border-zinc-800/70 rounded-xl">
+                  <div className="text-[10px] font-mono text-emerald-400 font-bold mb-1">STEP 03</div>
+                  <div className="text-xs font-bold text-white">激活 100 额度</div>
+                  <div className="text-[11px] text-zinc-400 font-sans mt-0.5">首批 100 笔订单免密测试，实时自动挽回与核验</div>
+                </div>
+              </div>
+            </div>
+
+            {/* 行动号召按钮组 */}
+            <div className="flex flex-wrap items-center justify-center gap-4 pt-2">
               <Link href="/onboarding">
                 <Button size="lg" className="h-12 px-8 text-xs bg-white text-zinc-950 hover:bg-zinc-200 font-medium rounded-xl shadow-sm">
                   立即免费接入 (Claim 100 Credits)
@@ -474,6 +496,49 @@ export default function LandingPage() {
               >
                 Solana Pay Devnet 充值体验
               </Button>
+            </div>
+
+            {/* 4 维企业级入驻信任保障卡片 */}
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 pt-6 text-left border-t border-zinc-900">
+              <div className="p-4 rounded-xl border border-zinc-800/80 bg-zinc-900/30 space-y-2">
+                <div className="w-7 h-7 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center">
+                  <Sparkles className="w-3.5 h-3.5 text-emerald-400" />
+                </div>
+                <div className="text-xs font-bold text-white">100 Credits 赠送</div>
+                <div className="text-[11px] text-zinc-400 font-sans leading-relaxed">
+                  无需预充值或绑定信用卡，即可完整跑通东南亚多语言唤回真实流程。
+                </div>
+              </div>
+
+              <div className="p-4 rounded-xl border border-zinc-800/80 bg-zinc-900/30 space-y-2">
+                <div className="w-7 h-7 rounded-lg bg-zinc-800 flex items-center justify-center">
+                  <Zap className="w-3.5 h-3.5 text-zinc-200" />
+                </div>
+                <div className="text-xs font-bold text-white">3 分钟零代码接入</div>
+                <div className="text-[11px] text-zinc-400 font-sans leading-relaxed">
+                  标准化 Webhook 接入，订单状态与物流信息 150ms 内极速双向同步。
+                </div>
+              </div>
+
+              <div className="p-4 rounded-xl border border-zinc-800/80 bg-zinc-900/30 space-y-2">
+                <div className="w-7 h-7 rounded-lg bg-zinc-800 flex items-center justify-center">
+                  <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
+                </div>
+                <div className="text-xs font-bold text-white">Meta 官方 BAA 合规</div>
+                <div className="text-[11px] text-zinc-400 font-sans leading-relaxed">
+                  通过 Meta Cloud API 官方合规链路传输，数据脱敏，杜绝第三方外挂封号风险。
+                </div>
+              </div>
+
+              <div className="p-4 rounded-xl border border-zinc-800/80 bg-zinc-900/30 space-y-2">
+                <div className="w-7 h-7 rounded-lg bg-zinc-800 flex items-center justify-center">
+                  <Coins className="w-3.5 h-3.5 text-zinc-200" />
+                </div>
+                <div className="text-xs font-bold text-white">USDC 毫秒原生结算</div>
+                <div className="text-[11px] text-zinc-400 font-sans leading-relaxed">
+                  后续充值支持 Solana Pay，0 传统信用卡 3% 汇兑损耗，单笔手续费仅 $0.00025。
+                </div>
+              </div>
             </div>
           </div>
         </section>

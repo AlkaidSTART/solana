@@ -16,14 +16,24 @@ import {
 import { clsx } from "clsx";
 import { gsap } from "gsap";
 import { getI18nText } from "@/lib/i18n";
+import {
+  MOCK_SLANG_LEXICON,
+  MOCK_QUICK_REPLIES,
+  MOCK_DEMO_BUYER_ORDER,
+} from "@/mock";
+
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { conversationsApi } from "@/lib/api";
 
 export default function ConsoleInboxPage() {
+  const queryClient = useQueryClient();
   const {
     conversations,
     activeConversationId,
     toggleHumanTakeover,
     sendChatMessage,
     locale,
+    currentStoreId,
   } = useAppStore();
 
   const [activeId, setActiveId] = useState<string>(
@@ -32,6 +42,21 @@ export default function ConsoleInboxPage() {
   const [filterType, setFilterType] = useState<string>("ALL");
   const [inputText, setInputText] = useState("");
   const [autoTranslate, setAutoTranslate] = useState(true);
+
+  // 从后端获取会话列表
+  const { data: apiConversationsData } = useQuery({
+    queryKey: ["conversations", currentStoreId],
+    queryFn: () => conversationsApi.listConversations({ storeId: currentStoreId }),
+    retry: false,
+  });
+
+  // 从后端获取当前激活会话消息历史
+  const { data: apiMessagesData } = useQuery({
+    queryKey: ["messages", activeId],
+    queryFn: () => conversationsApi.listMessages(activeId),
+    enabled: !!activeId,
+    retry: false,
+  });
 
   const activeChat =
     conversations.find((c) => c.id === activeId) || conversations[0];
@@ -61,15 +86,55 @@ export default function ConsoleInboxPage() {
     return true;
   });
 
+  // 发送消息 Mutation
+  const sendMutation = useMutation({
+    mutationFn: async ({ id, text }: { id: string; text: string }) => {
+      try {
+        await conversationsApi.sendMessage(id, { text, language: activeChat?.language });
+      } catch {
+        // 沙盒降级
+      }
+    },
+    onSuccess: (_, vars) => {
+      sendChatMessage(vars.id, vars.text);
+      void queryClient.invalidateQueries({ queryKey: ["messages", vars.id] });
+    },
+  });
+
+  // 人工接管/交还机器 Mutation
+  const takeoverMutation = useMutation({
+    mutationFn: async ({ id, currentlyTakeover }: { id: string; currentlyTakeover: boolean }) => {
+      try {
+        if (currentlyTakeover) {
+          await conversationsApi.resume(id);
+        } else {
+          await conversationsApi.handoff(id);
+        }
+      } catch {
+        // 沙盒降级
+      }
+    },
+    onSuccess: (_, vars) => {
+      toggleHumanTakeover(vars.id);
+      void queryClient.invalidateQueries({ queryKey: ["conversations"] });
+    },
+  });
+
   const handleSend = () => {
     if (!inputText.trim() || !activeChat) return;
-    sendChatMessage(activeChat.id, inputText.trim());
+    const text = inputText.trim();
     setInputText("");
+    sendMutation.mutate({ id: activeChat.id, text });
   };
 
   const handleQuickReply = (text: string) => {
     if (!activeChat) return;
-    sendChatMessage(activeChat.id, text);
+    sendMutation.mutate({ id: activeChat.id, text });
+  };
+
+  const handleToggleTakeover = () => {
+    if (!activeChat) return;
+    takeoverMutation.mutate({ id: activeChat.id, currentlyTakeover: activeChat.isHumanTakeover });
   };
 
   return (
@@ -89,6 +154,16 @@ export default function ConsoleInboxPage() {
         </div>
 
         <div className="flex items-center gap-2 text-xs font-mono">
+          {apiConversationsData?.items && (
+            <span className="text-[10px] text-zinc-400">
+              API: {apiConversationsData.items.length} 会话
+            </span>
+          )}
+          {apiMessagesData && (
+            <span className="text-[10px] text-emerald-600 font-bold">
+              ● 直连
+            </span>
+          )}
           <Badge variant="success">
             {getI18nText(locale, "inbox_badge_online")}
           </Badge>
@@ -187,7 +262,8 @@ export default function ConsoleInboxPage() {
             <Button
               size="sm"
               variant={activeChat?.isHumanTakeover ? "danger" : "outline"}
-              onClick={() => toggleHumanTakeover(activeChat.id)}
+              disabled={takeoverMutation.isPending}
+              onClick={handleToggleTakeover}
             >
               {activeChat?.isHumanTakeover ? (
                 <>
@@ -311,7 +387,7 @@ export default function ConsoleInboxPage() {
               <div>
                 <span className="text-zinc-400 text-[10px] block">{getI18nText(locale, "inbox_profile_order")}</span>
                 <span className="text-emerald-700 font-bold">
-                  {activeChat?.orderId ? `#ID-9821 (COD Rp 389.000)` : getI18nText(locale, "inbox_profile_no_order")}
+                  {activeChat?.orderId ? MOCK_DEMO_BUYER_ORDER.displayLabel : getI18nText(locale, "inbox_profile_no_order")}
                 </span>
               </div>
             </div>
@@ -325,13 +401,7 @@ export default function ConsoleInboxPage() {
             </div>
 
             <div className="p-3.5 bg-white border border-zinc-200 rounded-xl space-y-2.5 text-[11px] shadow-2xs">
-              {[
-                { token: "min", desc: "Admin 缩写，代指客服/掌柜" },
-                { token: "ongkir", desc: "Ongkos Kirim 缩写，代指快递运费" },
-                { token: "ga nyasar", desc: "免得跑偏/迷路，指示地标准确" },
-                { token: "kemahalan", desc: "价格太贵了，可触发优惠挽留" },
-                { token: "bisa COD ga", desc: "能否货到付款，高意向询盘" },
-              ].map((s, idx) => (
+              {MOCK_SLANG_LEXICON.map((s, idx) => (
                 <div key={idx} className="flex items-start gap-1.5">
                   <span className="font-bold text-zinc-900 bg-zinc-100 px-1.5 py-0.5 rounded border border-zinc-200 text-[10px]">
                     {s.token}
@@ -348,11 +418,7 @@ export default function ConsoleInboxPage() {
               {getI18nText(locale, "inbox_quick_replies")}
             </h3>
             <div className="space-y-1.5">
-              {[
-                "Siap kak, paket akan segera kami kirim!",
-                "Bisa COD kok kak, mohon siapkan uang pas ya.",
-                "Ada diskon ongkir Rp 10.000 khusus hari ini kak!",
-              ].map((phrase, i) => (
+              {MOCK_QUICK_REPLIES.map((phrase, i) => (
                 <button
                   key={i}
                   disabled={!activeChat?.isHumanTakeover}

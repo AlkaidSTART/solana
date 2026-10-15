@@ -12,16 +12,81 @@ import {
   TrendingUp,
   AlertTriangle,
   Info,
+  ArrowRight,
+  Sparkles,
 } from "lucide-react";
 import { Tabs } from "@/components/ui/tabs";
 import { GsapEntrance, GsapStagger } from "@/components/ui/gsap-transition";
+import {
+  MOCK_CONTROL_GROUP_METRICS,
+  MOCK_OVERVIEW_SUMMARY_STATS,
+} from "@/mock";
+import { useOnboardingStore } from "@/stores/use-onboarding-store";
+import type { OrderItem } from "@/stores/use-app-store";
+import { useQuery } from "@tanstack/react-query";
+import { billingApi, ordersApi, tenantApi, type ApiOrderRecord } from "@/lib/api";
 
 export default function ConsoleOverviewPage() {
-  const { credits, orders, conversations, locale } = useAppStore();
+  const { credits, orders, conversations, locale, currentStoreId } = useAppStore();
+  const { currentStep, isCompleted, hasStarted } = useOnboardingStore();
   const [viewState, setViewState] = useState<"normal" | "loading" | "empty" | "error">("normal");
 
+  // 连接后端 /api/v1/billing/summary 与 /api/v1/orders
+  const { data: billingSummary } = useQuery({
+    queryKey: ["billing-summary"],
+    queryFn: () => billingApi.getSummary(),
+    retry: false,
+  });
+
+  const { data: apiOrders } = useQuery({
+    queryKey: ["orders", currentStoreId],
+    queryFn: () => ordersApi.listOrders({ storeId: currentStoreId }),
+    retry: false,
+  });
+
+  const { data: tenant } = useQuery({
+    queryKey: ["tenant"],
+    queryFn: () => tenantApi.getTenant(),
+    retry: false,
+  });
+
+  const emptySubscribe = React.useCallback(() => () => {}, []);
+  const isMounted = React.useSyncExternalStore(
+    emptySubscribe,
+    () => true,
+    () => false
+  );
+
+  const showOnboardingResume = isMounted && (hasStarted || currentStep > 2) && !isCompleted;
+
   const pendingTakeovers = conversations.filter((c) => c.isHumanTakeover || c.unread);
-  const pendingOrders = orders.filter((o) => o.status === "PENDING");
+  const mappedApiOrders: OrderItem[] | null = apiOrders?.items
+    ? apiOrders.items.map((ao: ApiOrderRecord): OrderItem => ({
+        id: ao.id,
+        orderNumber: ao.platformOrderId || ao.id.slice(0, 8),
+        storeId: ao.storeId,
+        customerName: "Buyer " + ao.id.slice(0, 4),
+        customerPhone: "+62 812-****-****",
+        amountLocal: `${ao.currency} ${ao.totalMinor}`,
+        amountUsd: `$${(Number(ao.totalMinor) / 15000).toFixed(2)}`,
+        type: ao.isCod ? "COD" : "ABANDONED_CHECKOUT",
+        status: (ao.orderStatus.toUpperCase() as OrderItem["status"]) || "PENDING",
+        language: (ao.locale as OrderItem["language"]) || "id_ID",
+        createdAt: new Date(ao.createdAt).toLocaleString(),
+        steps: [
+          { title: "订单创建", timestamp: new Date(ao.createdAt).toLocaleTimeString(), completed: true },
+        ],
+      }))
+    : null;
+
+  const pendingOrders = mappedApiOrders
+    ? mappedApiOrders.filter((o) => o.status === "PENDING")
+    : orders.filter((o) => o.status === "PENDING");
+
+  const effectiveAvailableCredits =
+    billingSummary?.availableCredits !== undefined
+      ? billingSummary.availableCredits
+      : credits.available;
 
   if (viewState === "loading") {
     return (
@@ -97,7 +162,7 @@ export default function ConsoleOverviewPage() {
               {getI18nText(locale, "overview_retry_conn")}
             </Button>
             <Button size="sm" variant="outline">
-              Diagnostic Logs
+              {getI18nText(locale, "overview_btn_diag")}
             </Button>
           </div>
         </div>
@@ -107,6 +172,29 @@ export default function ConsoleOverviewPage() {
 
   return (
     <GsapEntrance triggerKey={viewState} direction="fade" duration={0.25} className="space-y-8">
+      {/* 未完成向导恢复提示条 */}
+      {showOnboardingResume && (
+        <div className="p-3.5 bg-zinc-900 text-white rounded-xl flex items-center justify-between text-xs font-mono shadow-sm">
+          <div className="flex items-center gap-2.5">
+            <Sparkles className="w-4 h-4 text-emerald-400 shrink-0" />
+            <span>
+              {locale === "zh_CN"
+                ? `您有一个进行中的店铺初始化向导 (当前处于步骤 ${currentStep}/6)，继续完成即可免费激活并领取 100 Credits。`
+                : `You have an ongoing store onboarding setup (currently step ${currentStep}/6). Complete it to activate and claim 100 Credits.`}
+            </span>
+          </div>
+          <Link href="/onboarding">
+            <Button
+              size="sm"
+              className="bg-white text-zinc-900 hover:bg-zinc-100 text-xs font-mono h-7 px-3 shrink-0"
+            >
+              {locale === "zh_CN" ? "继续完成向导" : "Resume Setup"}
+              <ArrowRight className="w-3.5 h-3.5 ml-1" />
+            </Button>
+          </Link>
+        </div>
+      )}
+
       {/* 顶部标题栏与状态机测试切换器 */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-[#E4E4E7] gap-3">
         <div>
@@ -117,7 +205,7 @@ export default function ConsoleOverviewPage() {
             <Badge variant="outline">{getI18nText(locale, "demo_badge")}</Badge>
           </div>
           <p className="text-xs text-[#71717A] font-mono mt-0.5">
-            {getI18nText(locale, "overview_recent_activity")}
+            {tenant?.name ? `${tenant.name} · ` : ""}{getI18nText(locale, "overview_recent_activity")}
           </p>
         </div>
 
@@ -130,8 +218,8 @@ export default function ConsoleOverviewPage() {
             onChange={(id) => setViewState(id as "normal" | "loading" | "empty" | "error")}
             items={[
               { id: "normal", label: getI18nText(locale, "status_normal") },
-              { id: "loading", label: "Loading" },
-              { id: "empty", label: "Empty" },
+              { id: "loading", label: getI18nText(locale, "overview_tab_loading") },
+              { id: "empty", label: getI18nText(locale, "overview_tab_empty") },
               { id: "error", label: getI18nText(locale, "status_warning") },
             ]}
           />
@@ -149,9 +237,9 @@ export default function ConsoleOverviewPage() {
         <div className="stat-card-cell h-full">
           <StatCard
             label={`${getI18nText(locale, "orders_tab_pending")} (${pendingOrders.length})`}
-            value="18"
-            subValue="COD / Pre-dispatch"
-            trend={{ text: "+4 today", warning: true }}
+            value={MOCK_OVERVIEW_SUMMARY_STATS.pendingOrdersDefaultCount}
+            subValue={getI18nText(locale, "overview_stat_pre_dispatch")}
+            trend={{ text: getI18nText(locale, "overview_stat_today"), warning: true }}
             indicator={<Badge variant="warning">{getI18nText(locale, "status_pending")}</Badge>}
           />
         </div>
@@ -159,26 +247,26 @@ export default function ConsoleOverviewPage() {
           <StatCard
             label={getI18nText(locale, "overview_stat_human_queue")}
             value={pendingTakeovers.length}
-            subValue="Critical SLA: 14m"
-            trend={{ text: "Meta 24h Window", positive: true }}
+            subValue={getI18nText(locale, "overview_stat_critical_sla")}
+            trend={{ text: getI18nText(locale, "overview_stat_meta_window"), positive: true }}
             indicator={<Badge variant="danger">{getI18nText(locale, "status_warning")}</Badge>}
           />
         </div>
         <div className="stat-card-cell h-full">
           <StatCard
             label={getI18nText(locale, "overview_stat_credits")}
-            value={credits.available.toLocaleString()}
-            subValue="Reserved: 120"
-            trend={{ text: "~8,400 messages", positive: true }}
+            value={effectiveAvailableCredits.toLocaleString()}
+            subValue={getI18nText(locale, "overview_stat_reserved")}
+            trend={{ text: getI18nText(locale, "overview_stat_messages_est"), positive: true }}
             indicator={<Badge variant="success">{getI18nText(locale, "status_normal")}</Badge>}
           />
         </div>
         <div className="stat-card-cell h-full">
           <StatCard
             label={getI18nText(locale, "overview_stat_recovered")}
-            value="$ 1,420.00"
-            subValue={getI18nText(locale, "overview_stat_cod_rate") + ": 90.6%"}
-            trend={{ text: "Lift: +47.1%", positive: true }}
+            value={MOCK_OVERVIEW_SUMMARY_STATS.recoveredGmvDefaultAmount}
+            subValue={`${getI18nText(locale, "overview_stat_cod_rate")}: ${MOCK_OVERVIEW_SUMMARY_STATS.landmarkVerifiedRate}`}
+            trend={{ text: getI18nText(locale, "overview_stat_lift"), positive: true }}
             indicator={<TrendingUp className="w-3.5 h-3.5 text-[#059669]" />}
           />
         </div>
@@ -192,11 +280,11 @@ export default function ConsoleOverviewPage() {
             <div className="flex items-center gap-2">
               <CardTitle>{getI18nText(locale, "settings_control_group_title")}</CardTitle>
               <Badge variant="success">
-                95% Confidence Verified
+                {getI18nText(locale, "overview_confidence_verified")}
               </Badge>
             </div>
             <div className="text-[11px] font-mono text-[#71717A]">
-              14-Day Rolling Window
+              {getI18nText(locale, "overview_rolling_window")}
             </div>
           </div>
         </CardHeader>
@@ -208,7 +296,7 @@ export default function ConsoleOverviewPage() {
                 【1】{getI18nText(locale, "workflows_rule_cart_recovery")}
               </span>
               <span className="text-[#059669] font-bold">
-                Net Lift: +5.7% (Abs) / +47.1% (Rel)
+                {MOCK_OVERVIEW_SUMMARY_STATS.abandonedNetLiftLabel}
               </span>
             </div>
 
@@ -216,30 +304,30 @@ export default function ConsoleOverviewPage() {
               {/* 提醒组 */}
               <div className="p-3.5 border border-[#E4E4E7] bg-[#FAFAFA] space-y-1">
                 <div className="flex justify-between text-xs font-mono">
-                  <span className="text-[#71717A]">WhatsApp Active (80%, 1,240 orders)</span>
-                  <span className="font-bold text-[#09090B]">17.8% Conversion</span>
+                  <span className="text-[#71717A]">{getI18nText(locale, "overview_group_active")}</span>
+                  <span className="font-bold text-[#09090B]">{MOCK_CONTROL_GROUP_METRICS.whatsappActive.conversionRate}</span>
                 </div>
                 <div className="w-full bg-[#E4E4E7] h-2">
-                  <div className="bg-[#09090B] h-2" style={{ width: "17.8%" }} />
+                  <div className="bg-[#09090B] h-2" style={{ width: MOCK_CONTROL_GROUP_METRICS.whatsappActive.percentWidth }} />
                 </div>
                 <div className="text-[11px] font-mono text-[#71717A] flex justify-between pt-1">
-                  <span>{getI18nText(locale, "orders_status_recovered")}: 221</span>
-                  <span>GMV: $ 6,851.00</span>
+                  <span>{getI18nText(locale, "orders_status_recovered")}: {MOCK_CONTROL_GROUP_METRICS.whatsappActive.recoveredCount}</span>
+                  <span>GMV: {MOCK_CONTROL_GROUP_METRICS.whatsappActive.gmv}</span>
                 </div>
               </div>
 
               {/* 对照组 */}
               <div className="p-3.5 border border-[#E4E4E7] bg-white space-y-1">
                 <div className="flex justify-between text-xs font-mono">
-                  <span className="text-[#71717A]">Silent Control (20%, 310 orders)</span>
-                  <span className="font-bold text-[#71717A]">12.1% Organic</span>
+                  <span className="text-[#71717A]">{getI18nText(locale, "overview_group_control")}</span>
+                  <span className="font-bold text-[#71717A]">{getI18nText(locale, "overview_organic_conv")}</span>
                 </div>
                 <div className="w-full bg-[#E4E4E7] h-2">
-                  <div className="bg-[#A1A1AA] h-2" style={{ width: "12.1%" }} />
+                  <div className="bg-[#A1A1AA] h-2" style={{ width: MOCK_CONTROL_GROUP_METRICS.silentControl.percentWidth }} />
                 </div>
                 <div className="text-[11px] font-mono text-[#71717A] flex justify-between pt-1">
-                  <span>Organic: 38</span>
-                  <span>GMV: $ 1,178.00</span>
+                  <span>{getI18nText(locale, "overview_organic_orders")}</span>
+                  <span>GMV: {MOCK_CONTROL_GROUP_METRICS.silentControl.gmv}</span>
                 </div>
               </div>
             </div>
@@ -252,34 +340,34 @@ export default function ConsoleOverviewPage() {
                 【2】{getI18nText(locale, "workflows_rule_cod_verify")}
               </span>
               <span className="text-[#059669] font-bold">
-                Loss Avoidance: $ 2,480.00 Saved
+                {getI18nText(locale, "overview_loss_avoidance")}
               </span>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-1">
               <div className="p-3.5 border border-[#E4E4E7] bg-[#FAFAFA] space-y-1">
                 <div className="flex justify-between text-xs font-mono">
-                  <span className="text-[#71717A]">Landmark Verified (COD)</span>
-                  <span className="font-bold text-[#059669]">90.6% Delivered (9.4% RTS)</span>
+                  <span className="text-[#71717A]">{getI18nText(locale, "overview_landmark_verified")}</span>
+                  <span className="font-bold text-[#059669]">{getI18nText(locale, "overview_delivered_rate")}</span>
                 </div>
                 <div className="w-full bg-[#E4E4E7] h-2">
-                  <div className="bg-[#059669] h-2" style={{ width: "90.6%" }} />
+                  <div className="bg-[#059669] h-2" style={{ width: MOCK_CONTROL_GROUP_METRICS.landmarkVerifiedCod.percentWidth }} />
                 </div>
                 <div className="text-[11px] font-mono text-[#71717A] pt-1">
-                  Intercepted fake addresses: 38 (Prevented round-trip freight loss)
+                  {getI18nText(locale, "overview_fake_address")}
                 </div>
               </div>
 
               <div className="p-3.5 border border-[#E4E4E7] bg-white space-y-1">
                 <div className="flex justify-between text-xs font-mono">
-                  <span className="text-[#71717A]">Unverified Baseline</span>
-                  <span className="font-bold text-[#E11D48]">83.8% Delivered (16.2% RTS)</span>
+                  <span className="text-[#71717A]">{getI18nText(locale, "overview_unverified")}</span>
+                  <span className="font-bold text-[#E11D48]">{getI18nText(locale, "overview_unverified_rate")}</span>
                 </div>
                 <div className="w-full bg-[#E4E4E7] h-2">
-                  <div className="bg-[#E11D48] h-2" style={{ width: "83.8%" }} />
+                  <div className="bg-[#E11D48] h-2" style={{ width: MOCK_CONTROL_GROUP_METRICS.unverifiedBaselineCod.percentWidth }} />
                 </div>
                 <div className="text-[11px] font-mono text-[#71717A] pt-1">
-                  RTS Rate exceeds baseline by +6.8%
+                  {getI18nText(locale, "overview_unverified_diff")}
                 </div>
               </div>
             </div>
