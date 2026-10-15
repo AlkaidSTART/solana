@@ -71,8 +71,8 @@ function BillingContent() {
     <section className="space-y-2 rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-sm"><p>只有 SOL 测试币？无需 USDC，先用 0.001 SOL 跑通钱包付款（不增加 Credits）。</p><Link href="/console/billing/sol-test" className="inline-block font-medium underline">打开原生 SOL 小额测试付款</Link></section>
     {session.isPending && <p role="status">正在读取测试会话…</p>}
     {session.error && <section className="space-y-3 rounded-xl border border-zinc-200 bg-white p-5">
-      <p role="alert">{session.error.message}</p><p className="text-sm text-zinc-600">开发者需先配置 PostgreSQL、Devnet 收款地址及本地会话开关。此入口不是生产登录。</p>
-      <button className="payment-button" disabled={start.isPending} onClick={() => start.mutate()}>{start.isPending ? "建立中…" : "建立本地 Devnet 测试会话"}</button>
+      <p role="alert">{session.error.message}</p><p className="text-sm text-zinc-600">此入口仅对已登录并已绑定商户账户的使用者开放。请先<Link href="/login" className="underline">登录商户账户</Link>；尚未绑定商户时需先完成租户创建。</p>
+      <button className="payment-button" disabled={start.isPending} onClick={() => start.mutate()}>{start.isPending ? "建立中…" : "建立商户 Devnet 支付会话"}</button>
       {start.error && <p role="alert" className="text-sm text-red-700">{start.error.message}</p>}
     </section>}
     {session.data && !session.error && <>

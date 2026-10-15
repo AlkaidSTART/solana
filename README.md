@@ -224,15 +224,25 @@ pnpm dev
 NODE_ENV=development
 PAYMENT_APP_ORIGIN=http://localhost:3000
 
+# 认证签名密钥（OTP 登录与支付入口鉴权必需）
+SESSION_SIGNING_KEY=<至少 32 字节随机串>
+CSRF_SIGNING_KEY=<至少 32 字节随机串>
+OTP_HMAC_KEY=<至少 32 字节随机串>
+CREDENTIAL_ENCRYPTION_KEY=<恰好 32 字节的 Base64 编码>
+APP_ALLOWED_ORIGINS=http://localhost:3000
+
 # Solana 支付配置 (首发测试使用 Devnet)
 PAYMENTS_DEVNET_ENABLED=true
-PAYMENTS_ALLOW_LOCAL_SESSION=true
+# 线上部署需显式打开此开关，否则生产环境保持关闭
+PAYMENTS_DEVNET_ALLOW_PRODUCTION=false
 SOLANA_RPC_URL=https://api.devnet.solana.com
 SOLANA_RECIPIENT=DJAuqiXHRu6BC7eBfHYq1VXyVefj5c7RpXJQjeAKZE8R
 
 # 目标数据库配置 (开发环境 PostgreSQL)
 DATABASE_URL=postgres://postgres:postgres123@localhost:5433/solaflow_dev
 ```
+
+> 💳 **Devnet 支付入口**：`/console/billing` 仅对已登录并已绑定商户租户的账户开放，未登录访客会被拒绝。该入口只写 `test_credit_ledger`，不产生正式权益；主网正式计费保持关闭。
 
 > 🔒 **安全守则**：私钥、WhatsApp Access Token、数据库密码等敏感密钥严禁写入客户端暴露的变量，严禁提交到公共代码仓库。
 

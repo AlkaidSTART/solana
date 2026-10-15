@@ -142,7 +142,7 @@ function PaymentEntry({ onClose }: { onClose: () => void }) {
   }, []);
   return <dialog ref={dialog} aria-labelledby="payment-entry-title" onCancel={onClose} className="m-auto w-[calc(100%_-_2rem)] max-w-lg rounded-xl bg-white p-6 text-zinc-900 backdrop:bg-black/40">
     <h2 id="payment-entry-title" className="text-lg font-semibold">创建 Devnet 测试支付</h2>
-    <p className="my-4 text-sm">请到账单页建立本地测试会话并创建服务端报价。此入口不提供假订单或正式权益。</p>
+    <p className="my-4 text-sm">请到账单页建立商户支付会话并创建服务端报价。此入口不提供假订单或正式权益。</p>
     <Link href="/console/billing" className="underline">前往账单页</Link>
     <button className="ml-6 rounded border px-3 py-2" onClick={onClose}>关闭</button>
   </dialog>;

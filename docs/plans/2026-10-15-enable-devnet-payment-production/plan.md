@@ -16,7 +16,11 @@
 
 **执行前发现的表名冲突（阻塞项）**：`lib/server/db/migrations/0005_billing_solana.sql` 与 devnet 模块的 `lib/server/payments/schema.sql` 都要建 `payment_orders` 和 `payment_candidates`，且两套结构不兼容（devnet：`id uuid`/`network`/`reference`/`amount_atomic`，无外键；billing：`id text`/`environment`/`cluster`/`purpose`/`amount_minor`，外键指向 `tenants(id)`，并带结算触发器）。两张 devnet 表已存在于线上库中，而 `0005` 使用不带 `IF NOT EXISTS` 的 `CREATE TABLE`，会触发 `relation already exists`；由于 `applyMigrations` 将 `0001~0005` 包在单个事务内，整个迁移会回滚，认证表一张都建不出来。两张 devnet 表当前均为 0 行，改名数据安全。
 
-需求方决定：补齐真实登录；支付入口限制为已绑定商户租户的登录用户；授权在主数据库执行迁移；`payment_orders`/`payment_candidates` 冲突采用**重命名 devnet 表**解决（不合并两套系统）。
+需求方决定：补齐真实登录；支付入口限制为已绑定商户租户的登录用户；授权在主数据库执行迁移；`payment_orders`/`payment_candidates` 冲突采用**重命名 devnet 表**解决（不合并两套系统）；登录改用 **Neon Auth（Managed Better Auth）** 提供的 Email OTP 与 Social OAuth，不再自建 OTP 投递；授权立即部署到生产。
+
+**登录方案改为 Neon Auth（2026-10-15 追加）**：Neon Auth 已在本项目端点启用（`NEON_AUTH_URL` 指向 `ep-falling-sky-b5fgcy67.neonauth...`），实测 `GET /ok` 返回 `{"ok":true}`、`POST /email-otp/send-verification-otp` 返回 `{"success":true}`。官方文档确认 Email OTP 与 Social OAuth（Google/GitHub/Vercel）均为受支持插件，且"OTP 生成与投递由托管服务自动处理，调用方无法也不需要自行投递"——因此原计划中"需求方必须提供 OTP 投递 HTTP 端点"这一阻塞项消除，`OTP_DELIVERY_ENDPOINT`/`OTP_DELIVERY_BEARER_TOKEN` 与 `lib/server/auth/otp-provider.ts` 的自建投递路径不再需要。
+
+**已发现的登录界面假通道（安全阻塞）**：`components/auth/auth-card.tsx` 中 OTP 发送失败会回退提示硬编码演示码 `892104`，`executeOtpVerification` 在 `code === "892104"` 或演示邮箱时直接放行并跳转 `/console`；密码登录（`handleSubmitLogin` 的 password 分支）与注册（`handleSubmitRegister`）均为 `setTimeout` 假通过；此外还有"一键以演示商户身份直接进入控制台"按钮无鉴权跳转。这些路径必须处理，否则"仅限绑定商户"在产品层面不成立（API 层已收紧为 401，但这些界面会误导使用者）。
 
 ## 2. 目标
 
@@ -77,6 +81,17 @@
   - 测试 T8：线上创建报价 → 钱包（devnet）付款 → `POST /api/v1/payments/orders/[id]` 轮询 → 最终 `credited`，`test_credit_ledger` 恰好多出一行。
   - 测试 T9：对同一订单重复回调，不产生第二次入账。
   - 测试 T10：错金额/错 mint 的付款不增加额度。
+- [ ] 阶段 6：接入 Neon Auth 服务端（Identity Provider）。
+  - 依赖：新增 `@neondatabase/auth`（peerDeps 声明 `next >= 16.0.0`，与本仓库 Next `16.3.8` 兼容；替代方案为自建 OTP 投递服务，需额外运营邮件通道，故不采用）。
+  - 交付：`lib/auth/server.ts`（`createNeonAuth({ baseUrl, cookies: { secret } })`）、`app/api/auth/[...path]/route.ts`（`auth.handler()` 代理）、新增环境变量 `NEON_AUTH_BASE_URL` 与随机生成的 `NEON_AUTH_COOKIE_SECRET`（≥32 字符）。
+  - 测试 T11：`GET /api/auth/ok` 返回 `{"ok":true}`；`POST /api/auth/email-otp/send-verification-otp` 经代理返回 `{"success":true}`。
+- [ ] 阶段 7：Neon Auth 身份 → 本地会话桥接。
+  - 交付：服务端新增桥接路由，使用 `auth.getSession()` 读取 Neon 身份，按邮箱 upsert 本地 `users` 行，再调用既有 `issueSession` 下发本地 session + CSRF cookie，使 `requireActor`/租户/RBAC/计费全套保持不变（不替换本地会话体系）。
+  - 测试 T12：Neon Auth 登录后调用桥接接口，能拿到本地 session cookie；随后 `GET /api/v1/auth/session` 返回该用户。
+- [ ] 阶段 8：登录界面改造与假通道清除。
+  - 交付：`components/auth/auth-card.tsx` 与 `components/auth/oauth-buttons.tsx` 改接 Neon Auth SDK（`authClient.emailOtp.sendVerificationOtp` / `authClient.signIn.emailOtp` / `authClient.signIn.social`），移除硬编码 `892104` 回退、密码/注册的 `setTimeout` 假通过与无鉴权演示按钮；`app/auth/callback/page.tsx` 的假成功动画替换为真实会话处理。
+  - 测试 T13：错误验证码被拒；正确验证码可进入工作台；未登录访问 `/console/billing` 不再能建立会话。
+- [ ] 阶段 9：线上端到端复验（阶段 5 的 T8/T9/T10）与 `result.md` 收尾。
 
 ## 7. 最终验收标准
 

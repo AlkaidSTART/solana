@@ -4,13 +4,16 @@ import { SYSTEM_PROGRAM_ADDRESS } from "@solana-program/system";
 import { z } from "zod";
 
 import { solTestCheckInput } from "@/lib/payments/sol-test/contracts";
+import { requireActor } from "@/lib/server/auth/session";
 import { paymentChain } from "../rpc";
 import { createSolTestQuotes } from "./quote";
 import { checkSolTest } from "./service";
 
 const envSchema = z.object({ SOLANA_RECIPIENT: z.string(), SOLANA_RPC_URL: z.url().default("https://api.devnet.solana.com"), PAYMENT_APP_ORIGIN: z.url() });
 function config() {
-  if (process.env.NODE_ENV === "production" || process.env.PAYMENTS_DEVNET_ENABLED !== "true") throw new Error("disabled");
+  if (process.env.PAYMENTS_DEVNET_ENABLED !== "true") throw new Error("disabled");
+  // Production stays fail-closed unless the operator opts in explicitly; the devnet genesis check still blocks mainnet.
+  if (process.env.NODE_ENV === "production" && process.env.PAYMENTS_DEVNET_ALLOW_PRODUCTION !== "true") throw new Error("disabled");
   const env = envSchema.parse(process.env);
   const recipient = address(env.SOLANA_RECIPIENT);
   if (recipient === SYSTEM_PROGRAM_ADDRESS) throw new Error("invalid_recipient");
@@ -20,9 +23,10 @@ const json = (value: unknown, status = 200) => Response.json(value, { status, he
 export async function solTestRequest(request: Request, action: "quote" | "check") {
   let settings: ReturnType<typeof config>;
   try { settings = config(); } catch {
-    return json({ error: "SOL 测试未启用或配置不完整。仅本地 Devnet：检查 PAYMENTS_DEVNET_ENABLED、SOLANA_RECIPIENT、SOLANA_RPC_URL、PAYMENT_APP_ORIGIN；无需 USDC 或数据库。" }, 503);
+    return json({ error: "SOL 测试未启用或配置不完整。检查 PAYMENTS_DEVNET_ENABLED、SOLANA_RECIPIENT、SOLANA_RPC_URL、PAYMENT_APP_ORIGIN；无需 USDC。" }, 503);
   }
   if (request.headers.get("origin") !== settings.origin || new URL(request.url).origin !== settings.origin) return json({ error: "请求来源不匹配" }, 403);
+  try { await requireActor(request); } catch { return json({ error: "仅限已登录并绑定商户的账户使用。" }, 401); }
   const quotes = createSolTestQuotes();
   const chain = paymentChain(settings.rpcUrl);
   if (action === "quote") {

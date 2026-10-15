@@ -15,6 +15,7 @@
     "payments:worker": "node --conditions=react-server --env-file=.env --import tsx scripts/payment-worker.ts"
   },
   "dependencies": {
+    "@neondatabase/auth": "0.6.0-beta",
     "@solana-program/system": "0.15.0",
     "@solana-program/token": "^0.17.0",
     "@solana/kit": "8.4.0",
